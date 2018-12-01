@@ -1,0 +1,172 @@
+[
+    {
+        "id": 6001,
+        "objectid": 5001,
+        "boomImg": [
+            "ui_Battery_01_13.png"
+        ]
+    },
+    {
+        "id": 6002,
+        "objectid": 5002,
+        "boomImg": [
+            "ui_Battery_01_13.png"
+        ]
+    },
+    {
+        "id": 6003,
+        "objectid": 5003,
+        "boomImg": [
+            "ui_Battery_01_14.png"
+        ]
+    },
+    {
+        "id": 6004,
+        "objectid": 5004,
+        "boomImg": [
+            "ui_Battery_02_10.png",
+            "ui_Battery_02_11.png",
+            "ui_Battery_02_13.png"
+        ]
+    },
+    {
+        "id": 6005,
+        "objectid": 5005,
+        "boomImg": [
+            "ui_Battery_02_10.png",
+            "ui_Battery_02_11.png",
+            "ui_Battery_02_13.png",
+            "ui_Battery_02_14.png"
+        ]
+    },
+    {
+        "id": 6006,
+        "objectid": 5006,
+        "boomImg": [
+            "ui_Battery_02_10.png",
+            "ui_Battery_02_11.png",
+            "ui_Battery_02_12.png",
+            "ui_Battery_02_13.png",
+            "ui_Battery_02_14.png",
+            "ui_Battery_02_15.png",
+            "ui_Battery_02_16.png"
+        ]
+    },
+    {
+        "id": 6007,
+        "objectid": 5007,
+        "boomImg": [
+            "ui_Battery_03_14.png"
+        ]
+    },
+    {
+        "id": 6008,
+        "objectid": 5008,
+        "boomImg": [
+            "ui_Battery_03_14.png"
+        ]
+    },
+    {
+        "id": 6009,
+        "objectid": 5009,
+        "boomImg": [
+            "ui_Battery_03_15.png"
+        ]
+    },
+    {
+        "id": 6010,
+        "objectid": 5010,
+        "boomImg": [
+            "ui_Battery_04_07.png",
+            "ui_Battery_04_08.png"
+        ]
+    },
+    {
+        "id": 6011,
+        "objectid": 5011,
+        "boomImg": [
+            "ui_Battery_04_07.png",
+            "ui_Battery_04_08.png"
+        ]
+    },
+    {
+        "id": 6012,
+        "objectid": 5012,
+        "boomImg": [
+            "ui_Battery_04_07.png",
+            "ui_Battery_04_08.png"
+        ]
+    },
+    {
+        "id": 6013,
+        "objectid": 5013,
+        "boomImg": [
+            "ui_Battery_05_12.png"
+        ]
+    },
+    {
+        "id": 6014,
+        "objectid": 5014,
+        "boomImg": [
+            "ui_Battery_05_12.png"
+        ]
+    },
+    {
+        "id": 6015,
+        "objectid": 5015,
+        "boomImg": [
+            "ui_Battery_05_12.png"
+        ]
+    },
+    {
+        "id": 6016,
+        "objectid": 5016,
+        "boomImg": [
+            "ui_Battery_06_10.png",
+            "ui_Battery_06_11.png"
+        ]
+    },
+    {
+        "id": 6017,
+        "objectid": 5017,
+        "boomImg": [
+            "ui_Battery_06_10.png",
+            "ui_Battery_06_11.png"
+        ]
+    },
+    {
+        "id": 6018,
+        "objectid": 5018,
+        "boomImg": [
+            "ui_Battery_06_12.png",
+            "ui_Battery_06_13.png"
+        ]
+    },
+    {
+        "id": 6019,
+        "objectid": 5019,
+        "boomImg": [
+            "ui_Battery_07_15.png",
+            "ui_Battery_07_16.png"
+        ]
+    },
+    {
+        "id": 6020,
+        "objectid": 5020,
+        "boomImg": [
+            "ui_Battery_07_15.png",
+            "ui_Battery_07_16.png",
+            "ui_Battery_07_17.png"
+        ]
+    },
+    {
+        "id": 6021,
+        "objectid": 5021,
+        "boomImg": [
+            "ui_Battery_07_15.png",
+            "ui_Battery_07_16.png",
+            "ui_Battery_07_17.png",
+            "ui_Battery_07_18.png"
+        ]
+    }
+]

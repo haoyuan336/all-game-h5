@@ -1,0 +1,28 @@
+{
+  "name": "fishjoy",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "babel-core": "6.21.0",
+    "babel-loader": "6.2.10",
+    "babel-polyfill": "6.20.0",
+    "babel-preset-env": "^1.6.1",
+    "ftp": "^0.3.10",
+    "google-protobuf": "3.3.0",
+    "mp3-duration": "^1.1.0",
+    "request": "^2.83.0",
+    "webpack": "1.14.0"
+  },
+  "dependencies": {
+    "tween.js": "^16.6.0",
+    "pixi-multistyle-text": "^0.6.0",
+    "pixi-particles": "^2.1.9",
+    "pixi-richtext": "^1.0.17",
+    "pixi-spine": "^1.5.9",
+    "pixi.js": "^4.6.1",
+    "socket.io": "^2.1.0"
+  },
+  "scripts":{
+    "start": "npx webpack --config webpack.config.js -w"
+  }
+}

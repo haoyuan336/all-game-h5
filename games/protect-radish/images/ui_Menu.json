@@ -1,0 +1,12 @@
+{
+  "ui_Menu_Bg.png":{
+    "offset":[2,2,960,640],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,960,640],
+    "sourceSize":"0"},
+  "ui_Menu_adventure.jpg":{
+    "offset":[2,644,271,87],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,271,87],
+    "sourceSize":"2"} 
+}

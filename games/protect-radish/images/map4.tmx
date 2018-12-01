@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="12" height="8" tilewidth="80" tileheight="80" nextobjectid="37">
+ <tileset firstgid="1" name="Bg4" tilewidth="80" tileheight="80" tilecount="96" columns="12">
+  <image source="Bg4.png" width="960" height="640"/>
+ </tileset>
+ <tileset firstgid="97" name="sucai2" tilewidth="80" tileheight="80" tilecount="30" columns="6">
+  <image source="sucai2.png" width="480" height="400"/>
+ </tileset>
+ <layer name="background" width="12" height="8">
+  <data encoding="csv">
+1,2,3,4,5,6,7,8,9,10,11,12,
+13,14,15,16,17,18,19,20,21,22,23,24,
+25,26,27,28,29,30,31,32,33,34,35,36,
+37,38,39,40,41,42,43,44,45,46,47,48,
+49,50,51,52,53,54,55,56,57,58,59,60,
+61,62,63,64,65,66,67,68,69,70,71,72,
+73,74,75,76,77,78,79,80,81,82,83,84,
+85,86,87,88,89,90,91,92,93,94,95,96
+</data>
+ </layer>
+ <layer name="path" width="12" height="8">
+  <data encoding="csv">
+1,2,3,4,5,6,7,8,9,10,11,12,
+0,97,108,111,112,107,108,111,112,107,97,0,
+0,103,103,0,0,103,103,0,0,103,103,0,
+0,109,109,0,0,109,109,0,0,109,109,0,
+0,103,103,0,0,103,103,0,0,103,103,0,
+0,109,109,0,0,109,109,0,0,109,109,0,
+0,115,120,0,0,115,120,0,0,115,120,0,
+0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup name="pathObject">
+  <object id="1" name="0" x="108" y="112" width="21.3333" height="20"/>
+  <object id="2" name="1" x="108" y="503.333" width="21.3333" height="20"/>
+  <object id="3" name="2" x="182.667" y="503.333" width="21.3333" height="20"/>
+  <object id="4" name="3" x="185.333" y="107.333" width="21.3333" height="20"/>
+  <object id="5" name="4" x="426.667" y="114" width="21.3333" height="20"/>
+  <object id="6" name="5" x="426.667" y="506" width="21.3333" height="20"/>
+  <object id="7" name="6" x="508" y="502" width="21.3333" height="20"/>
+  <object id="8" name="7" x="510.667" y="114" width="21.3333" height="20"/>
+  <object id="9" name="8" x="741.333" y="114" width="21.3333" height="20"/>
+  <object id="10" name="9" x="749.333" y="507.333" width="21.3333" height="20"/>
+  <object id="11" name="10" x="830.667" y="504.667" width="21.3333" height="20"/>
+  <object id="12" name="11" x="833.333" y="102" width="21.3333" height="20"/>
+ </objectgroup>
+ <objectgroup name="obstacles">
+  <object id="13" name="0" x="105" y="110" width="20" height="21"/>
+  <object id="14" name="1" x="269" y="189.5" width="20" height="21"/>
+  <object id="15" name="2" x="350" y="194.5" width="20" height="21"/>
+  <object id="16" name="3" x="269" y="350.5" width="20" height="21"/>
+  <object id="17" name="4" x="349" y="345.5" width="20" height="21"/>
+  <object id="18" name="5" x="593" y="340.5" width="20" height="21"/>
+  <object id="19" name="6" x="672" y="343.5" width="20" height="21"/>
+  <object id="20" name="7" x="587" y="180.5" width="20" height="21"/>
+  <object id="21" name="8" x="673" y="184.5" width="20" height="21"/>
+ </objectgroup>
+ <objectgroup name="pathObject2">
+  <object id="25" name="0" x="109.333" y="112" width="21.3333" height="20"/>
+  <object id="26" name="1" x="108.333" y="507" width="21.3333" height="20"/>
+  <object id="27" name="2" x="183.333" y="509" width="21.3333" height="20"/>
+  <object id="28" name="3" x="186.333" y="108" width="21.3333" height="20"/>
+  <object id="29" name="4" x="430.333" y="115" width="21.3333" height="20"/>
+  <object id="30" name="5" x="427.333" y="507" width="21.3333" height="20"/>
+  <object id="31" name="6" x="508.333" y="501" width="21.3333" height="20"/>
+  <object id="32" name="7" x="511.333" y="114" width="21.3333" height="20"/>
+  <object id="33" name="8" x="745.333" y="112" width="21.3333" height="20"/>
+  <object id="34" name="9" x="752.333" y="513" width="21.3333" height="20"/>
+  <object id="35" name="10" x="834.333" y="503" width="21.3333" height="20"/>
+  <object id="36" name="11" x="831.333" y="102" width="21.3333" height="20"/>
+ </objectgroup>
+</map>

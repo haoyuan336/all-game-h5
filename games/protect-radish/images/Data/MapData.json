@@ -1,0 +1,196 @@
+[
+    {
+        "id": 1,
+        "initGold": 300,
+        "radishRow": 8,
+        "radishCol": 6,
+        "mapName": "map1.tmx",
+        "MonsterWave": [
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 5,
+                "MonsterHp": 40
+            },
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 12,
+                "MonsterHp": 50
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 14,
+                "MonsterHp": 60
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 10,
+                "MonsterHp": 40
+            },
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 12,
+                "MonsterHp": 100
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 10,
+                "MonsterHp": 80
+            }
+        ],
+        "cardId": [
+            3001,
+3002
+        ]
+    },
+    {
+        "id": 2,
+        "initGold": 500,
+        "radishRow": 10,
+        "radishCol": 2,
+        "mapName": "map2.tmx",
+        "MonsterWave": [
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 5,
+                "MonsterHp": 40
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 5,
+                "MonsterHp": 60
+            },
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 5,
+                "MonsterHp": 80
+            }
+        ],
+        "cardId": [
+            3001,
+            3002,
+3003,
+3004
+        ]
+    },
+    {
+        "id": 3,
+        "MonsterCount": 60,
+        "MonsterTide": 20,
+        "initGold": 3000,
+        "radishRow": 10,
+        "radishCol": 6,
+        "mapName": "map3.tmx",
+        "MonsterWave": [
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 25,
+                "MonsterHp": 500
+            },
+            {
+                "MonsterId": 2002,
+"pathId":2,
+                "MonsterCount": 25,
+                "MonsterHp": 800
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 1000
+            },
+            {
+                "MonsterId": 2002,
+"pathId":2,
+                "MonsterCount": 30,
+                "MonsterHp": 1200
+            }
+        ],
+        "cardId": [
+            3002,
+            3003,
+3004,
+3005
+        ]
+    },
+    {
+        "id": 4,
+        "MonsterCount": 60,
+        "MonsterTide": 20,
+        "initGold": 800,
+        "radishRow": 10,
+        "radishCol": 1,
+        "mapName": "map4.tmx",
+        "MonsterWave": [
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 15,
+                "MonsterHp": 400
+            },
+            {
+                "MonsterId": 2001,
+"pathId":1,
+                "MonsterCount": 15,
+                "MonsterHp": 600
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 800
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 1000
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 1200
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 1600
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 3200
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 20,
+                "MonsterHp": 6400
+            },
+            {
+                "MonsterId": 2002,
+"pathId":1,
+                "MonsterCount": 25,
+                "MonsterHp": 6400
+            }
+        ],
+        "cardId": [
+            3004,
+3005,
+3006,
+3007
+        ]
+    }
+]

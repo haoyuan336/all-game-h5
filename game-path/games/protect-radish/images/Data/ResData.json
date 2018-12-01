@@ -1,0 +1,36 @@
+{
+    "png": [
+        "ui/ui_Battery.png",
+        "ui/ui_Bullet.png",
+        "ui/ui_Monster.png",
+        "ui/ui_Button.png",
+        "ui/ui_Select.png",
+        "ui/ui_Button_2.png",
+        "ui/ui_Menu.png",
+        "ui/ui_Button_3.png",
+"ui/ui_Result.png",
+"ui/ui_obstacle.png",
+"ui/ui_Item.png",
+        "ui/ui_luobo.png"
+    ],
+    "plist": [
+        "ui/ui_Battery.plist",
+        "ui/ui_Bullet.plist",
+        "ui/ui_Monster.plist",
+        "ui/ui_Button.plist",
+        "ui/ui_Select.plist",
+        "ui/ui_Button_2.plist",
+        "ui/ui_Menu.plist",
+        "ui/ui_Button_3.plist",
+"ui/ui_Result.plist",
+"ui/ui_obstacle.plist",
+"ui/ui_Item.plist",
+        "ui/ui_luobo.plist"
+    ],
+    "music": [
+        "Music/bgm_boss.mp3",
+        "Music/bgm_fever.mp3",
+        "Music/bgm_minigame.mp3",
+        "Music/bgm_opening.mp3"
+    ]
+}

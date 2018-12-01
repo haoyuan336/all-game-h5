@@ -1,0 +1,49 @@
+{
+    "level_0": [
+        [
+            {
+                "type": "check_0",
+                "count": 10,
+                "duraction": 600
+            }
+        ],
+        [
+            {
+                "type": "check_0",
+                "count": 10,
+                "duraction": 600
+            },
+            {
+                "type": "check_1",
+                "count": 10,
+                "duraction": 800
+            }
+        ]
+    ],
+    "level_1": [
+        [
+            {
+                "type": "check_0",
+                "count": 10,
+                "duraction": 600
+            },
+            {
+                "type": "check_1",
+                "count": 10,
+                "duraction": 800
+            }
+        ],
+        [
+            {
+                "type": "check_0",
+                "count": 10,
+                "duraction": 600
+            },
+            {
+                "type": "check_1",
+                "count": 10,
+                "duraction": 800
+            }
+        ]
+    ]
+}

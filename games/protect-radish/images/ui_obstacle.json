@@ -1,0 +1,27 @@
+{
+  "ui_obstacles_01.png":{
+    "offset":[2,2,97,76],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,97,76],
+    "sourceSize":"0"},
+  "ui_obstacles_02.png":{
+    "offset":[183,2,76,61],
+    "rotated":[0,1],
+    "sourceColorRect":[0,2,76,61],
+    "sourceSize":"2"},
+  "ui_obstacles_03.png":{
+    "offset":[183,80,76,57],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,76,57],
+    "sourceSize":"2"},
+  "ui_obstacles_04.png":{
+    "offset":[101,2,80,79],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,80,79],
+    "sourceSize":"0"},
+  "ui_obstacles_05.png":{
+    "offset":[2,158,79,77],
+    "rotated":[0,0],
+    "sourceColorRect":[0,0,79,77],
+    "sourceSize":"2"} 
+}

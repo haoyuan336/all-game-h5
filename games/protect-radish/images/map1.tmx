@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="12" height="8" tilewidth="80" tileheight="80" nextobjectid="26">
+ <tileset firstgid="1" name="Bg3" tilewidth="80" tileheight="80" tilecount="96" columns="12">
+  <image source="Bg3.png" width="960" height="640"/>
+ </tileset>
+ <tileset firstgid="97" name="sucai" tilewidth="80" tileheight="80" tilecount="30" columns="10">
+  <image source="sucai.png" width="800" height="240"/>
+ </tileset>
+ <tileset firstgid="127" name="HelloWorld" tilewidth="80" tileheight="80" tilecount="6" columns="2">
+  <image source="HelloWorld.png" width="195" height="270"/>
+ </tileset>
+ <layer name="background" width="12" height="8">
+  <data encoding="csv">
+1,2,3,4,5,6,7,8,9,10,11,12,
+13,14,15,16,17,18,19,20,21,22,23,24,
+25,26,27,28,29,30,31,32,33,34,35,36,
+37,38,39,40,41,42,43,44,45,46,47,48,
+49,50,51,52,53,54,55,56,57,58,59,60,
+61,62,63,64,65,66,67,68,69,70,71,72,
+73,74,75,76,77,78,79,80,81,82,83,84,
+85,86,87,88,89,90,91,92,93,94,95,96
+</data>
+ </layer>
+ <layer name="path" width="12" height="8">
+  <data encoding="csv">
+1,2,3,4,5,6,7,8,9,10,11,12,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,97,98,99,100,105,0,0,0,0,0,0,
+0,106,106,0,0,106,97,98,99,100,101,105,
+0,116,116,0,0,116,106,0,0,0,0,106,
+0,107,117,123,124,125,116,0,0,0,0,116,
+0,117,121,122,123,124,125,0,118,123,124,125,
+0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup name="pathObject">
+  <object id="1" name="0" x="190" y="261.333" width="17.3333" height="22.6667"/>
+  <object id="2" name="1" x="190" y="427.333" width="17.3333" height="22.6667"/>
+  <object id="3" name="2" x="426" y="424.667" width="17.3333" height="22.6667"/>
+  <object id="4" name="3" x="426" y="192.667" width="17.3333" height="22.6667"/>
+  <object id="5" name="4" x="114" y="190" width="17.3333" height="22.6667"/>
+  <object id="6" name="5" x="115.333" y="503.333" width="17.3333" height="22.6667"/>
+  <object id="7" name="6" x="510" y="499.333" width="17.3333" height="22.6667"/>
+  <object id="8" name="7" x="508.667" y="271.333" width="17.3333" height="22.6667"/>
+  <object id="9" name="8" x="907.333" y="268.667" width="17.3333" height="22.6667"/>
+  <object id="10" name="9" x="907.333" y="506" width="17.3333" height="22.6667"/>
+  <object id="11" name="10" x="651.333" y="510" width="17.3333" height="22.6667"/>
+ </objectgroup>
+ <objectgroup name="obstacles">
+  <object id="12" name="0" x="192" y="249" width="16" height="20"/>
+  <object id="13" name="1" x="604" y="430" width="16" height="20"/>
+  <object id="14" name="2" x="278" y="340" width="16" height="20"/>
+ </objectgroup>
+ <objectgroup name="pathObject2">
+  <object id="15" name="0" x="189.333" y="263.667" width="17.3333" height="22.6667"/>
+  <object id="16" name="1" x="191.333" y="430.667" width="17.3333" height="22.6667"/>
+  <object id="17" name="2" x="428.333" y="427.667" width="17.3333" height="22.6667"/>
+  <object id="18" name="3" x="427.333" y="192.667" width="17.3333" height="22.6667"/>
+  <object id="19" name="4" x="118.333" y="190.667" width="17.3333" height="22.6667"/>
+  <object id="20" name="5" x="114.333" y="501.667" width="17.3333" height="22.6667"/>
+  <object id="21" name="6" x="511.333" y="500.667" width="17.3333" height="22.6667"/>
+  <object id="22" name="7" x="507.333" y="275.667" width="17.3333" height="22.6667"/>
+  <object id="23" name="8" x="910.333" y="266.667" width="17.3333" height="22.6667"/>
+  <object id="24" name="9" x="913.333" y="505.667" width="17.3333" height="22.6667"/>
+  <object id="25" name="10" x="656.333" y="512.667" width="17.3333" height="22.6667"/>
+ </objectgroup>
+</map>
