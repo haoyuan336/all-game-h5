@@ -41,25 +41,29 @@ function processStr(cmd, cb) {
 const createDir = function (dir, cb) {
     processStr('mkdir ' + dir, cb);
 }
+
 processStr('rm -rf ./game-path/*', ()=>{
     createDir('./game-path/games/', ()=>{
+        let index = 0;
+        let cbEnd = function(){
+            index ++;
+            if (index == pathList.length){
+                processStr('cp -rf ./libs ./game-path/', ()=>{
+                    processStr('cp -r game.all.js ./game-path/', ()=>{
+                        processStr('cp -f index.html ./game-path/', ()=>{
+                            processStr('scp -r ./game-path/* root@chutianba.xyz:/root/webserver/public', ()=>{
+                                
+                            });
+                        });
+                    });
+                });
+            }
+        }
         for (let i = 0; i < pathList.length; i++) {
             createDir('./game-path/games/' + pathList[i]);
             processStr('cp -rf ' + path  + '/'+ pathList[i] + '/images/' + ' ' + './game-path/games/' + pathList[i] + '/images', () => {
-                console.log('success');
+                cbEnd();
             })
         }
     });
-});
-
-
-
-processStr('cp -rf dist ./game-path/', ()=>{
-
-});
-processStr('cp -f index.html ./game-path/', ()=>{
-
-});
-processStr('scp -r ./game-path/* root@chutianba.xyz:/root/webserver/public', ()=>{
-
 });
