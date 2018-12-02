@@ -27,8 +27,8 @@ class Fruit extends Layer{
         }
         this.width = this._fruitCellList[0].width;
         this.position = {
-            x: director.width * 0.5 + (Math.random() * 100 - 50),
-            y: director.height + 50
+            x: director.designSize.width * 0.5 + (Math.random() * 100 - 50),
+            y: director.designSize.height + 50
         }
         this._state.setState('run');
 

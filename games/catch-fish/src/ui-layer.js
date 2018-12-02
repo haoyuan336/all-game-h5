@@ -27,7 +27,7 @@ class UILayer extends Layer {
         );
         this.addChild(bg);
         bg.position.x = director.designSize.width * 0.5;
-        bg.position.y = director.designSize.height - 65;
+        bg.position.y = director.designSize.height - bg.height * 0.5;
         this._gun = new Gun();
         this.addChild(this._gun);
         let addButton = new Button({
@@ -40,7 +40,7 @@ class UILayer extends Layer {
         });
         addButton.position = {
             x: director.designSize.width * 0.5 + 100,
-            y: director.designSize.height - 40
+            y: director.designSize.height - 20
         }
         this.addChild(addButton);
 
@@ -55,7 +55,7 @@ class UILayer extends Layer {
         });
         subButton.position = {
             x: director.designSize.width * 0.5 - 20,
-            y: director.designSize.height - 40
+            y: director.designSize.height - 20
         }
         this.addChild(subButton);
         this.interactive = true;

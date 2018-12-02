@@ -1,39 +1,40 @@
-class Director{
-    init(width, height){
+class Director {
+    init(width, height) {
         this.width = width;
         this.height = height;
         this.runningScene = undefined;
-        this.root = new PIXI.Application({width: width, height: height});
+        this.root = new PIXI.Application({ width: width, height: height });
         this.root.ticker.add(this.update.bind(this));
         this.nowTime = new Date().getTime();
         this.designSize = {
             width: width,
             height: height
         };
+        this.sizeRate = this.width / this.height;
     }
-    update(){
+    update() {
         let currentTime = new Date().getTime();
         let dt = currentTime - this.nowTime;
         this.nowTime = currentTime;
-        if (this.runningScene){
+        if (this.runningScene) {
             this.runningScene.update(dt);
         }
         TWEEN.update();
 
     }
-    reSetSize(width, height){
+    reSetSize(width, height) {
         console.log('重新设置尺寸?')
     }
-    startScene(loadScene,scene){
+    startScene(loadScene, scene) {
         // this.runningScene = scene;
 
-        if (this.runningScene){
+        if (this.runningScene) {
             this.root.stage.removeChild(this.runningScene);
             this.runningScene.destroy();
             this.runningScene = undefined;
         }
         this.root.stage.addChild(loadScene);
-        loadScene.load(()=>{
+        loadScene.load(() => {
             console.log('资源加载完毕');
             this.root.stage.addChild(scene);
             this.root.stage.removeChild(loadScene);
@@ -42,7 +43,7 @@ class Director{
         });
 
     }
-    showApp(element){
+    showApp(element) {
         element.appendChild(this.root.view);
     }
 }

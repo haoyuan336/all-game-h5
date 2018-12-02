@@ -9,8 +9,8 @@ class ReadyLayer extends Layer {
         let logo = new Sprite(global.resource[resources.logo].texture);
         this.addChild(logo);
         logo.position = {
-            x: director.width * 0.5,
-            y: director.height * 0.45
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.45
         }
         //放一个按钮
         let button = new Button({
@@ -19,15 +19,15 @@ class ReadyLayer extends Layer {
         });
         this.addChild(button)
         button.position = {
-            x: director.width * 0.5,
-            y: director.height * 0.8
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.8
         }
         
 
 
         function clickCb() {
             let action = new TWEEN.Tween(logo.position)
-                .to({ x: director.width * 0.5, y: -100 }, 600)
+                .to({ x: director.designSize.width * 0.5, y: -100 }, 600)
                 .onComplete(() => {
                 })
             // action.easing(TWEEN.Easing.Quadratic)
@@ -35,7 +35,7 @@ class ReadyLayer extends Layer {
 
 
             let action1 = new TWEEN.Tween(button.position)
-                .to({ x: director.width * 0.5, y: 600 }, 400)
+                .to({ x: director.designSize.width * 0.5, y: 600 }, 400)
                 .onComplete(() => {
                     if (readyCb) {
                         readyCb();

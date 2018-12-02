@@ -15,6 +15,7 @@ class GameLayer extends Layer {
             x: director.designSize.width * 0.5,
             y: director.designSize.height * 0.5
         }
+        bg.scale.set(1.1);
         this.addChild(bg);
   
         // director.root.ticker.add(this.update.bind(this));

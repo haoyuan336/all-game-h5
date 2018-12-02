@@ -1,10 +1,14 @@
 import Scene from './../../../util/render/scene'
 import GameLayer from './game-layer'
+import { director } from '../../../util/import';
 class GameScene extends Scene {
     constructor() {
         super();
         console.log('进入')
-        this.setDesignSize(1024, 640);
+
+        let sizeRate = director.width/director.height
+
+        this.setDesignSize(1024, 1024 / sizeRate);
     }
    
     onLoad() {

@@ -20,7 +20,7 @@ class Gun extends Layer {
 
         this._animate.position = {
             x: director.designSize.width * 0.5 + 40,
-            y: director.designSize.height - 30
+            y: director.designSize.height - 20
         }
     }
     _getTexture(str) {

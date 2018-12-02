@@ -10230,6 +10230,7 @@
 	                width: width,
 	                height: height
 	            };
+	            this.sizeRate = this.width / this.height;
 	        }
 	    }, {
 	        key: 'update',
@@ -10695,6 +10696,8 @@
 
 	var _readyLayer2 = _interopRequireDefault(_readyLayer);
 
+	var _import = __webpack_require__(332);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -10712,7 +10715,7 @@
 	        var _this = _possibleConstructorReturn(this, (GameScene.__proto__ || Object.getPrototypeOf(GameScene)).call(this));
 
 	        console.log("显示切水果游戏");
-	        _this.setDesignSize(800, 480);
+	        _this.setDesignSize(800, 800 / _import.director.sizeRate);
 
 	        return _this;
 	    }
@@ -10798,6 +10801,7 @@
 	            x: _import.director.designSize.width * 0.5,
 	            y: _import.director.designSize.height * 0.5
 	        };
+	        bg.scale.set(1.1);
 	        _this.addChild(bg);
 
 	        // director.root.ticker.add(this.update.bind(this));
@@ -11211,8 +11215,8 @@
 	            }
 	            this.width = this._fruitCellList[0].width;
 	            this.position = {
-	                x: _director2.default.width * 0.5 + (Math.random() * 100 - 50),
-	                y: _director2.default.height + 50
+	                x: _director2.default.designSize.width * 0.5 + (Math.random() * 100 - 50),
+	                y: _director2.default.designSize.height + 50
 	            };
 	            this._state.setState('run');
 
@@ -11346,8 +11350,8 @@
 	        var logo = new _import.Sprite(_global2.default.resource[_resources2.default.logo].texture);
 	        _this.addChild(logo);
 	        logo.position = {
-	            x: _import.director.width * 0.5,
-	            y: _import.director.height * 0.45
+	            x: _import.director.designSize.width * 0.5,
+	            y: _import.director.designSize.height * 0.45
 	            //放一个按钮
 	        };var button = new _import.Button({
 	            normalTexture: _global2.default.resource[_resources2.default.icon_start].texture,
@@ -11355,16 +11359,16 @@
 	        });
 	        _this.addChild(button);
 	        button.position = {
-	            x: _import.director.width * 0.5,
-	            y: _import.director.height * 0.8
+	            x: _import.director.designSize.width * 0.5,
+	            y: _import.director.designSize.height * 0.8
 	        };
 
 	        function clickCb() {
-	            var action = new TWEEN.Tween(logo.position).to({ x: _import.director.width * 0.5, y: -100 }, 600).onComplete(function () {});
+	            var action = new TWEEN.Tween(logo.position).to({ x: _import.director.designSize.width * 0.5, y: -100 }, 600).onComplete(function () {});
 	            // action.easing(TWEEN.Easing.Quadratic)
 	            action.start();
 
-	            var action1 = new TWEEN.Tween(button.position).to({ x: _import.director.width * 0.5, y: 600 }, 400).onComplete(function () {
+	            var action1 = new TWEEN.Tween(button.position).to({ x: _import.director.designSize.width * 0.5, y: 600 }, 400).onComplete(function () {
 	                if (readyCb) {
 	                    readyCb();
 	                }
@@ -11400,6 +11404,8 @@
 
 	var _gameLayer2 = _interopRequireDefault(_gameLayer);
 
+	var _import = __webpack_require__(332);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -11417,7 +11423,10 @@
 	        var _this = _possibleConstructorReturn(this, (GameScene.__proto__ || Object.getPrototypeOf(GameScene)).call(this));
 
 	        console.log('进入');
-	        _this.setDesignSize(1024, 640);
+
+	        var sizeRate = _import.director.width / _import.director.height;
+
+	        _this.setDesignSize(1024, 1024 / sizeRate);
 	        return _this;
 	    }
 
@@ -12186,7 +12195,7 @@
 	        };var bg = new _import.Sprite(_global2.default.resource[_resources2.default.texturespack].texture, new _textureInfo2.default(_resources2.default.json_texturepacker, _texturepackerSourceMap2.default.bottomBar));
 	        _this.addChild(bg);
 	        bg.position.x = _import.director.designSize.width * 0.5;
-	        bg.position.y = _import.director.designSize.height - 65;
+	        bg.position.y = _import.director.designSize.height - bg.height * 0.5;
 	        _this._gun = new _gun2.default();
 	        _this.addChild(_this._gun);
 	        var addButton = new _import.Button({
@@ -12199,7 +12208,7 @@
 	        });
 	        addButton.position = {
 	            x: _import.director.designSize.width * 0.5 + 100,
-	            y: _import.director.designSize.height - 40
+	            y: _import.director.designSize.height - 20
 	        };
 	        _this.addChild(addButton);
 
@@ -12213,7 +12222,7 @@
 	        });
 	        subButton.position = {
 	            x: _import.director.designSize.width * 0.5 - 20,
-	            y: _import.director.designSize.height - 40
+	            y: _import.director.designSize.height - 20
 	        };
 	        _this.addChild(subButton);
 	        _this.interactive = true;
@@ -12294,7 +12303,7 @@
 
 	        _this._animate.position = {
 	            x: _import.director.designSize.width * 0.5 + 40,
-	            y: _import.director.designSize.height - 30
+	            y: _import.director.designSize.height - 20
 	        };
 	        return _this;
 	    }
