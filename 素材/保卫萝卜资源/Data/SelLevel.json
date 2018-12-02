@@ -1,0 +1,44 @@
+[
+    {
+        "mapid": 1,
+        "mapNmae": "ui_map_01.png",
+"disMapName":"ui_map_01_01.png",
+        "batteryImg": [
+            "ui_SelBattery_01.png",
+"ui_SelBattery_02.png"
+        ]
+    },
+    {
+        "mapid": 2,
+        "mapNmae": "ui_map_02.png",
+"disMapName":"ui_map_02_01.png",
+        "batteryImg": [
+            "ui_SelBattery_01.png",
+            "ui_SelBattery_02.png",
+"ui_SelBattery_03.png",
+"ui_SelBattery_04.png"
+        ]
+    },
+    {
+        "mapid": 3,
+        "mapNmae": "ui_map_03.png",
+"disMapName":"ui_map_03_01.png",
+        "batteryImg": [
+            "ui_SelBattery_02.png",
+            "ui_SelBattery_03.png",
+"ui_SelBattery_04.png",
+"ui_SelBattery_05.png"
+        ]
+    },
+    {
+        "mapid": 4,
+        "mapNmae": "ui_map_04.png",
+"disMapName":"ui_map_04_01.png",
+        "batteryImg": [
+            "ui_SelBattery_04.png",
+            "ui_SelBattery_05.png",
+            "ui_SelBattery_06.png",
+            "ui_SelBattery_07.png"
+        ]
+    }
+]

@@ -1,0 +1,66 @@
+[
+    {
+        "id": 2001,
+        "ack": 1,
+"monsterId":0,
+        "speed": 80,
+        "hp": 100,
+        "coins": 20,
+        "leftImg": [
+            "ui_L_Monsters_01_01.png",
+            "ui_L_Monsters_01_02.png"
+        ],
+        "rightImg": [
+            "ui_R_Monsters_01_01.png",
+            "ui_R_Monsters_01_02.png"
+        ]
+    },
+    {
+        "id": 2002,
+        "ack": 1,
+"monsterId":0,
+        "speed": 150,
+        "hp": 150,
+        "coins": 30,
+        "leftImg": [
+            "ui_L_Monsters_02_01.png",
+            "ui_L_Monsters_02_02.png"
+        ],
+        "rightImg": [
+            "ui_R_Monsters_02_01.png",
+            "ui_R_Monsters_02_02.png"
+        ]
+    },
+    {
+        "id": 2003,
+        "ack": 1,
+"monsterId":0,
+        "speed": 60,
+        "hp": 600,
+        "coins": 50,
+        "leftImg": [
+            "ui_L_Monsters_03_01.png",
+            "ui_L_Monsters_03_02.png"
+        ],
+        "rightImg": [
+            "ui_R_Monsters_03_01.png",
+            "ui_R_Monsters_03_02.png"
+        ]
+    },
+{
+        "id": 2004,
+        "ack": 10,
+"monsterId":0,
+        "speed": 5,
+        "hp": 10000,
+        "coins": 1000,
+        "leftImg": [
+            "ui_L_Monsters_04_01.png",
+            "ui_L_Monsters_04_02.png"
+        ],
+        "rightImg": [
+            "ui_R_Monsters_04_01.png",
+            "ui_R_Monsters_04_02.png"
+        ]
+    }
+]

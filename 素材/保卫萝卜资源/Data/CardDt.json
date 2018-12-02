@@ -1,0 +1,51 @@
+[
+    {
+        "id": 3001,
+        "batteryId": 4001,
+"Coins":100,
+        "img": "ui_Battery_01_08.png",
+        "disImg": "ui_Battery_01_09.png"
+    },
+    {
+        "id": 3002,
+        "batteryId": 4004,
+"Coins":220,
+        "img": "ui_Battery_02_02.png",
+        "disImg": "ui_Battery_02_03.png"
+    },
+    {
+        "id": 3003,
+        "batteryId": 4007,
+"Coins":160,
+        "img": "ui_Battery_03_02.png",
+        "disImg": "ui_Battery_03_01.png"
+    },
+    {
+        "id": 3004,
+        "batteryId": 4010,
+"Coins":220,
+        "img": "ui_Battery_04_06.png",
+        "disImg": "ui_Battery_04_02.png"
+    },
+    {
+        "id": 3005,
+        "batteryId": 4013,
+"Coins":160,
+        "img": "ui_Battery_05_03.png",
+        "disImg": "ui_Battery_05_02.png"
+    },
+    {
+        "id": 3006,
+        "batteryId": 4016,
+"Coins":220,
+        "img": "ui_Battery_06_03.png",
+        "disImg": "ui_Battery_06_02.png"
+    },
+    {
+        "id": 3007,
+        "batteryId": 4019,
+"Coins":220,
+        "img": "ui_Battery_07_02.png",
+        "disImg": "ui_Battery_07_03.png"
+    }
+]
