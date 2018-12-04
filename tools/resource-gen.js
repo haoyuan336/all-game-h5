@@ -23,7 +23,7 @@ const packFolder = process.argv[2];
 const noLoadFolders = ['./assets/sounds'];
 
 //写入resource的文件类型
-const typeList = ['.json','.png','.fnt','.jpg' ,'.xml'];
+const typeList = ['.json','.png','.fnt','.jpg' ,'.xml','.bmp'];
 //这些文件会在resouce中加前缀
 const fixList = ['.json', '.fnt', '.xml'];
 

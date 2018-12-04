@@ -4,11 +4,13 @@ import {
     LoadScene,
     SiCong,
     ProtectRadish,
+    WuZiQiOnline,
 
     CutFruitResources,
     CatchFishResources,
     SiCongResources,
     ProtectRadishResources,
+    WuZiQiOnlineResources,
 
     BezierEditor,
     PathEditor
@@ -36,7 +38,8 @@ class GameContent {
             'bezier-editor': BezierEditor,
             'sicong': SiCong,
             'path-editor': PathEditor,
-            'protect-radish': ProtectRadish
+            'protect-radish': ProtectRadish,
+            'wuziqi-online': WuZiQiOnline
         }
         let resourceMap = {
             'cut-fruit': CutFruitResources,
@@ -44,7 +47,8 @@ class GameContent {
             'sicong': SiCongResources,
             'protect-radish': ProtectRadishResources,
             'bezier-editor': {},
-            'path-editor': {}
+            'path-editor': {},
+            'wuziqi-online': WuZiQiOnlineResources
         }
 
         if (gameMap[key]){
