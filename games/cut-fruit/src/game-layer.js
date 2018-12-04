@@ -102,7 +102,7 @@ class GameLayer extends Layer {
                 this._addFruitCurrentTime += dt;
             }
         }
-        let mousePoint = director.root.renderer.plugins.interaction.mouse.global;
+        let mousePoint = director.root.renderer.plugins.interaction.mouse.getLocalPosition(this);
         this._cutPoint.shift();
         this._cutPoint.push({
             x: mousePoint.x,
