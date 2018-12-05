@@ -18,6 +18,7 @@ import {
 
 import {director} from './../util/import'
 
+import global from './global'
 class GameContent {
     constructor() {
 
@@ -52,6 +53,7 @@ class GameContent {
         }
 
         if (gameMap[key]){
+            global.event.offAll();//将事件监听器清空
             let gameScene = new gameMap[key];
             let loadScene = new LoadScene(resourceMap[key]);
             director.startScene(loadScene,gameScene);

@@ -7,6 +7,7 @@ import Layer from './render/layer'
 import Scene from './render/scene'
 import Sprite from './render/sprite'
 import SpriteFrame from './render/sprite-frame'
+import Label from './render/label'
 
 
 
@@ -18,4 +19,4 @@ import State from './common/state'
 import helper from './common/helper'
 
 import EventListener from './common/event-listener'
-export { Animate, Button, director, Layer, Scene, Sprite, Bezier, Rect, Vec2, State, SpriteFrame , EventListener, helper};
+export { Animate, Button, director, Layer, Scene, Sprite, Bezier, Rect, Vec2, State, SpriteFrame , EventListener, helper, Label};
