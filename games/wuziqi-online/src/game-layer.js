@@ -1,6 +1,7 @@
 import {Layer, Sprite, director} from './../../../util/import'
 import resources from './../resources'
 import global from './../../global'
+import Socket from 'socket.io-client'
 class GameLayer extends Layer{
     constructor(){
         super();
@@ -11,6 +12,13 @@ class GameLayer extends Layer{
             x: director.designSize.width * 0.5,
             y: director.designSize.height * 0.5
         }
+
+        //链接服务器
+        let connect = Socket("localhost:3001");
+        connect.on('login-success', (id)=>{
+            console.log('login success', id);
+        });
+
     }
 };
 export default GameLayer;
