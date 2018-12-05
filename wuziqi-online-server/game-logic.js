@@ -35,7 +35,6 @@ class GameLogic {
         return false;
     }
     checkFivePiece(pieceList) {
-        let finding = true;
         let index = 0;
         let oldNum = 'none';
         let countList = [1, 1, 1];
@@ -43,6 +42,7 @@ class GameLogic {
             let number = parseInt(pieceList[index]);
             number = number % 15;
             if (oldNum != 'none') {
+                
                 if (number - oldNum == 1) {
                     countList[0]++;
                     if (countList[0] == 5) {
@@ -51,11 +51,14 @@ class GameLogic {
                 } else {
                     countList[0] = 1;
                 }
+                
                 if (number - oldNum == 0) {
                     countList[1]++;
-                }
-                if (countList[1] == 5) {
-                    return true;
+                    if (countList[1] == 5) {
+                        return true;
+                    }
+                }else{
+                    countList[1] = 1;
                 }
             }
             oldNum = number;
