@@ -38,26 +38,28 @@ class GameLogic {
         let index = 0;
         let oldNum = 'none';
         let countList = [1, 1, 1];
+
         while (index < pieceList.length) {
             let number = parseInt(pieceList[index]);
-            number = number % 15;
+            let endNumber = number % 15;
             if (oldNum != 'none') {
-                
-                if (number - oldNum == 1) {
+
+                if (endNumber - oldNum % 15 == 1) {
                     countList[0]++;
                     if (countList[0] == 5) {
                         return true;
                     }
+
                 } else {
                     countList[0] = 1;
                 }
-                
+
                 if (number - oldNum == 0) {
                     countList[1]++;
                     if (countList[1] == 5) {
                         return true;
                     }
-                }else{
+                } else {
                     countList[1] = 1;
                 }
             }
