@@ -28,14 +28,13 @@ class GameLogic {
         //首先分几种情况
         //首先是横列的情况
 
-
         if (this.checkFivePiece(pieceList)) {
             return true;
         }
         return false;
     }
     checkFivePiece(pieceList) {
-        let countMap = [{}, {}, {}];
+        let countMap = [{}, {}, {}, {}];
         for (let i = 0; i < pieceList.length; i++) {
             let number = parseInt(pieceList[i]);
             for (let z in countMap) {
@@ -46,6 +45,9 @@ class GameLogic {
                     }
                     if (z == 2) {
                         value = 15;
+                    }
+                    if (z == 3){
+                        value = 14;
                     }
                     if (number - parseInt(j) == value) {
                         countMap[z][number] = countMap[z][j] + 1;
@@ -65,7 +67,7 @@ class GameLogic {
     getBoardData() {
         return this._pieceMap;
     }
-    clearGameData(){
+    clearGameData() {
         this._pieceMap = {};
     }
 }
