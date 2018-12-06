@@ -15,9 +15,6 @@ class GameScene extends Scene {
 
         this._uiLayer = new UILayer();
         this.addLayer(this._uiLayer);
-
-
-
          //链接服务器
          let connect = Socket(defines.wuziqi_server_url);
          connect.on('login-success', (id)=>{
@@ -31,9 +28,6 @@ class GameScene extends Scene {
             if (this._uiLayer){
                 this._uiLayer.referGameData(data);
             }
-        });
-        connect.on('set-color', (color)=>{
-            console.log('设置颜色', color);
         });
         connect.on('sync-current-color', (color)=>{
             console.log('同步当前的颜色', color);
