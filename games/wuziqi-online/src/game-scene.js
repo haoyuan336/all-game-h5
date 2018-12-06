@@ -44,6 +44,10 @@ class GameScene extends Scene {
             //同步棋盘的数据
             this._gameLayer.syncBoardData(data);
         });
+        connect.on('game-win', (color)=>{
+            console.log('游戏胜利', color);
+            this._uiLayer.showGameWin(color);
+        });
         this._connect = connect;
     }
     chooseBoard(index){ 

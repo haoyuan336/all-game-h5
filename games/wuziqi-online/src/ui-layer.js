@@ -1,6 +1,7 @@
-import { Layer, Label, Sprite } from './../../../util/import'
+import { Layer, Label, Sprite, director } from './../../../util/import'
 import global from './../../global'
 import resources from './../resources'
+import { Graphics, Shape, ShapeType, Style } from './../../../util/render/graphics'
 class UILayer extends Layer {
     constructor() {
         super();
@@ -54,7 +55,8 @@ class UILayer extends Layer {
                 y: 80 + i * 40
             }
         }
-
+        this._graphics = new Graphics();
+        this.addChild(this._graphics);
     }
     setPlayerId(id) {
         console.log('刷新玩家id', id);
@@ -69,12 +71,34 @@ class UILayer extends Layer {
         this._allPlayerCountLabel.text = "all player count:" + data.online_player_count;
     }
     setCurrentColor(color) {
-        console.log('设置当前棋子的颜色',color);
+        console.log('设置当前棋子的颜色', color);
         for (let i = 0; i < this._pieceList.length; i++) {
             this._pieceList[i].scale.set(1);
             if (this._pieceList[i].pieceColor == color) {
                 this._pieceList[i].scale.set(1.2);
             }
+        }
+    }
+    showGameWin(color) {
+        console.log('显示游戏胜利的界面', color);
+        this.interactive = true;
+        let rect = new Shape(ShapeType.Rect, 0, 0, director.designSize.width, director.designSize.height, new Style({fill: 0x222222,fillAlpha: 0.8}));
+        this._graphics.addChild(rect);  
+        let piece = new Sprite(global.resource[color == 'black'?resources.black: resources.white].texture);
+        this.addChild(piece);
+        piece.position = {
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.5 - 50
+        }
+        let winLabel = new Label('WIN', {fontSize: 100, fill: 0xffffff});
+        this.addChild(winLabel);
+        winLabel.anchor = {
+            x: 0,
+            y: 0.5
+        }
+        winLabel.position = {
+            x: piece.position.x,
+            y: piece.position.y
         }
     }
 }

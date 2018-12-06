@@ -13,7 +13,8 @@ class Style {
         this.lineWidth = 0;
         if (arguments.length !== 0 && arguments[0] != undefined) {
             let param = arguments[0];
-            this.fill = param.fill ? param.fill : this.fill;
+            this.fill = param.fill != undefined ? param.fill : this.fill;
+            console.log('this.fill', this.fill);
             this.fillAlpha = param.fillAlpha ? param.fillAlpha : this.fillAlpha || param.alpha ? param.alpha : this.fillAlpha;
             this.lineAlpha = param.lineAlpha ? param.lineAlpha : this.lineAlpha;
             this.lineColor = param.lineColor ? param.lineColor : this.lineColor;

@@ -43,5 +43,8 @@ class Player {
     syncBoardData(data){
         this._socket.emit('sync-board-data', data);
     }
+    sendGameWinMsg(color){
+        this._socket.emit('game-win', color);
+    }
 }
 module.exports = Player;

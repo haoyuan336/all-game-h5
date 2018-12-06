@@ -48,6 +48,7 @@ class Room {
                 if (this._gameLogic.checkWin(this._currentColor)) {
                     console.log(this._currentColor, 'win');
                     //如果胜利了 ，就不允许任何人下子了
+                    this.sendGameWinMsg(this._currentColor);
                     this._currentColor = 'none';
                 } else {
                     this._currentColor = this._currentColor == 'black' ? 'white' : 'black';
@@ -62,6 +63,12 @@ class Room {
         let boardData = this._gameLogic.getBoardData();
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncBoardData(boardData);
+        }
+    }
+    sendGameWinMsg(color){
+        //下发游戏胜利的消息
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            this._playerList[i].sendGameWinMsg(color);
         }
     }
 }
