@@ -51,17 +51,27 @@ class GameLogic {
                     }
                     if (number - parseInt(j) == value) {
                         countMap[z][number] = countMap[z][j] + 1;
-                        if (countMap[z][number] == 5) {
-                            return true;
-                        }
                         delete countMap[z][j];
+                    }
+                    if (countMap[z][number] == 5){
+                        return true;
                     }
                 }
                 if (!countMap[z][number]) {
                     countMap[z][number] = 1;
                 }
+
             }
+            console.log('count map ' , countMap);
         }
+        // for (let i = 0 ; i < countMap.length ; i ++){
+        //     for (let j in countMap[i]){
+        //         if (countMap[i][j] == 5){
+        //             return true;
+        //         }
+        //     }
+        // }   
+        
         return false;
     }
     getBoardData() {
