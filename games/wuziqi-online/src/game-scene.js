@@ -2,6 +2,7 @@ import { Scene, director } from './../../../util/import'
 import GameLayer from './game-layer'
 import UILayer from './ui-layer'
 import Socket from 'socket.io-client'
+import defines from './../../defines'
 class GameScene extends Scene {
     constructor() {
         super();
@@ -18,7 +19,7 @@ class GameScene extends Scene {
 
 
          //链接服务器
-         let connect = Socket("http://chutianba.xyz:3001");
+         let connect = Socket(defines.wuziqi_server_url);
          connect.on('login-success', (id)=>{
              console.log('login success', id);
              if (this._uiLayer){
