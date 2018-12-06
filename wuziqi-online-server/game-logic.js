@@ -25,36 +25,26 @@ class GameLogic {
         pieceList.sort((a, b) => {
             parseInt(a) - parseInt(b);
         });
-        //首先分几种情况
-        //首先是横列的情况
-
-        if (this.checkFivePiece(pieceList)) {
-            return true;
-        }
-        return false;
-    }
-    checkFivePiece(pieceList) {
         let countMap = [{}, {}, {}, {}];
         for (let i = 0; i < pieceList.length; i++) {
             let number = parseInt(pieceList[i]);
             for (let z in countMap) {
+                let value = 1;
+                if (z == 1) {
+                    value = 16;
+                }
+                if (z == 2) {
+                    value = 15;
+                }
+                if (z == 3) {
+                    value = 14;
+                }
                 for (let j in countMap[z]) {
-                    let value = 1;
-                    if (z == 1) {
-                        value = 16;
-                    }
-                    if (z == 2) {
-                        value = 15;
-                    }
-                    if (z == 3){
-                        value = 14;
-                    }
+                    console.log(' -' , number, j);
+                    console.log('value = ', value);
                     if (number - parseInt(j) == value) {
+                        console.log('true');
                         countMap[z][number] = countMap[z][j] + 1;
-                        delete countMap[z][j];
-                    }
-                    if (countMap[z][number] == 5){
-                        return true;
                     }
                 }
                 if (!countMap[z][number]) {
@@ -62,17 +52,15 @@ class GameLogic {
                 }
 
             }
-            console.log('count map ' , countMap);
+            console.log('count map ', countMap);
         }
-        // for (let i = 0 ; i < countMap.length ; i ++){
-        //     for (let j in countMap[i]){
-        //         if (countMap[i][j] == 5){
-        //             return true;
-        //         }
-        //     }
-        // }   
-        
-        return false;
+        for (let i = 0; i < countMap.length; i++) {
+            for (let j in countMap[i]) {
+                if (countMap[i][j] >= 5) {
+                    return true;
+                }
+            }
+        }
     }
     getBoardData() {
         return this._pieceMap;
