@@ -35,47 +35,38 @@ class GameLogic {
         return false;
     }
     checkFivePiece(pieceList) {
-        let index = 0;
-        let oldNum = 'none';
-        let countList = [1, 1, 1];
-
-        while (index < pieceList.length) {
-            let number = parseInt(pieceList[index]);
-            if (oldNum != 'none') {
-                if (number % 15 - oldNum % 15 == 1 && number - oldNum < 15) {
-                    countList[0]++;
-                    if (countList[0] == 5) {
-                        return true;
+        let countMap = [{}, {}, {}];
+        for (let i = 0; i < pieceList.length; i++) {
+            let number = parseInt(pieceList[i]);
+            for (let z in countMap) {
+                for (let j in countMap[z]) {
+                    let value = 1;
+                    if (z == 1) {
+                        value = 16;
                     }
-                } else {
-                    countList[0] = 1;
+                    if (z == 2) {
+                        value = 15;
+                    }
+                    if (number - parseInt(j) == value) {
+                        countMap[z][number] = countMap[z][j] + 1;
+                        if (countMap[z][number] == 5) {
+                            return true;
+                        }
+                        delete countMap[z][j];
+                    }
                 }
-
-                if (number % 15 - oldNum % 15 == 1 && number - oldNum > 15) {
-                    countList[2]++;
-                    if (countList[2] == 5) {
-                        return true;
-                    }
-                } else {
-                    countList[2] = 1;
-                }
-
-                if (number % 15 - oldNum % 15 == 0) {
-                    countList[1]++;
-                    if (countList[1] == 5) {
-                        return true;
-                    }
-                } else {
-                    countList[1] = 1;
+                if (!countMap[z][number]) {
+                    countMap[z][number] = 1;
                 }
             }
-            oldNum = number;
-            index++;
         }
         return false;
     }
     getBoardData() {
         return this._pieceMap;
+    }
+    clearGameData(){
+        this._pieceMap = {};
     }
 }
 module.exports = GameLogic

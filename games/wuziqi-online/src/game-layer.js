@@ -28,6 +28,13 @@ class GameLayer extends Layer {
 
 
         this.interactive = true;
+        global.event.on('re-start', ()=>{
+            console.log('清除棋盘里面的内容');
+            for (let i in this._boardMap){
+                this.removeChild(this._boardMap[i]);
+            }
+            this._boardMap = {};
+        });
     }
     syncBoardData(data) {
         console.log('同步棋牌数据', data);

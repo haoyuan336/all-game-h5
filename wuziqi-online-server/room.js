@@ -17,6 +17,7 @@ class Room {
             player.setPieceColor(this._playerList[0].getColor() == 'black' ? 'white' : 'black');
         }
         this.syncCurrentColor();
+        this.syncBoardData();
     }
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
@@ -65,11 +66,18 @@ class Room {
             this._playerList[i].syncBoardData(boardData);
         }
     }
-    sendGameWinMsg(color){
+    sendGameWinMsg(color) {
         //下发游戏胜利的消息
-        for (let i = 0 ; i < this._playerList.length ; i ++){
+        for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].sendGameWinMsg(color);
         }
+        //等两秒钟，继续下发该谁游戏的消息
+        setTimeout(() => {
+            this._currentColor = color == 'black' ? 'white' : 'black';
+            this.syncCurrentColor();
+            this._gameLogic.clearGameData();
+        }, 2000);
+
     }
 }
 module.exports = Room;

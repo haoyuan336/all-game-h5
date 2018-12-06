@@ -82,24 +82,33 @@ class UILayer extends Layer {
     showGameWin(color) {
         console.log('显示游戏胜利的界面', color);
         this.interactive = true;
-        let rect = new Shape(ShapeType.Rect, 0, 0, director.designSize.width, director.designSize.height, new Style({fill: 0x222222,fillAlpha: 0.8}));
-        this._graphics.addChild(rect);  
-        let piece = new Sprite(global.resource[color == 'black'?resources.black: resources.white].texture);
+        let rect = new Shape(ShapeType.Rect, 0, 0, director.designSize.width, director.designSize.height, new Style({ fill: 0x222222, fillAlpha: 0.8 }));
+        this._graphics.addChild(rect);
+        let piece = new Sprite(global.resource[color == 'black' ? resources.black : resources.white].texture);
         this.addChild(piece);
         piece.position = {
             x: director.designSize.width * 0.5,
-            y: director.designSize.height * 0.5 - 50
+            y: director.designSize.height * 0.5 - 100
         }
-        let winLabel = new Label('WIN', {fontSize: 100, fill: 0xffffff});
+        let winLabel = new Label('WIN', { fontSize: 100, fill: 0xffffff });
         this.addChild(winLabel);
         winLabel.anchor = {
-            x: 0,
+            x: 0.5,
             y: 0.5
         }
         winLabel.position = {
-            x: piece.position.x,
-            y: piece.position.y
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.5
         }
+        this.winLabel = winLabel;
+        this.winPiece = piece;
+    }
+    onTouchStart() {
+        this.interactive = false;
+        this._graphics.removeAllChild();
+        this.removeChild(this.winLabel);
+        this.removeChild(this.winPiece);
+        global.event.fire('re-start');
     }
 }
 export default UILayer;

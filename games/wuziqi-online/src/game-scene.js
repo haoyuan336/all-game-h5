@@ -18,7 +18,7 @@ class GameScene extends Scene {
 
 
          //链接服务器
-         let connect = Socket("localhost:3001");
+         let connect = Socket("http://chutianba.xyz:3001");
          connect.on('login-success', (id)=>{
              console.log('login success', id);
              if (this._uiLayer){
