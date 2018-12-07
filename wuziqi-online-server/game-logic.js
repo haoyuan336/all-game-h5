@@ -11,56 +11,34 @@ class GameLogic {
             return false;
         }
     }
-    checkWin(color) {
-        let pieceList = [];
-        for (let i in this._pieceMap) {
-            if (this._pieceMap[i] == color) {
-                pieceList.push(i);
+    checkWin(index, color) {
+        let countMap = [0, 0, 0, 0];
+        for (let j = 0; j < countMap.length; j++) {
+            countMap[j] = 0;
+            let value = 1;
+            if (j == 1) {
+                value = 15;
             }
-        }
-        if (pieceList < 5) {
-            //首先棋子的数量少于5  不可能赢的
-            return false;
-        }
-        pieceList.sort((a, b) => {
-            parseInt(a) - parseInt(b);
-        });
-        let countMap = [{}, {}, {}, {}];
-        for (let i = 0; i < pieceList.length; i++) {
-            let number = parseInt(pieceList[i]);
-            for (let z in countMap) {
-                let value = 1;
-                if (z == 1) {
-                    value = 16;
-                }
-                if (z == 2) {
-                    value = 15;
-                }
-                if (z == 3) {
-                    value = 14;
-                }
-                for (let j in countMap[z]) {
-                    console.log(' -' , number, j);
-                    console.log('value = ', value);
-                    if (number - parseInt(j) == value) {
-                        console.log('true');
-                        countMap[z][number] = countMap[z][j] + 1;
-                    }
-                }
-                if (!countMap[z][number]) {
-                    countMap[z][number] = 1;
-                }
-
+            if (j == 2) {
+                value = 16;
             }
-            console.log('count map ', countMap);
-        }
-        for (let i = 0; i < countMap.length; i++) {
-            for (let j in countMap[i]) {
-                if (countMap[i][j] >= 5) {
+            if (j == 3) {
+                value = 14;
+            }
+            for (let i = -4; i < 5; i++) {
+                let startIndex = index + i * value;
+                if (this._pieceMap[startIndex] && this._pieceMap[startIndex] == color) {
+                    countMap[j]++;
+                } else {
+                    countMap[j] = 0;
+                }
+                if (countMap[j] == 5) {
                     return true;
                 }
             }
         }
+
+        return false;
     }
     getBoardData() {
         return this._pieceMap;

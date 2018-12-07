@@ -46,7 +46,7 @@ class Room {
                 this.syncBoardData();
                 //如果下子成功了
                 //切换棋子的颜色
-                if (this._gameLogic.checkWin(this._currentColor)) {
+                if (this._gameLogic.checkWin(index, this._currentColor)) {
                     console.log(this._currentColor, 'win');
                     //如果胜利了 ，就不允许任何人下子了
                     this.sendGameWinMsg(this._currentColor);

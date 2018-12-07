@@ -54474,6 +54474,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 兼容性，在 .babelrc 里配置会有问题所以放这里了
 
 Object(_scenes__WEBPACK_IMPORTED_MODULE_111__["prepare"])().then(function () {
   _scenes__WEBPACK_IMPORTED_MODULE_111__["game"].show();

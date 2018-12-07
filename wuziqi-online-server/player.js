@@ -10,11 +10,6 @@ class Player {
             this._room.removePlayer(this.id);
             this._controller.removePlayer(this.id);
         });
-        this._socket.on('make-a-move', (data) => {
-            if (this._room) {
-                this._room.playerMakeAMove(this, data);
-            }
-        })
         this._socket.on('choose-board', (index)=>{
             if (this._room){
                 this._room.playerChooseBoard(this, index);
