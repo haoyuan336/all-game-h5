@@ -26,6 +26,7 @@
     "@babel/runtime": "^7.1.2",
     "@babel/runtime-corejs2": "^7.1.2",
     "babel-loader": "^8.0.4",
+    "babel-preset-stage-1": "^6.24.1",
     "core-js": "^2.5.7",
     "pixi.js": "^4.8.2",
     "raw-loader": "^0.5.1",
@@ -33,5 +34,7 @@
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "tween.js": "^16.6.0"
+  }
 }

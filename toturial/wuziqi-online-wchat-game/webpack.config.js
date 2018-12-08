@@ -34,6 +34,9 @@ module.exports = {
     plugins: [
         new webpack.ProvidePlugin({
             PIXI: 'pixi.js'
+        }),
+        new webpack.ProvidePlugin({
+            TWEEN: 'tween.js'
         })
     ],
 

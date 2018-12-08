@@ -1,7 +1,12 @@
-import 'core-js' // 兼容性，在 .babelrc 里配置会有问题所以放这里了
-import {game, prepare} from './scenes'
-
-prepare().then(() => {
-    game.show()
-})
-
+import {director} from './util/import'
+import {ScreenSize} from './config'
+import GameScene from './game/game-scene'
+import LoadScene from './common/load-scene'
+class App{
+    constructor() {
+        console.log('启动app');
+        director.init(ScreenSize.width, ScreenSize.height);
+        director.startScene(new LoadScene(), new GameScene());
+    }
+}
+export default new App();
