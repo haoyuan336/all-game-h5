@@ -1,8 +1,24 @@
+const { pixelRatio, windowHeight, windowWidth } = wx.getSystemInfoSync()
+
+
+
+
 class Director {
     init(width, height) {
         this.width = width;
         this.height = height;
         this.runningScene = undefined;
+        /* 根据需要 */
+        PIXI.utils.isWebGLSupported = function () {
+            return true
+        }
+
+        PIXI.interaction.InteractionManager.prototype.mapPositionToPoint = (point, x, y) => {
+            point.x = x * pixelRatio
+            point.y = y * pixelRatio
+        }
+
+
         this.root = new PIXI.Application({ view: canvas, width: width, height: height });
         this.root.ticker.add(this.update.bind(this));
         this.nowTime = new Date().getTime();

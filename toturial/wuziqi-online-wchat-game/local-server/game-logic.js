@@ -1,0 +1,50 @@
+class GameLogic {
+    constructor() {
+        this._pieceMap = {};
+    }
+    movePiece(index, color) {
+
+        if (!this._pieceMap[index]) {
+            this._pieceMap[index] = color;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    checkWin(index, color) {
+        let countMap = [0, 0, 0, 0];
+        for (let j = 0; j < countMap.length; j++) {
+            countMap[j] = 0;
+            let value = 1;
+            if (j == 1) {
+                value = 15;
+            }
+            if (j == 2) {
+                value = 16;
+            }
+            if (j == 3) {
+                value = 14;
+            }
+            for (let i = -4; i < 5; i++) {
+                let startIndex = index + i * value;
+                if (this._pieceMap[startIndex] && this._pieceMap[startIndex] == color) {
+                    countMap[j]++;
+                } else {
+                    countMap[j] = 0;
+                }
+                if (countMap[j] == 5) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    getBoardData() {
+        return this._pieceMap;
+    }
+    clearGameData() {
+        this._pieceMap = {};
+    }
+}
+module.exports = GameLogic

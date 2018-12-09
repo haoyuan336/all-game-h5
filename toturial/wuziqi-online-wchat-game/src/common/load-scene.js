@@ -1,5 +1,5 @@
 import global from './../global'
-import {director} from './../util/import'
+import { director } from './../util/import'
 class LoadScene extends PIXI.Container {
     constructor(resources) {
         super();
@@ -15,15 +15,15 @@ class LoadScene extends PIXI.Container {
         this.addChild(this._graphics);
         this._text = new PIXI.Text('100%', {
             fill: '#ffffff',
-            fontSize:'10px'
+            fontSize: '10px'
         });
-      
+
         this.addChild(this._text)
 
 
     }
     _loadRes(loader, resList) {
-        // console.log('res list = ' + JSON.stringify(resList));
+        console.log('res list = ' + JSON.stringify(resList));
         this.drawProgress((this._totalCount - this._resList.length) / this._totalCount);
         if (this._resList.length == 0) {
             if (this.loadAllCb) {
@@ -35,19 +35,19 @@ class LoadScene extends PIXI.Container {
 
         let url = resList.pop();
         if (global.resource && global.resource[url]) {
-            console.log('存在的资源');
             this._loadRes(loader, resList);
         } else {
+            console.log('不存在的资源');
             loader.add(url)
             loader.load((load, resource) => {
                 // global.resource = resource;
+                console.log('加载成功');
                 global.resource[url] = resource[url];
                 this._loadRes(loader, resList);
             });
         }
-
     }
-    drawProgress(value){
+    drawProgress(value) {
         // console.log('进度 = ' + value);
         this._graphics.clear();
         this._graphics.lineStyle(2, 0x0000FF, 1);

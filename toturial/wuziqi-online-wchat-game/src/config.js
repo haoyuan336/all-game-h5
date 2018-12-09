@@ -1,6 +1,6 @@
 
 const ScreenSize = {
-    width: 1334,
-    height: 740
+    width: 750,
+    height: 1334
 }
 export { ScreenSize };

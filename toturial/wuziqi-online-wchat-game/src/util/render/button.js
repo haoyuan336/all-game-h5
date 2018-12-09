@@ -85,6 +85,7 @@ class Button extends Layer {
     update() {
     }
     onTouchStart() {
+        console.log('touch');
         switch (this._buttonStyle.touchType) {
             case TouchType.Sprite:
                 this._sprite.texture = this._buttonStyle.pressedTexture;
