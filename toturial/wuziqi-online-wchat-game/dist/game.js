@@ -46952,8 +46952,8 @@ function (_Layer) {
       x: 0,
       y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? -50 : 0
     };
-    bg.anchor.set(0);
-    bg.scale.set(2);
+    bg.anchor.set(0); // bg.scale.set(2);
+
     _this._headList = [];
     _this._currentColorPiece = undefined;
     _this._piecePosList = [];
@@ -48311,9 +48311,13 @@ function () {
       this.nowTime = new Date().getTime();
       this.root = new PIXI.Container();
       this.app.stage.addChild(this.root);
-      this.root.scale = {
-        x: 1,
-        y: 1
+      var designSize = {
+        width: 750,
+        height: 1334 // this.root.scale = {
+        //     x: 2,
+        //     y: 1.6
+        // }
+
       };
       var currentRate = this.width / this.height;
       console.log('current rate = ', currentRate);
@@ -48329,8 +48333,8 @@ function () {
       };
 
       this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
-        point.x = x * pixelRatio;
-        point.y = y * pixelRatio;
+        point.x = x * 2;
+        point.y = y * 2;
       };
     }
   }, {

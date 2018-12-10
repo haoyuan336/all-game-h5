@@ -30,13 +30,16 @@ class Director {
 
         this.root = new PIXI.Container();
         this.app.stage.addChild(this.root);
-
-
-        
-        this.root.scale = {
-            x: 1,
-            y: 1
+        let designSize = {
+            width: 750,
+            height: 1334
         }
+        
+        
+        // this.root.scale = {
+        //     x: 2,
+        //     y: 1.6
+        // }
         let currentRate = this.width / this.height;
         console.log('current rate = ', currentRate);
         director.screenType = 'normal';
@@ -49,8 +52,8 @@ class Director {
             height: this.height
         };
         this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-            point.x = x * pixelRatio;
-            point.y = y * pixelRatio;
+            point.x = x * 2;
+            point.y = y * 2;
         }
     }
 

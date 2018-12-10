@@ -14,7 +14,7 @@ class GameLayer extends Layer {
             y: director.screenType == 'normal' ? -50 : 0
         }
         bg.anchor.set(0);
-        bg.scale.set(2);
+        // bg.scale.set(2);
         this._headList = [];
         this._currentColorPiece = undefined;
 
