@@ -6,6 +6,9 @@ class Layer extends PIXI.Container {
             .on('pointerup', this.onTouchEnd.bind(this))
             .on('pointerupoutside', this.onTouchEnd.bind(this))
             .on('pointermove', this.onTouchMove.bind(this));
+        // wx.onTouchStart((event)=>{
+        //     this.onTouchStart(event);
+        // });
     }
     onLoad() {
 
@@ -16,14 +19,14 @@ class Layer extends PIXI.Container {
     destroy() {
 
     }
-    onTouchStart(){
+    onTouchStart() {
 
     }
-    onTouchMove(){
+    onTouchMove() {
 
     }
-    onTouchEnd(){
-        
+    onTouchEnd() {
+
     }
 }
 export default Layer;

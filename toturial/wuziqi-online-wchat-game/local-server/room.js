@@ -18,6 +18,13 @@ class Room {
         }
         this.syncCurrentColor();
         this.syncBoardData();
+        this.playerJoinRoom(player);
+
+    }
+    playerJoinRoom(player){
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            this._playerList[i].playerJoinRoom(player);
+        }
     }
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {

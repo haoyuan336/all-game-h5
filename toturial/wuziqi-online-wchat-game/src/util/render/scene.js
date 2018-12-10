@@ -37,12 +37,7 @@ class Scene extends PIXI.Container {
     onLoad() {
 
     }
-    setDesignSize(width, height) {
-        this.scale.set(director.width / width);
-        director.designSize = {};
-        director.designSize.width = width;
-        director.designSize.height = height;
-    }
+   
     destroy() {
         console.log('scene destroy');
         for (let i = 0; i < this.childLayerList.length; i++) {

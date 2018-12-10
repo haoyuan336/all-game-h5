@@ -32,10 +32,10 @@ class App {
         this._roomMap = {};
         this._unFullRoomList = []; //不满的房间的房间列表
     }
-    createPlayer(socket) {
+    createPlayer(socket, data) {
         let id = this._idCreate.getNextID();
         console.log('创建玩家 =', id);
-        let player = new Player(socket, id, this);
+        let player = new Player(socket, id, this, data);
         this._playerMap[id] = player;
         this.assignRoom(player);
         this.syncGameData();

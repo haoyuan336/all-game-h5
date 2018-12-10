@@ -1,12 +1,16 @@
 import global from './../global'
 import { director } from './../util/import'
+import defines from './../defines'
 class LoadScene extends PIXI.Container {
     constructor(resources) {
         super();
         this.loader = new PIXI.loaders.Loader();
         let resList = [];
         for (let i in resources) {
-            resList.push(resources[i]);
+            resList.push({
+                key: resources[i],
+                url: defines.resourcesUrl +  resources[i].substr(1, resources[i].length - 1)
+            });
         }
         this._resList = resList;
 
@@ -33,16 +37,16 @@ class LoadScene extends PIXI.Container {
             return;
         }
 
-        let url = resList.pop();
-        if (global.resource && global.resource[url]) {
+        let param = resList.pop();
+        if (global.resource && global.resource[param.key]) {
             this._loadRes(loader, resList);
         } else {
             console.log('不存在的资源');
-            loader.add(url)
+            loader.add(param.url)
             loader.load((load, resource) => {
                 // global.resource = resource;
                 console.log('加载成功');
-                global.resource[url] = resource[url];
+                global.resource[param.key] = resource[param.url];
                 this._loadRes(loader, resList);
             });
         }

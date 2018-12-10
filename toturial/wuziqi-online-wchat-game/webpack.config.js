@@ -39,7 +39,7 @@ module.exports = {
             TWEEN: 'tween.js'
         }),
         new webpack.ProvidePlugin({
-            SocketIO: 'socket.io-client'
+            SocketIO: 'weapp.socket.io'
         })
     ],
 

@@ -1,33 +1,59 @@
 const { pixelRatio, windowHeight, windowWidth } = wx.getSystemInfoSync()
-
-
-
-
 class Director {
     init(width, height) {
-        this.width = width;
-        this.height = height;
+        console.log('width ', windowWidth);
+        console.log('height', windowHeight);
+        this.width = windowWidth * pixelRatio;
+        this.height = windowHeight * pixelRatio;
         this.runningScene = undefined;
+        this.pixelRatio = pixelRatio;
         /* 根据需要 */
         PIXI.utils.isWebGLSupported = function () {
             return true
         }
+        // PIXI.interaction.InteractionManager.prototype.mapPositionToPoint = (point, x, y) => {
+        //     point.x = x * pixelRatio
+        //     point.y = y * pixelRatio
+        // }
 
-        PIXI.interaction.InteractionManager.prototype.mapPositionToPoint = (point, x, y) => {
-            point.x = x * pixelRatio
-            point.y = y * pixelRatio
-        }
 
-
-        this.root = new PIXI.Application({ view: canvas, width: width, height: height });
-        this.root.ticker.add(this.update.bind(this));
-        this.nowTime = new Date().getTime();
-        this.designSize = {
+        this.app = new PIXI.Application({
+            view: canvas,
             width: width,
             height: height
+        });
+
+
+
+        this.app.ticker.add(this.update.bind(this));
+        this.nowTime = new Date().getTime();
+
+        this.root = new PIXI.Container();
+        this.app.stage.addChild(this.root);
+
+
+        
+        this.root.scale = {
+            x: 1,
+            y: 1
+        }
+        let currentRate = this.width / this.height;
+        console.log('current rate = ', currentRate);
+        director.screenType = 'normal';
+
+        if (currentRate < 0.462) {
+            director.screenType = 'length';
+        }
+        this.designSize = {
+            width: this.width,
+            height: this.height
         };
-        this.sizeRate = this.width / this.height;
+        this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+            point.x = x * pixelRatio;
+            point.y = y * pixelRatio;
+        }
     }
+
     update() {
         let currentTime = new Date().getTime();
         let dt = currentTime - this.nowTime;
@@ -45,15 +71,16 @@ class Director {
         // this.runningScene = scene;
 
         if (this.runningScene) {
-            this.root.stage.removeChild(this.runningScene);
+            // this.app.stage.removeChild(this.runningScene);
+            this.root.removeChild(this.runningScene);
             this.runningScene.destroy();
             this.runningScene = undefined;
         }
-        this.root.stage.addChild(loadScene);
+        this.root.addChild(loadScene);
         loadScene.load(() => {
             console.log('资源加载完毕');
-            this.root.stage.addChild(scene);
-            this.root.stage.removeChild(loadScene);
+            this.root.addChild(scene);
+            this.root.removeChild(loadScene);
             this.runningScene = scene;
             this.runningScene.onLoad();
         });
