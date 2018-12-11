@@ -30,32 +30,27 @@ class Director {
 
         this.root = new PIXI.Container();
         this.app.stage.addChild(this.root);
-        let designSize = {
-            width: 750,
-            height: 1334
-        }
-        
-        
-        // this.root.scale = {
-        //     x: 2,
-        //     y: 1.6
-        // }
         let currentRate = this.width / this.height;
-        console.log('current rate = ', currentRate);
         director.screenType = 'normal';
 
         if (currentRate < 0.462) {
             director.screenType = 'length';
+            this.root.scale = {
+                x: 1,
+                y: this.width / this.height * (1334 / 750)
+            }
         }
+
         this.designSize = {
             width: this.width,
             height: this.height
         };
-        this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-            point.x = x * 2;
-            point.y = y * 2;
-        }
+        // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+        //     point.x = x * 3;
+        //     point.y = y * 3;
+        // }
     }
+
 
     update() {
         let currentTime = new Date().getTime();

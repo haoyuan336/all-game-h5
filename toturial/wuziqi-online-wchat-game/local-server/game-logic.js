@@ -12,6 +12,9 @@ class GameLogic {
         }
     }
     checkWin(index, color) {
+        console.log('index = ', index);
+        console.log('color = ', color);
+        console.log('piecemap =', this._pieceMap);
         let countMap = [0, 0, 0, 0];
         for (let j = 0; j < countMap.length; j++) {
             countMap[j] = 0;
@@ -36,8 +39,9 @@ class GameLogic {
                     return true;
                 }
             }
+            console.log('count map = ', countMap);
         }
-
+        console.log('未胜利');
         return false;
     }
     getBoardData() {

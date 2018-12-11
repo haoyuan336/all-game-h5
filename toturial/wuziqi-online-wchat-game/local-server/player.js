@@ -7,6 +7,7 @@ class Player {
         this._room = undefined;
         this._controller = controller;
         this._color = Math.random() * 10 > 5 ? 'black' : 'white';
+        this._score = 0;
         this._socket.on('disconnect', () => {
             this._room.removePlayer(this.id);
             this._controller.removePlayer(this.id);
@@ -18,13 +19,6 @@ class Player {
         });
         this.avatarUrl = data.avatarUrl;
         this.nickName = data.nickName;
-
-        // this._socket.on('login', (data) => {
-        //     this.avatarUrl = data.avatarUrl;
-        //     this.nickName = data.nickName;
-        //     data.id = id;
-        //     // this._socket.emit('login-success', data);
-        // });
     }
     assignRoom(room) {
         this._room = room;
@@ -49,6 +43,9 @@ class Player {
         this._socket.emit('sync-board-data', data);
     }
     sendGameWinMsg(color) {
+        if (color == this._color){
+            this._score ++;
+        }
         this._socket.emit('game-win', color);
     }
     playerJoinRoom(player){

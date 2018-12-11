@@ -2,11 +2,11 @@ import { Layer, Sprite, director, Vec2 } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
-const { pixelRatio, windowHeight, windowWidth } = wx.getSystemInfoSync()
 
 class GameLayer extends Layer {
-    constructor() {
+    constructor(controller) {
         super();
+        this._controller = controller;
         let bg = new Sprite(global.resource[resources.bg].texture);
         this.addChild(bg);
         bg.position = {
@@ -14,10 +14,10 @@ class GameLayer extends Layer {
             y: director.screenType == 'normal' ? -50 : 0
         }
         bg.anchor.set(0);
-        // bg.scale.set(2);
+        bg.scale.set(2);
         this._headList = [];
         this._currentColorPiece = undefined;
-
+        this._pieceMap = {};
         this._piecePosList = [];
         let offsetY = director.screenType == 'normal' ? 368 : 418
         for (let i = 0; i < 13; i++) {
@@ -27,14 +27,23 @@ class GameLayer extends Layer {
                     console.log('pos', pos);
                 }
                 this._piecePosList.push(pos);
-                let sp = new Sprite(global.resource[resources.piece_black].texture);
-                this.addChild(sp);
-                sp.position = pos;
-                sp.scale.set(2);
             }
         }
         this.interactive = true;
         this.isTouching = false;
+    }
+    referBoard(data){
+        console.log('refer board', data);
+        for (let i in data){
+            if (this._pieceMap[i] == undefined){
+                let color = data[i];
+                let piece = new Sprite(global.resource[color == 'black'?resources.piece_black: resources.piece_white].texture);
+                this.addChild(piece);
+                piece.scale.set(2);
+                piece.position = this._piecePosList[i];
+                this._pieceMap[i] = piece;
+            }
+        }
     }
     createHead(data) {
         data.type = this._headList.length == 0 ? 'left' : 'right';
@@ -53,12 +62,11 @@ class GameLayer extends Layer {
                 x: 60,
                 y: director.screenType == 'normal' ? 300 : 350
             }
-            this._currentColorPiece.scale.set(2);
         }
+        this._currentColorPiece.scale.set(2);
     }
     onTouchStart(event) {
-       
-
+        let data = event.data;
         if (this.isTouching) {
             return
         }
@@ -66,14 +74,16 @@ class GameLayer extends Layer {
         setTimeout(() => {
             this.isTouching = false;
         }, 200);
-        let data = event.data.getLocalPosition(this);
+  
         let touchVec = new Vec2(data.x, data.y);
         for (let i = 0; i < this._piecePosList.length; i++) {
             let pos = this._piecePosList[i];
             let dis = touchVec.distance(pos);
             // console.log('dis = ' , pos);
             if (dis < 30) {
-                console.log('index = ', i, pos);
+                //给服务器发消息
+                // choose-board
+                this._controller.playerPushPiece(i);
             }
         }
 

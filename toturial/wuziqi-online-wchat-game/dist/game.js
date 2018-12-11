@@ -46886,7 +46886,7 @@ var ScreenSize = {
 __webpack_require__.r(__webpack_exports__);
 var defines = {
   resourcesUrl: "http://chutianba.xyz:8000/wuziqi-online-resources",
-  socketUrl: "localhost:3002"
+  socketUrl: "ws://www.chutianba.xyz:3002"
 };
 /* harmony default export */ __webpack_exports__["default"] = (defines);
 
@@ -46928,22 +46928,18 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-var _wx$getSystemInfoSync = wx.getSystemInfoSync(),
-    pixelRatio = _wx$getSystemInfoSync.pixelRatio,
-    windowHeight = _wx$getSystemInfoSync.windowHeight,
-    windowWidth = _wx$getSystemInfoSync.windowWidth;
-
 var GameLayer =
 /*#__PURE__*/
 function (_Layer) {
   _inherits(GameLayer, _Layer);
 
-  function GameLayer() {
+  function GameLayer(controller) {
     var _this;
 
     _classCallCheck(this, GameLayer);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(GameLayer).call(this));
+    _this._controller = controller;
     var bg = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].bg].texture);
 
     _this.addChild(bg);
@@ -46952,10 +46948,11 @@ function (_Layer) {
       x: 0,
       y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? -50 : 0
     };
-    bg.anchor.set(0); // bg.scale.set(2);
-
+    bg.anchor.set(0);
+    bg.scale.set(2);
     _this._headList = [];
     _this._currentColorPiece = undefined;
+    _this._pieceMap = {};
     _this._piecePosList = [];
     var offsetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 368 : 418;
 
@@ -46968,13 +46965,6 @@ function (_Layer) {
         }
 
         _this._piecePosList.push(pos);
-
-        var sp = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black].texture);
-
-        _this.addChild(sp);
-
-        sp.position = pos;
-        sp.scale.set(2);
       }
     }
 
@@ -46984,6 +46974,22 @@ function (_Layer) {
   }
 
   _createClass(GameLayer, [{
+    key: "referBoard",
+    value: function referBoard(data) {
+      console.log('refer board', data);
+
+      for (var i in data) {
+        if (this._pieceMap[i] == undefined) {
+          var color = data[i];
+          var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[color == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture);
+          this.addChild(piece);
+          piece.scale.set(2);
+          piece.position = this._piecePosList[i];
+          this._pieceMap[i] = piece;
+        }
+      }
+    }
+  }, {
     key: "createHead",
     value: function createHead(data) {
       data.type = this._headList.length == 0 ? 'left' : 'right';
@@ -47006,14 +47012,16 @@ function (_Layer) {
           x: 60,
           y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 300 : 350
         };
-
-        this._currentColorPiece.scale.set(2);
       }
+
+      this._currentColorPiece.scale.set(2);
     }
   }, {
     key: "onTouchStart",
     value: function onTouchStart(event) {
       var _this2 = this;
+
+      var data = event.data;
 
       if (this.isTouching) {
         return;
@@ -47023,7 +47031,6 @@ function (_Layer) {
       setTimeout(function () {
         _this2.isTouching = false;
       }, 200);
-      var data = event.data.getLocalPosition(this);
       var touchVec = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](data.x, data.y);
 
       for (var i = 0; i < this._piecePosList.length; i++) {
@@ -47031,7 +47038,9 @@ function (_Layer) {
         var dis = touchVec.distance(pos); // console.log('dis = ' , pos);
 
         if (dis < 30) {
-          console.log('index = ', i, pos);
+          //给服务器发消息
+          // choose-board
+          this._controller.playerPushPiece(i);
         }
       }
     }
@@ -47055,9 +47064,10 @@ function (_Layer) {
 __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(SocketIO) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
 /* harmony import */ var _game_layer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./game-layer */ "./src/game/game-layer.js");
-/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../global */ "./src/global.js");
-/* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../defines */ "./src/defines.js");
+/* harmony import */ var _ui_layer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ui-layer */ "./src/game/ui-layer.js");
+/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../global */ "./src/global.js");
+/* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../defines */ "./src/defines.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47075,6 +47085,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -47113,22 +47124,20 @@ function (_Scene) {
   }, {
     key: "showLoginButton",
     value: function showLoginButton(cb) {
+      var _this2 = this;
+
       var button = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
-        normalTexture: _global__WEBPACK_IMPORTED_MODULE_3__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].denglu_button].texture,
+        normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].denglu_button].texture,
         touchCb: function touchCb() {
           console.log('click');
           wx.authorize({
             scope: 'scope.userInfo',
             success: function success() {
-              this.login(cb);
+              _this2.login(cb);
             }
           });
         }
       });
-      button.position = {
-        x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
-        y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
-      };
       this.addChild(button);
     }
   }, {
@@ -47152,33 +47161,46 @@ function (_Scene) {
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this2 = this;
+      var _this3 = this;
 
       console.log('初始化游戏');
-      this._gameLayer = new _game_layer__WEBPACK_IMPORTED_MODULE_1__["default"]();
+      this._gameLayer = new _game_layer__WEBPACK_IMPORTED_MODULE_1__["default"](this);
       this.addLayer(this._gameLayer);
+      this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
+      this.addLayer(this._uiLayer);
       console.log('链接服务器');
-      var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_4__["default"].socketUrl);
+      var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
       this._connect = connect;
       connect.on('login-success', function (data) {
         console.log('登陆成功');
-        _global__WEBPACK_IMPORTED_MODULE_3__["default"].avatarUrl = data.avatarUrl;
-        _global__WEBPACK_IMPORTED_MODULE_3__["default"].nickName = data.nickName;
-        _global__WEBPACK_IMPORTED_MODULE_3__["default"].id = data.id;
+        _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl = data.avatarUrl;
+        _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName = data.nickName;
+        _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data.id;
 
-        _this2._gameLayer.createHead(data);
+        _this3._gameLayer.createHead(data);
       });
       connect.on('player-join-room', function (data) {
-        _this2._gameLayer.createHead(data);
+        _this3._gameLayer.createHead(data);
       });
       connect.on('sync-current-color', function (color) {
-        _this2._gameLayer.changeCurrentColor(color);
+        _this3._gameLayer.changeCurrentColor(color);
+      });
+      connect.on('sync-board-data', function (data) {
+        _this3._gameLayer.referBoard(data);
+      });
+      connect.on('game-win', function (color) {
+        _this3._uiLayer.showWin(color);
       });
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
 
-        _this2._connect.emit('login', data);
-      });
+        _this3._connect.emit('login', data);
+      }); // this._uiLayer.showWin('black');
+    }
+  }, {
+    key: "playerPushPiece",
+    value: function playerPushPiece(index) {
+      this._connect.emit('choose-board', index);
     }
   }]);
 
@@ -47187,6 +47209,89 @@ function (_Scene) {
 
 /* harmony default export */ __webpack_exports__["default"] = (GameScene);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! weapp.socket.io */ "./node_modules/weapp.socket.io/dist/weapp.socket.io.js")))
+
+/***/ }),
+
+/***/ "./src/game/gameover-layer.js":
+/*!************************************!*\
+  !*** ./src/game/gameover-layer.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../util/render/graphics */ "./src/util/render/graphics.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../global */ "./src/global.js");
+/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+
+
+var GameOverLayer =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(GameOverLayer, _Layer);
+
+  function GameOverLayer(color) {
+    var _this;
+
+    _classCallCheck(this, GameOverLayer);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(GameOverLayer).call(this));
+    console.log('画矩形');
+    var graphics = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Graphics"]();
+
+    _this.addChild(graphics);
+
+    var rect = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Shape"](_util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["ShapeType"].Rect, 0, 0, 750, 1640, new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Style"]({
+      fill: color == 'black' ? 0xd1ccc6 : 0x000000
+    }));
+    graphics.addChild(rect);
+    var label = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('胜利', {
+      fontSize: 100,
+      fill: color == 'black' ? 0x000000 : 0xffffff
+    });
+
+    _this.addChild(label);
+
+    label.anchor.set(0.5);
+    label.position = {
+      x: 750 * 0.5,
+      y: 500
+    };
+    var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_2__["default"].resource[color == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_3__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_3__["default"].piece_white].texture);
+
+    _this.addChild(piece);
+
+    piece.scale.set(2);
+    piece.position = {
+      x: 750 * 0.5,
+      y: 600
+    };
+    return _this;
+  }
+
+  return GameOverLayer;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (GameOverLayer);
 
 /***/ }),
 
@@ -47294,6 +47399,82 @@ function (_Layer) {
 
 /* harmony default export */ __webpack_exports__["default"] = (Head);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
+
+/***/ }),
+
+/***/ "./src/game/ui-layer.js":
+/*!******************************!*\
+  !*** ./src/game/ui-layer.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _gameover_layer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./gameover-layer */ "./src/game/gameover-layer.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+var UILayer =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(UILayer, _Layer);
+
+  function UILayer() {
+    var _this;
+
+    _classCallCheck(this, UILayer);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UILayer).call(this));
+    _this._gameOverLayer = undefined;
+    return _this;
+  }
+
+  _createClass(UILayer, [{
+    key: "showWin",
+    value: function showWin(color) {
+      if (!this._gameOverLayer) {
+        this._gameOverLayer = new _gameover_layer__WEBPACK_IMPORTED_MODULE_1__["default"](color);
+        this.addChild(this._gameOverLayer);
+      }
+
+      this.interactive = true;
+    }
+  }, {
+    key: "onTouchStart",
+    value: function onTouchStart() {
+      this.interactive = false;
+
+      if (this._gameOverLayer) {
+        this.removeChild(this._gameOverLayer);
+        this._gameOverLayer = undefined;
+      }
+    }
+  }]);
+
+  return UILayer;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (UILayer);
 
 /***/ }),
 
@@ -48311,31 +48492,24 @@ function () {
       this.nowTime = new Date().getTime();
       this.root = new PIXI.Container();
       this.app.stage.addChild(this.root);
-      var designSize = {
-        width: 750,
-        height: 1334 // this.root.scale = {
-        //     x: 2,
-        //     y: 1.6
-        // }
-
-      };
       var currentRate = this.width / this.height;
-      console.log('current rate = ', currentRate);
       director.screenType = 'normal';
 
       if (currentRate < 0.462) {
         director.screenType = 'length';
+        this.root.scale = {
+          x: 1,
+          y: this.width / this.height * (1334 / 750)
+        };
       }
 
       this.designSize = {
         width: this.width,
         height: this.height
-      };
-
-      this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
-        point.x = x * 2;
-        point.y = y * 2;
-      };
+      }; // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+      //     point.x = x * 3;
+      //     point.y = y * 3;
+      // }
     }
   }, {
     key: "update",
@@ -48719,7 +48893,8 @@ function (_PIXI$Text) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(PIXI) {function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+/* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _director__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./director */ "./src/util/render/director.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -48737,6 +48912,11 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+
+
+var _wx$getSystemInfoSync = wx.getSystemInfoSync(),
+    windowWidth = _wx$getSystemInfoSync.windowWidth;
+
 var Layer =
 /*#__PURE__*/
 function (_PIXI$Container) {
@@ -48749,11 +48929,25 @@ function (_PIXI$Container) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Layer).call(this));
 
-    _this.on('pointerdown', _this.onTouchStart.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerup', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerupoutside', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointermove', _this.onTouchMove.bind(_assertThisInitialized(_assertThisInitialized(_this)))); // wx.onTouchStart((event)=>{
-    //     this.onTouchStart(event);
-    // });
+    _this.on('pointerdown', _this.onTouchStart.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerup', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerupoutside', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointermove', _this.onTouchMove.bind(_assertThisInitialized(_assertThisInitialized(_this))));
 
+    wx.onTouchStart(function (event) {
+      var data = {
+        x: event.touches[0].clientX * 750 / windowWidth,
+        y: event.touches[0].clientY * 750 / windowWidth
+      };
 
+      if (_director__WEBPACK_IMPORTED_MODULE_0__["default"].screenType == 'length') {
+        data = {
+          x: event.touches[0].clientX * 2,
+          y: event.touches[0].clientY * 2
+        };
+      }
+
+      _this.onTouchStart({
+        data: data
+      });
+    });
     return _this;
   }
 

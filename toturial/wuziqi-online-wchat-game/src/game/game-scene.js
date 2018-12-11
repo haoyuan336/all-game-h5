@@ -1,5 +1,6 @@
 import { Scene, director, Button } from './../util/import'
 import GameLayer from './game-layer'
+import UILayer from './ui-layer'
 import resources from './../resources'
 import global from './../global'
 import defines from './../defines'
@@ -9,7 +10,7 @@ class GameScene extends Scene {
     }
     setAuthorize(cb) {
         wx.getSetting({
-            success:(res)=> {
+            success: (res) => {
                 if (!res.authSetting['scope.userInfo']) {
                     console.log('没有用户信息授权')
                     this.showLoginButton(cb);
@@ -27,16 +28,12 @@ class GameScene extends Scene {
                 console.log('click');
                 wx.authorize({
                     scope: 'scope.userInfo',
-                    success() {
+                    success: () => {
                         this.login(cb);
                     }
                 })
             }
         });
-        button.position = {
-            x: director.designSize.width * 0.5,
-            y: director.designSize.height * 0.5
-        }
         this.addChild(button);
     }
     login(cb) {
@@ -56,8 +53,11 @@ class GameScene extends Scene {
     }
     onLoad() {
         console.log('初始化游戏');
-        this._gameLayer = new GameLayer();
+        this._gameLayer = new GameLayer(this);
         this.addLayer(this._gameLayer);
+        this._uiLayer = new UILayer(this);
+        this.addLayer(this._uiLayer);
+
         console.log('链接服务器');
         let connect = SocketIO(defines.socketUrl);
         this._connect = connect;
@@ -69,17 +69,26 @@ class GameScene extends Scene {
             this._gameLayer.createHead(data);
         });
 
-        connect.on('player-join-room', (data)=>{
+        connect.on('player-join-room', (data) => {
             this._gameLayer.createHead(data);
         });
-        connect.on('sync-current-color', (color)=>{
+        connect.on('sync-current-color', (color) => {
             this._gameLayer.changeCurrentColor(color);
         });
+        connect.on('sync-board-data', (data) => {
+            this._gameLayer.referBoard(data);
+        });
+        connect.on('game-win', (color) => { 
+            this._uiLayer.showWin(color);
+        })
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
             this._connect.emit('login', data);
         });
-
+        // this._uiLayer.showWin('black');
+    }
+    playerPushPiece(index) {
+        this._connect.emit('choose-board', index);
     }
 }
 export default GameScene;
