@@ -46970,14 +46970,20 @@ function (_Layer) {
 
     _this.interactive = true;
     _this.isTouching = false;
+    var text = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]("Hello World");
+
+    _this.addChild(text);
+
+    text.position = {
+      x: 100,
+      y: 100
+    };
     return _this;
   }
 
   _createClass(GameLayer, [{
     key: "referBoard",
     value: function referBoard(data) {
-      console.log('refer board', data);
-
       for (var i in data) {
         if (this._pieceMap[i] == undefined) {
           var color = data[i];
@@ -47366,7 +47372,7 @@ function (_Layer) {
       x: type == 'left' ? 140 : 0,
       y: 0
     };
-    _this._scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('分:' + spec.score, {
+    _this._scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](type == "left" ? '分:' + spec.score : spec.score + ":分", {
       fontSize: 40
     });
     _this._scoreLabel.anchor = {
@@ -48504,8 +48510,8 @@ function () {
       }
 
       this.designSize = {
-        width: this.width,
-        height: this.height
+        width: 750,
+        height: 1334
       }; // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
       //     point.x = x * 3;
       //     point.y = y * 3;
@@ -48842,8 +48848,7 @@ function (_PIXI$Text) {
       fontFamily: 'Arial',
       fontSize: 20,
       fontStyle: 'normal',
-      fontWeight: 'normal',
-      fill: ['#000000'] // gradient
+      fontWeight: 'normal' // fill: ['#000000'], // gradient
       // stroke: '#4a1850',
       // strokeThickness: 5,
       // dropShadow: true,

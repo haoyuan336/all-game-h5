@@ -30,7 +30,7 @@ class Head extends Layer {
             y: 0
         }
 
-        this._scoreLabel = new Label('分:' + spec.score, {
+        this._scoreLabel = new Label(type == "left"? '分:' + spec.score : spec.score + ":分", {
             fontSize: 40
         });
 

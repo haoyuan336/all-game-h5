@@ -42,8 +42,8 @@ class Director {
         }
 
         this.designSize = {
-            width: this.width,
-            height: this.height
+            width: 750,
+            height: 1334
         };
         // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
         //     point.x = x * 3;

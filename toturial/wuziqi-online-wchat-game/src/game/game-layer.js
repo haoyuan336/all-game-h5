@@ -1,4 +1,4 @@
-import { Layer, Sprite, director, Vec2 } from './../util/import'
+import { Layer, Sprite, director, Vec2, Label } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
@@ -31,9 +31,17 @@ class GameLayer extends Layer {
         }
         this.interactive = true;
         this.isTouching = false;
+
+
+
+        let text = new Label("Hello World");
+        this.addChild(text);
+        text.position = {
+            x: 100,
+            y: 100
+        }
     }
     referBoard(data){
-        console.log('refer board', data);
         for (let i in data){
             if (this._pieceMap[i] == undefined){
                 let color = data[i];

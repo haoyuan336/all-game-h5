@@ -30,9 +30,13 @@ class GameLogic {
             }
             for (let i = -4; i < 5; i++) {
                 let startIndex = index + i * value;
+                startIndex = startIndex.toString();
+                console.log('寻找index ', i);
                 if (this._pieceMap[startIndex] && this._pieceMap[startIndex] == color) {
+                    console.log('存在');
                     countMap[j]++;
                 } else {
+                    console.log('不存在');
                     countMap[j] = 0;
                 }
                 if (countMap[j] == 5) {
