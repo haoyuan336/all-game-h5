@@ -1,9 +1,10 @@
 import { Layer } from './../util/import'
 import GameOverLayer from './gameover-layer'
 class UILayer extends Layer {
-    constructor() {
+    constructor(controller) {
         super();
         this._gameOverLayer = undefined;
+        this._controller = controller;
     }
     showWin(color) {
         if (!this._gameOverLayer) {
@@ -17,6 +18,9 @@ class UILayer extends Layer {
         if (this._gameOverLayer) {
             this.removeChild(this._gameOverLayer);
             this._gameOverLayer = undefined;
+            if (this._controller){
+                this._controller.closeGameOverLayer();
+            }
         }
     }
 }

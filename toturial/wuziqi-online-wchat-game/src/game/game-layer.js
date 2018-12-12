@@ -1,4 +1,4 @@
-import { Layer, Sprite, director, Vec2, Label } from './../util/import'
+import { Layer, Sprite, director, Vec2 } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
@@ -31,21 +31,12 @@ class GameLayer extends Layer {
         }
         this.interactive = true;
         this.isTouching = false;
-
-
-
-        let text = new Label("Hello World");
-        this.addChild(text);
-        text.position = {
-            x: 100,
-            y: 100
-        }
     }
-    referBoard(data){
-        for (let i in data){
-            if (this._pieceMap[i] == undefined){
+    referBoard(data) {
+        for (let i in data) {
+            if (this._pieceMap[i] == undefined) {
                 let color = data[i];
-                let piece = new Sprite(global.resource[color == 'black'?resources.piece_black: resources.piece_white].texture);
+                let piece = new Sprite(global.resource[color == 'black' ? resources.piece_black : resources.piece_white].texture);
                 this.addChild(piece);
                 piece.scale.set(2);
                 piece.position = this._piecePosList[i];
@@ -54,7 +45,17 @@ class GameLayer extends Layer {
         }
     }
     createHead(data) {
-        data.type = this._headList.length == 0 ? 'left' : 'right';
+        let id = data.id;
+        for (let i = 0; i < this._headList.length; i++) {
+            console.log('已经存在的id?', this._headList[i].getId());
+            if (this._headList[i].getId() == id) {
+                return;
+            }
+        }
+        // data.type = this._headList.length == 0 ? 'left' : 'right';
+        console.log('id = ', id);
+        console.log('global id = ', global.id);
+        data.type = id == global.id ? 'left' : 'right';
         let head = new Head(data);
         this.addChild(head);
         this._headList.push(head);
@@ -82,7 +83,7 @@ class GameLayer extends Layer {
         setTimeout(() => {
             this.isTouching = false;
         }, 200);
-  
+
         let touchVec = new Vec2(data.x, data.y);
         for (let i = 0; i < this._piecePosList.length; i++) {
             let pos = this._piecePosList[i];
@@ -94,7 +95,12 @@ class GameLayer extends Layer {
                 this._controller.playerPushPiece(i);
             }
         }
-
+    }
+    removeAllPiece() {
+        for (let i in this._pieceMap) {
+            this.removeChild(this._pieceMap[i]);
+        }
+        this._pieceMap = [];
     }
 }
 export default GameLayer;

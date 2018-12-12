@@ -1,5 +1,4 @@
-var http = require('http');
-var qs = require('querystring');
+const db = require('./db')
 class Player {
     constructor(socket, id, controller, data) {
         this.id = id;
@@ -17,12 +16,22 @@ class Player {
                 this._room.playerChooseBoard(this, index);
             }
         });
+
+        this._socket.emit('login-success',this.id);
         this.avatarUrl = data.avatarUrl;
         this.nickName = data.nickName;
+
+        db.getPlayerScore(this.avatarUrl, (data)=>{
+            if (data == null){
+                this.score = 0;
+            }
+        });
     }
     assignRoom(room) {
         this._room = room;
         room.assignPlayer(this);
+
+        
     }
     referGameData(data) {
         data.room_id = this._room.id;
@@ -48,15 +57,21 @@ class Player {
         }
         this._socket.emit('game-win', color);
     }
-    playerJoinRoom(player){
-        let data = {
-            id: player.id,
-            avatarUrl: player.avatarUrl,
-            nickName: player.nickName,
-            pieceColor: player.getColor(),
-            score: 100
+    playerJoinRoom(playerList){
+        let dataList = [];
+        for (let i = 0 ; i < playerList.length ; i ++){
+            let data = {
+                id: playerList[i].id,
+                avatarUrl: playerList[i].avatarUrl,
+                nickName: playerList[i].nickName,
+                pieceColor: playerList[i].getColor(),
+                score: 100
+            }
+            dataList.push(data)
         }
-        this._socket.emit('player-join-room', data);
+        
+        console.log('player join room ', dataList);
+        this._socket.emit('player-join-room', dataList);
     }
 }
 module.exports = Player;

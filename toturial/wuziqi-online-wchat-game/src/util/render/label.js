@@ -5,7 +5,7 @@ class Label extends PIXI.Text{
             fontSize: 20,
             fontStyle: 'normal',
             fontWeight: 'normal',
-            // fill: ['#000000'], // gradient
+            fill: 0x000000 // gradient
             // stroke: '#4a1850',
             // strokeThickness: 5,
             // dropShadow: true,

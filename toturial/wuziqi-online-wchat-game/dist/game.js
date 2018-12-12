@@ -46970,14 +46970,6 @@ function (_Layer) {
 
     _this.interactive = true;
     _this.isTouching = false;
-    var text = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]("Hello World");
-
-    _this.addChild(text);
-
-    text.position = {
-      x: 100,
-      y: 100
-    };
     return _this;
   }
 
@@ -46998,7 +46990,20 @@ function (_Layer) {
   }, {
     key: "createHead",
     value: function createHead(data) {
-      data.type = this._headList.length == 0 ? 'left' : 'right';
+      var id = data.id;
+
+      for (var i = 0; i < this._headList.length; i++) {
+        console.log('已经存在的id?', this._headList[i].getId());
+
+        if (this._headList[i].getId() == id) {
+          return;
+        }
+      } // data.type = this._headList.length == 0 ? 'left' : 'right';
+
+
+      console.log('id = ', id);
+      console.log('global id = ', _global__WEBPACK_IMPORTED_MODULE_1__["default"].id);
+      data.type = id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id ? 'left' : 'right';
       var head = new _head__WEBPACK_IMPORTED_MODULE_3__["default"](data);
       this.addChild(head);
 
@@ -47049,6 +47054,15 @@ function (_Layer) {
           this._controller.playerPushPiece(i);
         }
       }
+    }
+  }, {
+    key: "removeAllPiece",
+    value: function removeAllPiece() {
+      for (var i in this._pieceMap) {
+        this.removeChild(this._pieceMap[i]);
+      }
+
+      this._pieceMap = [];
     }
   }]);
 
@@ -47178,15 +47192,15 @@ function (_Scene) {
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
       this._connect = connect;
       connect.on('login-success', function (data) {
-        console.log('登陆成功');
-        _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl = data.avatarUrl;
-        _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName = data.nickName;
-        _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data.id;
-
-        _this3._gameLayer.createHead(data);
+        console.log('登录成功');
+        _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
       });
       connect.on('player-join-room', function (data) {
-        _this3._gameLayer.createHead(data);
+        console.log('create head ', data);
+
+        for (var i = 0; i < data.length; i++) {
+          _this3._gameLayer.createHead(data[i]);
+        }
       });
       connect.on('sync-current-color', function (color) {
         _this3._gameLayer.changeCurrentColor(color);
@@ -47207,6 +47221,14 @@ function (_Scene) {
     key: "playerPushPiece",
     value: function playerPushPiece(index) {
       this._connect.emit('choose-board', index);
+    }
+  }, {
+    key: "closeGameOverLayer",
+    value: function closeGameOverLayer() {
+      //关闭了游戏结束层
+      if (this._gameLayer) {
+        this._gameLayer.removeAllPiece();
+      }
     }
   }]);
 
@@ -47317,6 +47339,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
@@ -47341,6 +47367,7 @@ function (_Layer) {
 
     _classCallCheck(this, Head);
 
+    console.log(' Head', spec);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Head).call(this));
     _this._id = spec.id;
     _this._avatar = undefined;
@@ -47400,6 +47427,13 @@ function (_Layer) {
     return _this;
   }
 
+  _createClass(Head, [{
+    key: "getId",
+    value: function getId() {
+      return this._id;
+    }
+  }]);
+
   return Head;
 }(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
 
@@ -47445,13 +47479,14 @@ var UILayer =
 function (_Layer) {
   _inherits(UILayer, _Layer);
 
-  function UILayer() {
+  function UILayer(controller) {
     var _this;
 
     _classCallCheck(this, UILayer);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UILayer).call(this));
     _this._gameOverLayer = undefined;
+    _this._controller = controller;
     return _this;
   }
 
@@ -47473,6 +47508,10 @@ function (_Layer) {
       if (this._gameOverLayer) {
         this.removeChild(this._gameOverLayer);
         this._gameOverLayer = undefined;
+
+        if (this._controller) {
+          this._controller.closeGameOverLayer();
+        }
       }
     }
   }]);
@@ -48848,7 +48887,8 @@ function (_PIXI$Text) {
       fontFamily: 'Arial',
       fontSize: 20,
       fontStyle: 'normal',
-      fontWeight: 'normal' // fill: ['#000000'], // gradient
+      fontWeight: 'normal',
+      fill: 0x000000 // gradient
       // stroke: '#4a1850',
       // strokeThickness: 5,
       // dropShadow: true,

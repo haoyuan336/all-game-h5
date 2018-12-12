@@ -62,15 +62,15 @@ class GameScene extends Scene {
         let connect = SocketIO(defines.socketUrl);
         this._connect = connect;
         connect.on('login-success', (data) => {
-            console.log('登陆成功');
-            global.avatarUrl = data.avatarUrl;
-            global.nickName = data.nickName;
-            global.id = data.id;
-            this._gameLayer.createHead(data);
+            console.log('登录成功');
+            global.id = data;
         });
 
         connect.on('player-join-room', (data) => {
-            this._gameLayer.createHead(data);
+            console.log('create head ', data);
+            for (let i = 0 ; i < data.length ; i ++){
+                this._gameLayer.createHead(data[i]);
+            }
         });
         connect.on('sync-current-color', (color) => {
             this._gameLayer.changeCurrentColor(color);
@@ -89,6 +89,12 @@ class GameScene extends Scene {
     }
     playerPushPiece(index) {
         this._connect.emit('choose-board', index);
+    }
+    closeGameOverLayer(){
+        //关闭了游戏结束层
+        if (this._gameLayer){
+            this._gameLayer.removeAllPiece();
+        }
     }
 }
 export default GameScene;

@@ -18,7 +18,7 @@ class Room {
         }
         this.syncCurrentColor();
         this.syncBoardData();
-        this.playerJoinRoom(player);
+        this.playerJoinRoom(this._playerList);
 
     }
     playerJoinRoom(player){

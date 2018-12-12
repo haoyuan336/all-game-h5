@@ -3,6 +3,7 @@ import global from './../global'
 import resources from './../resources'
 class Head extends Layer {
     constructor(spec) {
+        console.log(' Head', spec);
         super();
         this._id = spec.id;
         this._avatar = undefined;
@@ -52,6 +53,9 @@ class Head extends Layer {
         }
         this.colorPiece.scale.set(2);
 
+    }
+    getId(){
+        return this._id;
     }
 }
 export default Head;
