@@ -1,5 +1,7 @@
 const Player = require('./player');
 const Room = require('./room');
+const db = require('./db');
+const rank = require('./rank');
 class IDCreate {
     constructor() {
         this._id = '100000';
@@ -27,6 +29,8 @@ class IDCreate {
 }
 class App {
     constructor() {
+        db.connect();
+        rank.initRankList(this);
         this._idCreate = new IDCreate();
         this._playerMap = {};
         this._roomMap = {};
@@ -39,7 +43,7 @@ class App {
         this._playerMap[id] = player;
         this.assignRoom(player);
         this.syncGameData();
-       
+        player.syncRankData(rank.getRankList());
     }
     createRoom() {
         let id = this._idCreate.getNextID();
@@ -66,36 +70,41 @@ class App {
         }
         return room;
     }
-    pushUnFullRoom(room){
+    pushUnFullRoom(room) {
         this._unFullRoomList.push(room);
         this.syncGameData();
     }
-    removePlayer(id){
+    removePlayer(id) {
         delete this._playerMap[id];
         this.syncGameData();
     }
-    removeRoom(room){
+    removeRoom(room) {
         console.log("删除空房间");
         //把房间从房间map里面删掉
         delete this._roomMap[room.id];
         //从不满房间的列表里面 把房间删掉
-        for (let i = 0 ; i < this._unFullRoomList.length ; i ++){
-            if (this._unFullRoomList[i].id == room.id){
+        for (let i = 0; i < this._unFullRoomList.length; i++) {
+            if (this._unFullRoomList[i].id == room.id) {
                 this._unFullRoomList.splice(i, 1);
             }
         }
         this.syncGameData();
     }
-    syncGameData(){
+    syncGameData() {
         let gameData = {
             room_count: Object.keys(this._roomMap).length,
             unfull_room_count: this._unFullRoomList.length,
             online_player_count: Object.keys(this._playerMap).length,
         }
-        for(let i in this._playerMap){
+        for (let i in this._playerMap) {
             this._playerMap[i].referGameData(gameData);
         }
     }
 
+    syncRankData(data){
+        for (let i in this._playerMap){
+            this._playerMap[i].syncRankData(data);
+        }
+    }
 }
 module.exports = App;

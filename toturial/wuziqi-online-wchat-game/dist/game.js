@@ -46886,7 +46886,8 @@ var ScreenSize = {
 __webpack_require__.r(__webpack_exports__);
 var defines = {
   resourcesUrl: "http://chutianba.xyz:8000/wuziqi-online-resources",
-  socketUrl: "ws://www.chutianba.xyz:3002"
+  // socketUrl: "ws://www.chutianba.xyz:3002"
+  socketUrl: "http://localhost:3002"
 };
 /* harmony default export */ __webpack_exports__["default"] = (defines);
 
@@ -47064,6 +47065,13 @@ function (_Layer) {
 
       this._pieceMap = [];
     }
+  }, {
+    key: "referPlayerInfo",
+    value: function referPlayerInfo(data) {
+      for (var i in this._headList) {
+        this._headList[i].referPlayerInfo(data);
+      }
+    }
   }]);
 
   return GameLayer;
@@ -47088,6 +47096,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../global */ "./src/global.js");
 /* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../defines */ "./src/defines.js");
+/* harmony import */ var _rank_layer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./rank-layer */ "./src/game/rank-layer.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47105,6 +47114,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -47186,9 +47196,10 @@ function (_Scene) {
       console.log('初始化游戏');
       this._gameLayer = new _game_layer__WEBPACK_IMPORTED_MODULE_1__["default"](this);
       this.addLayer(this._gameLayer);
+      this._rankLayer = new _rank_layer__WEBPACK_IMPORTED_MODULE_6__["default"](this);
+      this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
-      console.log('链接服务器');
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
       this._connect = connect;
       connect.on('login-success', function (data) {
@@ -47210,6 +47221,14 @@ function (_Scene) {
       });
       connect.on('game-win', function (color) {
         _this3._uiLayer.showWin(color);
+      });
+      connect.on('refer-rank', function (data) {
+        //刷新排行榜数据
+        _this3._rankLayer.referRankData(data);
+      });
+      connect.on('sync-player-info', function (data) {
+        //刷新玩家信息
+        _this3._gameLayer.referPlayerInfo(data);
       });
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
@@ -47367,13 +47386,13 @@ function (_Layer) {
 
     _classCallCheck(this, Head);
 
-    console.log(' Head', spec);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Head).call(this));
     _this._id = spec.id;
     _this._avatar = undefined;
     var image = wx.createImage();
     image.src = spec.avatarUrl;
     var type = spec.type;
+    _this._type = type;
     _this.position = {
       x: type == "left" ? 30 : _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width - 160,
       y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 100 : 150
@@ -47424,6 +47443,22 @@ function (_Layer) {
 
     _this.colorPiece.scale.set(2);
 
+    _this._rankLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](type == "left" ? '排行:' + (spec.rankNum + 1) : spec.rankNum + 1 + ":排行", {
+      fontSize: 30
+    });
+
+    _this.addChild(_this._rankLabel);
+
+    _this._rankLabel.anchor = {
+      x: type == 'left' ? 0 : 1,
+      y: 0.5
+    };
+    _this._rankLabel.position = {
+      x: type == 'left' ? 195 : -55,
+      y: 120 //只有排行榜小于100的时候，才会显示这个排行榜标识
+
+    };
+    _this._rankLabel.visible = spec.rankNum < 100;
     return _this;
   }
 
@@ -47432,6 +47467,15 @@ function (_Layer) {
     value: function getId() {
       return this._id;
     }
+  }, {
+    key: "referPlayerInfo",
+    value: function referPlayerInfo(data) {
+      if (data.id == this._id) {
+        this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
+        this._rankLabel.visible = data.rankNum < 100;
+        this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : data.rankNum + 1 + ":排行";
+      }
+    }
   }]);
 
   return Head;
@@ -47439,6 +47483,233 @@ function (_Layer) {
 
 /* harmony default export */ __webpack_exports__["default"] = (Head);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
+
+/***/ }),
+
+/***/ "./src/game/rank-head.js":
+/*!*******************************!*\
+  !*** ./src/game/rank-head.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+var RankHead =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(RankHead, _Layer);
+
+  function RankHead(spec) {
+    var _this;
+
+    _classCallCheck(this, RankHead);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RankHead).call(this));
+    console.log('创建排行榜数据', JSON.stringify(spec));
+    var ranNumLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.rankNum + 1 + ':', {
+      fill: 0xffffff
+    });
+    ranNumLabel.anchor.set(0.5);
+    ranNumLabel.position = {
+      x: 20,
+      y: 30
+    };
+
+    _this.addChild(ranNumLabel);
+
+    var image = wx.createImage();
+    image.src = spec.avatar;
+
+    image.onload = function () {
+      _this._avatar = new PIXI.Sprite.from(image);
+
+      _this._avatar.scale.set(0.5);
+
+      _this.addChild(_this._avatar);
+
+      _this._avatar.position = {
+        x: 50,
+        y: 0
+      };
+    };
+
+    var rankNum = spec.rankNum;
+    console.log('rank num = ', rankNum);
+    _this.position = {
+      x: rankNum % 3 * 240 + 20,
+      y: Math.floor(rankNum / 3) * 90 + 100
+    };
+    var nameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.nickName, {
+      fill: 0xffffff,
+      fontSize: 30
+    });
+
+    _this.addChild(nameLabel);
+
+    nameLabel.anchor = {
+      x: 0,
+      y: 0
+    };
+    nameLabel.position = {
+      x: 120,
+      y: 0
+    };
+    var scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.score, {
+      fill: 0xfffff,
+      fontSize: 35
+    });
+
+    _this.addChild(scoreLabel);
+
+    scoreLabel.position = {
+      x: 120,
+      y: 30
+    };
+    return _this;
+  }
+
+  _createClass(RankHead, [{
+    key: "referInfo",
+    value: function referInfo(data) {}
+  }]);
+
+  return RankHead;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (RankHead);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
+
+/***/ }),
+
+/***/ "./src/game/rank-layer.js":
+/*!********************************!*\
+  !*** ./src/game/rank-layer.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../util/render/graphics */ "./src/util/render/graphics.js");
+/* harmony import */ var _rank_head__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./rank-head */ "./src/game/rank-head.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+
+var RankLayer =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(RankLayer, _Layer);
+
+  function RankLayer() {
+    var _this;
+
+    _classCallCheck(this, RankLayer);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RankLayer).call(this)); //初始化排行榜层;
+
+    var graphics = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Graphics"]();
+
+    _this.addChild(graphics);
+
+    var rect = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Shape"](_util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["ShapeType"].Rect, 0, 0, 750, 2000, new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Style"]({
+      fill: 0x000000,
+      alpha: 0.7
+    }));
+    graphics.addChild(rect);
+    _this.position = {
+      x: 0,
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100 // this.interactive = true;
+
+    };
+    _this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
+    _this._isDown = false;
+    _this._rankHeadMap = {};
+    return _this;
+  }
+
+  _createClass(RankLayer, [{
+    key: "onTouchStart",
+    value: function onTouchStart(event) {
+      if (event.data.y < this._targetY) {
+        return;
+      }
+
+      this._isDown = !this._isDown;
+
+      if (this._isDown) {
+        this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
+      } else {
+        this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 0 : 0;
+      }
+    }
+  }, {
+    key: "update",
+    value: function update(dt) {
+      this.position.y += (this._targetY - this.position.y) * 0.2 * dt / 10;
+    }
+  }, {
+    key: "referRankData",
+    value: function referRankData(data) {
+      console.log('刷新排行榜数据', data);
+
+      for (var i = 0; i < data.length; i++) {
+        if (this._rankHeadMap[i] && this._rankHeadMap[i].avatar != data[i].avatar) {
+          this._rankHeadMap[i].referInfo(data[i]);
+        } else if (!this._rankHeadMap[i]) {
+          var head = new _rank_head__WEBPACK_IMPORTED_MODULE_2__["default"](data[i]);
+          this._rankHeadMap[i] = head;
+          this.addChild(head);
+        }
+      }
+    }
+  }]);
+
+  return RankLayer;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (RankLayer);
 
 /***/ }),
 

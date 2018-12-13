@@ -4,6 +4,7 @@ import UILayer from './ui-layer'
 import resources from './../resources'
 import global from './../global'
 import defines from './../defines'
+import RankLayer from './rank-layer'
 class GameScene extends Scene {
     constructor() {
         super();
@@ -55,10 +56,11 @@ class GameScene extends Scene {
         console.log('初始化游戏');
         this._gameLayer = new GameLayer(this);
         this.addLayer(this._gameLayer);
+        this._rankLayer = new RankLayer(this);
+        this.addLayer(this._rankLayer);
         this._uiLayer = new UILayer(this);
         this.addLayer(this._uiLayer);
 
-        console.log('链接服务器');
         let connect = SocketIO(defines.socketUrl);
         this._connect = connect;
         connect.on('login-success', (data) => {
@@ -68,7 +70,7 @@ class GameScene extends Scene {
 
         connect.on('player-join-room', (data) => {
             console.log('create head ', data);
-            for (let i = 0 ; i < data.length ; i ++){
+            for (let i = 0; i < data.length; i++) {
                 this._gameLayer.createHead(data[i]);
             }
         });
@@ -78,9 +80,17 @@ class GameScene extends Scene {
         connect.on('sync-board-data', (data) => {
             this._gameLayer.referBoard(data);
         });
-        connect.on('game-win', (color) => { 
+        connect.on('game-win', (color) => {
             this._uiLayer.showWin(color);
-        })
+        });
+        connect.on('refer-rank', (data)=>{
+            //刷新排行榜数据
+            this._rankLayer.referRankData(data);
+        });
+        connect.on('sync-player-info', (data)=>{
+            //刷新玩家信息
+            this._gameLayer.referPlayerInfo(data);
+        });
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
             this._connect.emit('login', data);
@@ -90,9 +100,9 @@ class GameScene extends Scene {
     playerPushPiece(index) {
         this._connect.emit('choose-board', index);
     }
-    closeGameOverLayer(){
+    closeGameOverLayer() {
         //关闭了游戏结束层
-        if (this._gameLayer){
+        if (this._gameLayer) {
             this._gameLayer.removeAllPiece();
         }
     }

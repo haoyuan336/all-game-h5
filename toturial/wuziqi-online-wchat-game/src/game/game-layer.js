@@ -102,5 +102,10 @@ class GameLayer extends Layer {
         }
         this._pieceMap = [];
     }
+    referPlayerInfo(data){
+        for (let i in this._headList){
+            this._headList[i].referPlayerInfo(data);
+        }
+    }
 }
 export default GameLayer;

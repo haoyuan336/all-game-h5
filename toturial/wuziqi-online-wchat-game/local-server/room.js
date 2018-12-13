@@ -31,7 +31,11 @@ class Room {
             this._playerList[i].syncCurrentColor(this._currentColor);
         }
     }
-
+    playerReferInfo(player){
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            this._playerList[i].syncPlayerInfo(player);
+        }
+    }
     removePlayer(playerId) {
         for (let i = 0; i < this._playerList.length; i++) {
             if (this._playerList[i].id == playerId) {
