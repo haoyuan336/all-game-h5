@@ -45,6 +45,14 @@ class App {
         this.syncGameData();
         player.syncRankData(rank.getRankList());
     }
+    reConnect(socket, id){
+        console.log('app reconnect = ', id);
+        
+        if (this._playerMap[id]){
+            console.log('存在此玩家');
+            this._playerMap[id].reConnect(socket);
+        }
+    }
     createRoom() {
         let id = this._idCreate.getNextID();
         let room = new Room(id, this);

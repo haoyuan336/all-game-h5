@@ -9,19 +9,19 @@ class Layer extends PIXI.Container {
             .on('pointerup', this.onTouchEnd.bind(this))
             .on('pointerupoutside', this.onTouchEnd.bind(this))
             .on('pointermove', this.onTouchMove.bind(this));
-        wx.onTouchStart((event) => {
-            let data = {
-                x: event.touches[0].clientX * 750 / windowWidth,
-                y: event.touches[0].clientY * 750 / windowWidth
-            }
-            if (director.screenType == 'length') {
-                data = {
-                    x: event.touches[0].clientX * 2,
-                    y: event.touches[0].clientY * 2
-                }
-            }
-            this.onTouchStart({ data: data });
-        });
+        // wx.onTouchStart((event) => {
+        //     let data = {
+        //         x: event.touches[0].clientX * 750 / windowWidth,
+        //         y: event.touches[0].clientY * 750 / windowWidth
+        //     }
+        //     if (director.screenType == 'length') {
+        //         data = {
+        //             x: event.touches[0].clientX * 2,
+        //             y: event.touches[0].clientY * 2
+        //         }
+        //     }
+        //     this.onTouchStart({ data: data });
+        // });
     }
     onLoad() {
 

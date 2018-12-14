@@ -56,10 +56,10 @@ class LoadScene extends PIXI.Container {
         this._graphics.clear();
         this._graphics.lineStyle(2, 0x0000FF, 1);
         this._graphics.beginFill(0xffffff, 1);
-        this._graphics.drawRect(director.width * 0.5 - 50, 250, 100 * value, 20);
+        this._graphics.drawRect(director.designSize.width * 0.5 - 50, director.designSize.height * 0.5, 100 * value, 20);
         this._text.position = {
-            x: director.width * 0.5 - 50 + 100 * value,
-            y: 250 + 5
+            x: director.designSize.width * 0.5 - 50 + 100 * value,
+            y: director.designSize.height * 0.5 + 5
         }
         this._text.text = Math.round(value * 100) + '%';
     }
@@ -68,5 +68,9 @@ class LoadScene extends PIXI.Container {
         this._loadRes(this.loader, this._resList)
 
     }
+    /**
+     *  楚浩远
+     *  1.互动游戏小货车优化（开发100%，已提测）上线日期12.14
+     */
 }
 export default LoadScene;

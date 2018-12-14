@@ -14,7 +14,7 @@ class RankLayer extends Layer {
             x: 0,
             y: director.screenType == 'normal' ? 1050 : 1100
         }
-        // this.interactive = true;
+        this.interactive = true;
         this._targetY = director.screenType == 'normal' ? 1050 : 1100;
         this._isDown = false;
 
@@ -22,9 +22,9 @@ class RankLayer extends Layer {
 
     }
     onTouchStart(event) {
-        if (event.data.y < this._targetY) {
-            return;
-        }
+        // if (event.data.y < this._targetY) {
+        //     return;
+        // }
         this._isDown = !this._isDown;
         if (this._isDown) {
             this._targetY = director.screenType == 'normal' ? 1050 : 1100;
@@ -38,7 +38,7 @@ class RankLayer extends Layer {
     referRankData(data) {
         console.log('刷新排行榜数据', data);
         for (let i = 0; i < data.length; i++) {
-            if (this._rankHeadMap[i] && this._rankHeadMap[i].avatar != data[i].avatar) {
+            if (this._rankHeadMap[i]) {
                 this._rankHeadMap[i].referInfo(data[i]);
             } else if (!this._rankHeadMap[i]) {
                 let head = new RankHead(data[i]);

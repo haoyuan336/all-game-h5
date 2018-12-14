@@ -8,6 +8,9 @@ import RankLayer from './rank-layer'
 class GameScene extends Scene {
     constructor() {
         super();
+
+
+
     }
     setAuthorize(cb) {
         wx.getSetting({
@@ -23,19 +26,29 @@ class GameScene extends Scene {
         })
     }
     showLoginButton(cb) {
-        let button = new Button({
-            normalTexture: global.resource[resources.denglu_button].texture,
-            touchCb: () => {
-                console.log('click');
-                wx.authorize({
-                    scope: 'scope.userInfo',
-                    success: () => {
-                        this.login(cb);
-                    }
-                })
+        let button = wx.createUserInfoButton({
+            type: 'image',
+            image: defines.resourcesUrl + '/images/login_button.png',
+            // image: './static/textures/login_button.png',
+
+            style: {
+                left: director.windowWidth * 0.5 - 136 * 0.5,
+                top: director.windowHeight * 0.5 - 74 * 0.5,
+                width: 136,
+                height: 74
             }
         });
-        this.addChild(button);
+        button.onTap((res) => {
+            console.log('res  =', res);
+            if (res.errMsg === 'getUserInfo:ok') {
+                button.hide();
+                if (cb) {
+                    cb(res.userInfo);
+                }
+            } else {
+
+            }
+        });
     }
     login(cb) {
         wx.getUserInfo({
@@ -60,18 +73,45 @@ class GameScene extends Scene {
         this.addLayer(this._rankLayer);
         this._uiLayer = new UILayer(this);
         this.addLayer(this._uiLayer);
-
+        let _isOffline = false;
         let connect = SocketIO(defines.socketUrl);
+
+        wx.onHide(() => {
+            //隐藏
+            console.log('隐藏游戏');
+            connect.emit('enter-back');
+        });
+        wx.onShow(() => {
+            //显示
+            connect.emit('enter-forward');
+            if (global.id){
+                //如果存在用户id 说明是重连游戏 ，那么给服务器发送一条消息 ，重新连接的消息
+                connect.emit('re-connect', global.id);
+            }
+        })
+
         this._connect = connect;
+        connect.on('disconnect', () => {
+            console.log('掉线');
+            _isOffline = true;
+        });
         connect.on('login-success', (data) => {
             console.log('登录成功');
             global.id = data;
+            _isOffline = false;
         });
 
         connect.on('player-join-room', (data) => {
             console.log('create head ', data);
             for (let i = 0; i < data.length; i++) {
                 this._gameLayer.createHead(data[i]);
+            }
+        });
+
+        connect.on('player-enter-back', (data)=>{
+            console.log('player enter back', data);
+            if (this._gameLayer){
+                this._gameLayer.playerEnterBack(data);
             }
         });
         connect.on('sync-current-color', (color) => {
@@ -83,13 +123,16 @@ class GameScene extends Scene {
         connect.on('game-win', (color) => {
             this._uiLayer.showWin(color);
         });
-        connect.on('refer-rank', (data)=>{
+        connect.on('refer-rank', (data) => {
             //刷新排行榜数据
             this._rankLayer.referRankData(data);
         });
-        connect.on('sync-player-info', (data)=>{
+        connect.on('sync-player-info', (data) => {
             //刷新玩家信息
             this._gameLayer.referPlayerInfo(data);
+        });
+        connect.on('player-offline', (playerId) => {
+            this._gameLayer.playerOffLine(playerId);
         });
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);

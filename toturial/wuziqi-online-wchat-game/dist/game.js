@@ -46832,11 +46832,11 @@ function (_PIXI$Container) {
 
       this._graphics.beginFill(0xffffff, 1);
 
-      this._graphics.drawRect(_util_import__WEBPACK_IMPORTED_MODULE_1__["director"].width * 0.5 - 50, 250, 100 * value, 20);
+      this._graphics.drawRect(_util_import__WEBPACK_IMPORTED_MODULE_1__["director"].designSize.width * 0.5 - 50, _util_import__WEBPACK_IMPORTED_MODULE_1__["director"].designSize.height * 0.5, 100 * value, 20);
 
       this._text.position = {
-        x: _util_import__WEBPACK_IMPORTED_MODULE_1__["director"].width * 0.5 - 50 + 100 * value,
-        y: 250 + 5
+        x: _util_import__WEBPACK_IMPORTED_MODULE_1__["director"].designSize.width * 0.5 - 50 + 100 * value,
+        y: _util_import__WEBPACK_IMPORTED_MODULE_1__["director"].designSize.height * 0.5 + 5
       };
       this._text.text = Math.round(value * 100) + '%';
     }
@@ -46847,6 +46847,11 @@ function (_PIXI$Container) {
 
       this._loadRes(this.loader, this._resList);
     }
+    /**
+     *  楚浩远
+     *  1.互动游戏小货车优化（开发100%，已提测）上线日期12.14
+     */
+
   }]);
 
   return LoadScene;
@@ -46886,8 +46891,8 @@ var ScreenSize = {
 __webpack_require__.r(__webpack_exports__);
 var defines = {
   resourcesUrl: "http://chutianba.xyz:8000/wuziqi-online-resources",
-  // socketUrl: "ws://www.chutianba.xyz:3002"
-  socketUrl: "http://localhost:3002"
+  socketUrl: "ws://www.chutianba.xyz:3002" // socketUrl: "http://localhost:3002"
+
 };
 /* harmony default export */ __webpack_exports__["default"] = (defines);
 
@@ -46970,21 +46975,42 @@ function (_Layer) {
     }
 
     _this.interactive = true;
-    _this.isTouching = false;
+    _this.isTouching = false; // let button = new Button({
+    //     normalTexture: global.resource[resources.share_button].texture
+    // });
+    // this.addChild(button);
+    // button.position = {
+    //     x: 200,
+    //     y: 500
+    // }
+
     return _this;
   }
 
   _createClass(GameLayer, [{
     key: "referBoard",
     value: function referBoard(data) {
+      var _this2 = this;
+
       for (var i in data) {
         if (this._pieceMap[i] == undefined) {
-          var color = data[i];
-          var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[color == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture);
-          this.addChild(piece);
-          piece.scale.set(2);
-          piece.position = this._piecePosList[i];
-          this._pieceMap[i] = piece;
+          (function () {
+            var color = data[i];
+            var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[color == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture);
+
+            _this2.addChild(piece);
+
+            piece.scale.set(2);
+            piece.position = _this2._piecePosList[i];
+            _this2._pieceMap[i] = piece;
+            var audio = wx.createInnerAudioContext();
+            audio.autoplay = true;
+            audio.src = './static/audio/piece_audio.mp3';
+            audio.onStop(function () {
+              console.log('音频播放完成，删掉音频');
+              audio.destroy();
+            });
+          })();
         }
       }
     }
@@ -47031,9 +47057,9 @@ function (_Layer) {
   }, {
     key: "onTouchStart",
     value: function onTouchStart(event) {
-      var _this2 = this;
+      var _this3 = this;
 
-      var data = event.data;
+      var data = event.data.getLocalPosition(this);
 
       if (this.isTouching) {
         return;
@@ -47041,7 +47067,7 @@ function (_Layer) {
 
       this.isTouching = true;
       setTimeout(function () {
-        _this2.isTouching = false;
+        _this3.isTouching = false;
       }, 200);
       var touchVec = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](data.x, data.y);
 
@@ -47070,6 +47096,26 @@ function (_Layer) {
     value: function referPlayerInfo(data) {
       for (var i in this._headList) {
         this._headList[i].referPlayerInfo(data);
+      }
+    }
+  }, {
+    key: "playerOffLine",
+    value: function playerOffLine(playerId) {
+      console.log('玩家掉线');
+
+      for (var i in this._headList) {
+        if (this._headList[i].getId() == playerId) {
+          this.removeChild(this._headList[i]);
+
+          this._headList.splice(i, 1);
+        }
+      }
+    }
+  }, {
+    key: "playerEnterBack",
+    value: function playerEnterBack(data) {
+      for (var i in this._headList) {
+        this._headList[i].playerEnterBack(data.id, data.state);
       }
     }
   }]);
@@ -47154,21 +47200,28 @@ function (_Scene) {
   }, {
     key: "showLoginButton",
     value: function showLoginButton(cb) {
-      var _this2 = this;
-
-      var button = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
-        normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].denglu_button].texture,
-        touchCb: function touchCb() {
-          console.log('click');
-          wx.authorize({
-            scope: 'scope.userInfo',
-            success: function success() {
-              _this2.login(cb);
-            }
-          });
+      var button = wx.createUserInfoButton({
+        type: 'image',
+        image: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/login_button.png',
+        // image: './static/textures/login_button.png',
+        style: {
+          left: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].windowWidth * 0.5 - 136 * 0.5,
+          top: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].windowHeight * 0.5 - 74 * 0.5,
+          width: 136,
+          height: 74
         }
       });
-      this.addChild(button);
+      button.onTap(function (res) {
+        console.log('res  =', res);
+
+        if (res.errMsg === 'getUserInfo:ok') {
+          button.hide();
+
+          if (cb) {
+            cb(res.userInfo);
+          }
+        } else {}
+      });
     }
   }, {
     key: "login",
@@ -47191,7 +47244,7 @@ function (_Scene) {
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this3 = this;
+      var _this2 = this;
 
       console.log('初始化游戏');
       this._gameLayer = new _game_layer__WEBPACK_IMPORTED_MODULE_1__["default"](this);
@@ -47200,40 +47253,70 @@ function (_Scene) {
       this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
+      var _isOffline = false;
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
+      wx.onHide(function () {
+        //隐藏
+        console.log('隐藏游戏');
+        connect.emit('enter-back');
+      });
+      wx.onShow(function () {
+        //显示
+        connect.emit('enter-forward');
+
+        if (_global__WEBPACK_IMPORTED_MODULE_4__["default"].id) {
+          //如果存在用户id 说明是重连游戏 ，那么给服务器发送一条消息 ，重新连接的消息
+          connect.emit('re-connect', _global__WEBPACK_IMPORTED_MODULE_4__["default"].id);
+        }
+      });
       this._connect = connect;
+      connect.on('disconnect', function () {
+        console.log('掉线');
+        _isOffline = true;
+      });
       connect.on('login-success', function (data) {
         console.log('登录成功');
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
+        _isOffline = false;
       });
       connect.on('player-join-room', function (data) {
         console.log('create head ', data);
 
         for (var i = 0; i < data.length; i++) {
-          _this3._gameLayer.createHead(data[i]);
+          _this2._gameLayer.createHead(data[i]);
+        }
+      });
+      connect.on('player-enter-back', function (data) {
+        console.log('player enter back', data);
+
+        if (_this2._gameLayer) {
+          _this2._gameLayer.playerEnterBack(data);
         }
       });
       connect.on('sync-current-color', function (color) {
-        _this3._gameLayer.changeCurrentColor(color);
+        _this2._gameLayer.changeCurrentColor(color);
       });
       connect.on('sync-board-data', function (data) {
-        _this3._gameLayer.referBoard(data);
+        _this2._gameLayer.referBoard(data);
       });
       connect.on('game-win', function (color) {
-        _this3._uiLayer.showWin(color);
+        _this2._uiLayer.showWin(color);
       });
       connect.on('refer-rank', function (data) {
         //刷新排行榜数据
-        _this3._rankLayer.referRankData(data);
+        _this2._rankLayer.referRankData(data);
       });
       connect.on('sync-player-info', function (data) {
         //刷新玩家信息
-        _this3._gameLayer.referPlayerInfo(data);
+        _this2._gameLayer.referPlayerInfo(data);
+      });
+      connect.on('player-offline', function (playerId) {
+        _this2._gameLayer.playerOffLine(playerId);
       });
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
 
-        _this3._connect.emit('login', data);
+        _this2._connect.emit('login', data);
       }); // this._uiLayer.showWin('black');
     }
   }, {
@@ -47276,6 +47359,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
@@ -47296,12 +47383,13 @@ var GameOverLayer =
 function (_Layer) {
   _inherits(GameOverLayer, _Layer);
 
-  function GameOverLayer(color) {
+  function GameOverLayer(color, controller) {
     var _this;
 
     _classCallCheck(this, GameOverLayer);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(GameOverLayer).call(this));
+    _this._controller = controller;
     console.log('画矩形');
     var graphics = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_1__["Graphics"]();
 
@@ -47332,8 +47420,45 @@ function (_Layer) {
       x: 750 * 0.5,
       y: 600
     };
+    var bgButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+      width: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width,
+      height: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height,
+      touchCb: function touchCb() {
+        _this._controller.gameOverClose();
+      }
+    });
+    bgButton.alpha = 0;
+
+    _this.addChild(bgButton);
+
+    bgButton.position = {
+      x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
+    };
+    var button = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+      normalTexture: _global__WEBPACK_IMPORTED_MODULE_2__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].share_button].texture,
+      width: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width,
+      height: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height,
+      touchCb: function touchCb() {
+        console.log('分享的操作');
+      }
+    });
+    button.scale.set(2);
+
+    _this.addChild(button);
+
+    button.position = {
+      x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+      y: 800
+    };
     return _this;
   }
+
+  _createClass(GameOverLayer, [{
+    key: "onTouchStart",
+    value: function onTouchStart() {// this._controller.gameOverClose();
+    }
+  }]);
 
   return GameOverLayer;
 }(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
@@ -47402,6 +47527,17 @@ function (_Layer) {
       _this._avatar = new PIXI.Sprite.from(image);
 
       _this.addChild(_this._avatar);
+
+      _this._wifiLogo = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].wifi_logo].texture);
+
+      _this.addChild(_this._wifiLogo);
+
+      _this._wifiLogo.scale.set(0.5);
+
+      _this._wifiLogo.position = {
+        x: 30,
+        y: 30
+      };
     };
 
     _this._nickNameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.nickName, {
@@ -47476,6 +47612,13 @@ function (_Layer) {
         this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : data.rankNum + 1 + ":排行";
       }
     }
+  }, {
+    key: "playerEnterBack",
+    value: function playerEnterBack(playerId, value) {
+      if (this._id == playerId) {
+        this._wifiLogo.alpha = value ? 0.5 : 1;
+      }
+    }
   }]);
 
   return Head;
@@ -47541,6 +47684,7 @@ function (_Layer) {
 
     var image = wx.createImage();
     image.src = spec.avatar;
+    _this._avatarUrl = spec.avatar;
 
     image.onload = function () {
       _this._avatar = new PIXI.Sprite.from(image);
@@ -47587,12 +47731,37 @@ function (_Layer) {
       x: 120,
       y: 30
     };
+    _this._scoreLabel = scoreLabel;
     return _this;
   }
 
   _createClass(RankHead, [{
     key: "referInfo",
-    value: function referInfo(data) {}
+    value: function referInfo(data) {
+      var _this2 = this;
+
+      if (this._avatarUrl !== data.avatar) {
+        //这里切换头像精灵
+        // this.removeChild(this._avatar);
+        var image = wx.createImage();
+        image.src = data.avatar;
+        this._avatarUrl = data.avatar;
+
+        image.onload = function () {
+          var texture = new PIXI.Texture.from(image);
+          _this2._avatar.texture = texture;
+
+          _this2._avatar.scale.set(0.5);
+
+          _this2._avatar.position = {
+            x: 50,
+            y: 0
+          };
+        };
+      }
+
+      this._scoreLabel.text = data.score;
+    }
   }]);
 
   return RankHead;
@@ -47660,9 +47829,9 @@ function (_Layer) {
     graphics.addChild(rect);
     _this.position = {
       x: 0,
-      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100 // this.interactive = true;
-
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100
     };
+    _this.interactive = true;
     _this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
     _this._isDown = false;
     _this._rankHeadMap = {};
@@ -47672,10 +47841,9 @@ function (_Layer) {
   _createClass(RankLayer, [{
     key: "onTouchStart",
     value: function onTouchStart(event) {
-      if (event.data.y < this._targetY) {
-        return;
-      }
-
+      // if (event.data.y < this._targetY) {
+      //     return;
+      // }
       this._isDown = !this._isDown;
 
       if (this._isDown) {
@@ -47695,7 +47863,7 @@ function (_Layer) {
       console.log('刷新排行榜数据', data);
 
       for (var i = 0; i < data.length; i++) {
-        if (this._rankHeadMap[i] && this._rankHeadMap[i].avatar != data[i].avatar) {
+        if (this._rankHeadMap[i]) {
           this._rankHeadMap[i].referInfo(data[i]);
         } else if (!this._rankHeadMap[i]) {
           var head = new _rank_head__WEBPACK_IMPORTED_MODULE_2__["default"](data[i]);
@@ -47757,7 +47925,9 @@ function (_Layer) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UILayer).call(this));
     _this._gameOverLayer = undefined;
-    _this._controller = controller;
+    _this._controller = controller; // this._gameOverLayer = new GameOverLayer('black', this);
+    // this.addChild(this._gameOverLayer);
+
     return _this;
   }
 
@@ -47765,24 +47935,20 @@ function (_Layer) {
     key: "showWin",
     value: function showWin(color) {
       if (!this._gameOverLayer) {
-        this._gameOverLayer = new _gameover_layer__WEBPACK_IMPORTED_MODULE_1__["default"](color);
+        this._gameOverLayer = new _gameover_layer__WEBPACK_IMPORTED_MODULE_1__["default"](color, this);
         this.addChild(this._gameOverLayer);
       }
-
-      this.interactive = true;
     }
   }, {
-    key: "onTouchStart",
-    value: function onTouchStart() {
-      this.interactive = false;
-
+    key: "gameOverClose",
+    value: function gameOverClose() {
       if (this._gameOverLayer) {
         this.removeChild(this._gameOverLayer);
         this._gameOverLayer = undefined;
+      }
 
-        if (this._controller) {
-          this._controller.closeGameOverLayer();
-        }
+      if (this._controller) {
+        this._controller.closeGameOverLayer();
       }
     }
   }]);
@@ -47823,7 +47989,10 @@ var res = {
   "bg": "./images/bg.jpg",
   "denglu_button": "./images/denglu_button.png",
   "piece_black": "./images/piece_black.png",
-  "piece_white": "./images/piece_white.png"
+  "piece_white": "./images/piece_white.png",
+  "share_button": "./images/share_button.png",
+  "login_button": "./images/login_button.png",
+  "wifi_logo": "./images/wifi_logo.png"
 };
 /* harmony default export */ __webpack_exports__["default"] = (res);
 
@@ -48647,6 +48816,8 @@ function (_Layer) {
       pressedScale: 1.2,
       normalAlpha: 1,
       pressedAlpha: 0.5,
+      width: 100,
+      height: 60,
       touchCb: function touchCb() {}
     };
 
@@ -48675,7 +48846,7 @@ function (_Layer) {
 
       _this.addChild(_this._graphics);
 
-      _this._graphics.rectDraw(-50, -30, 100, 60);
+      _this._graphics.rectDraw(-_this._buttonStyle.width * 0.5, -_this._buttonStyle.height * 0.5, _this._buttonStyle.width, _this._buttonStyle.height);
     }
 
     if (_this._buttonStyle.pressedTexture) {
@@ -48708,11 +48879,18 @@ function (_Layer) {
           break;
 
         case TouchType.Scale:
-          this.scale.set(this._buttonStyle.pressedScale);
+          // this.scale.set(this._buttonStyle.pressedScale);
+          if (this._sprite) {
+            this._sprite.scale.set(this._buttonStyle.pressedScale);
+          }
+
           break;
 
         case TouchType.Alpha:
-          this._sprite.alpha = this._buttonStyle.pressedAlpha;
+          if (this._sprite) {
+            this._sprite.alpha = this._buttonStyle.pressedAlpha;
+          }
+
           break;
 
         default:
@@ -48728,11 +48906,19 @@ function (_Layer) {
           break;
 
         case TouchType.Scale:
-          this.scale.set(this._buttonStyle.normalScale);
+          // this.scale.set(this._buttonStyle.normalScale)
+          if (this._sprite) {
+            this._sprite.scale.set(this._buttonStyle.normalScale);
+          }
+
           break;
 
         case TouchType.Alpha:
-          this.scale.set(this._buttonStyle.normalAlpha);
+          // this.scale.set(this._buttonStyle.normalAlpha);
+          if (this._sprite) {
+            this._sprite.scale.set(this._buttonStyle.normalAlpha);
+          }
+
           break;
 
         default:
@@ -48787,6 +48973,8 @@ function () {
       console.log('height', windowHeight);
       this.width = windowWidth * pixelRatio;
       this.height = windowHeight * pixelRatio;
+      this.windowWidth = windowWidth;
+      this.windowHeight = windowHeight;
       this.runningScene = undefined;
       this.pixelRatio = pixelRatio;
       /* 根据需要 */
@@ -48826,6 +49014,32 @@ function () {
       //     point.x = x * 3;
       //     point.y = y * 3;
       // }
+
+      if (director.screenType == 'normal') {
+        this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
+          point.x = x * 750 / windowWidth;
+          point.y = y * 750 / windowWidth;
+        };
+      } else {
+        // console.log('设置')
+        this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
+          point.x = x * 750 / windowWidth;
+          point.y = y * 1334 / windowHeight;
+        };
+      } // wx.onTouchStart((event) => {
+      //     let data = {
+      //         x: event.touches[0].clientX * 750 / windowWidth,
+      //         y: event.touches[0].clientY * 750 / windowWidth
+      //     }
+      //     if (director.screenType == 'length') {
+      //         data = {
+      //             x: event.touches[0].clientX * 2,
+      //             y: event.touches[0].clientY * 2
+      //         }
+      //     }
+      //     this.onTouchStart({ data: data });
+      // });
+
     }
   }, {
     key: "update",
@@ -49245,25 +49459,21 @@ function (_PIXI$Container) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Layer).call(this));
 
-    _this.on('pointerdown', _this.onTouchStart.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerup', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerupoutside', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointermove', _this.onTouchMove.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+    _this.on('pointerdown', _this.onTouchStart.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerup', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointerupoutside', _this.onTouchEnd.bind(_assertThisInitialized(_assertThisInitialized(_this)))).on('pointermove', _this.onTouchMove.bind(_assertThisInitialized(_assertThisInitialized(_this)))); // wx.onTouchStart((event) => {
+    //     let data = {
+    //         x: event.touches[0].clientX * 750 / windowWidth,
+    //         y: event.touches[0].clientY * 750 / windowWidth
+    //     }
+    //     if (director.screenType == 'length') {
+    //         data = {
+    //             x: event.touches[0].clientX * 2,
+    //             y: event.touches[0].clientY * 2
+    //         }
+    //     }
+    //     this.onTouchStart({ data: data });
+    // });
 
-    wx.onTouchStart(function (event) {
-      var data = {
-        x: event.touches[0].clientX * 750 / windowWidth,
-        y: event.touches[0].clientY * 750 / windowWidth
-      };
 
-      if (_director__WEBPACK_IMPORTED_MODULE_0__["default"].screenType == 'length') {
-        data = {
-          x: event.touches[0].clientX * 2,
-          y: event.touches[0].clientY * 2
-        };
-      }
-
-      _this.onTouchStart({
-        data: data
-      });
-    });
     return _this;
   }
 

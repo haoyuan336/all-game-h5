@@ -21,8 +21,8 @@ class Room {
         this.playerJoinRoom(this._playerList);
 
     }
-    playerJoinRoom(player){
-        for (let i = 0 ; i < this._playerList.length ; i ++){
+    playerJoinRoom(player) {
+        for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].playerJoinRoom(player);
         }
     }
@@ -31,15 +31,25 @@ class Room {
             this._playerList[i].syncCurrentColor(this._currentColor);
         }
     }
-    playerReferInfo(player){
-        for (let i = 0 ; i < this._playerList.length ; i ++){
+    playerReferInfo(player) {
+        for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncPlayerInfo(player);
+        }
+    }
+    playerEnterBack(player, state){
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            this._playerList[i].playerEnterBack(player, state);
         }
     }
     removePlayer(playerId) {
         for (let i = 0; i < this._playerList.length; i++) {
             if (this._playerList[i].id == playerId) {
+                this._playerList[i].destory();
                 this._playerList.splice(i, 1);
+                i --;
+            } else {
+                console.log('玩家掉线');
+                this._playerList[i].playerOffLine(playerId);
             }
         }
         if (this._playerList.length == 1) {

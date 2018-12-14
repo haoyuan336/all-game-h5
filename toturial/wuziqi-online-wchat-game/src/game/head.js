@@ -17,6 +17,13 @@ class Head extends Layer {
         image.onload = () => {
             this._avatar = new PIXI.Sprite.from(image);
             this.addChild(this._avatar);
+            this._wifiLogo = new Sprite(global.resource[resources.wifi_logo].texture);
+            this.addChild(this._wifiLogo);
+            this._wifiLogo.scale.set(0.5);
+            this._wifiLogo.position = {
+                x: 30,
+                y: 30
+            }
         }
         this._nickNameLabel = new Label(spec.nickName, {
             fontSize: 40
@@ -65,6 +72,9 @@ class Head extends Layer {
         }
         //只有排行榜小于100的时候，才会显示这个排行榜标识
         this._rankLabel.visible = spec.rankNum < 100;
+
+
+
     }
     getId() {
         return this._id;
@@ -74,6 +84,11 @@ class Head extends Layer {
             this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
             this._rankLabel.visible = data.rankNum < 100;
             this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : (data.rankNum + 1) + ":排行"
+        }
+    }
+    playerEnterBack(playerId, value) {
+        if (this._id == playerId) {
+            this._wifiLogo.alpha = value ? 0.5 : 1;
         }
     }
 }

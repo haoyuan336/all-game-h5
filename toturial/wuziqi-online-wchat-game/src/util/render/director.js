@@ -5,6 +5,8 @@ class Director {
         console.log('height', windowHeight);
         this.width = windowWidth * pixelRatio;
         this.height = windowHeight * pixelRatio;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
         this.runningScene = undefined;
         this.pixelRatio = pixelRatio;
         /* 根据需要 */
@@ -49,6 +51,35 @@ class Director {
         //     point.x = x * 3;
         //     point.y = y * 3;
         // }
+
+
+        if (director.screenType == 'normal') {
+            this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+                point.x = x * 750 / windowWidth;
+                point.y = y * 750 / windowWidth;
+            }
+        }else {
+            // console.log('设置')
+            this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+                point.x = x * 750/windowWidth;
+                point.y = y * 1334/windowHeight;
+            }
+        }
+
+
+        // wx.onTouchStart((event) => {
+        //     let data = {
+        //         x: event.touches[0].clientX * 750 / windowWidth,
+        //         y: event.touches[0].clientY * 750 / windowWidth
+        //     }
+        //     if (director.screenType == 'length') {
+        //         data = {
+        //             x: event.touches[0].clientX * 2,
+        //             y: event.touches[0].clientY * 2
+        //         }
+        //     }
+        //     this.onTouchStart({ data: data });
+        // });
     }
 
 

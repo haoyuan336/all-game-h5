@@ -17,13 +17,13 @@ class GameLogic {
             countMap[j] = 0;
             let value = 1;
             if (j == 1) {
-                value = 15;
+                value = 13;
             }
             if (j == 2) {
-                value = 16;
+                value = 14;
             }
             if (j == 3) {
-                value = 14;
+                value = 12;
             }
             for (let i = -4; i < 5; i++) {
                 let startIndex = index + i * value;

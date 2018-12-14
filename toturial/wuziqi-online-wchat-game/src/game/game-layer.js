@@ -1,4 +1,4 @@
-import { Layer, Sprite, director, Vec2 } from './../util/import'
+import { Layer, Sprite, director, Vec2, Button } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
@@ -31,6 +31,16 @@ class GameLayer extends Layer {
         }
         this.interactive = true;
         this.isTouching = false;
+
+
+        // let button = new Button({
+        //     normalTexture: global.resource[resources.share_button].texture
+        // });
+        // this.addChild(button);
+        // button.position = {
+        //     x: 200,
+        //     y: 500
+        // }
     }
     referBoard(data) {
         for (let i in data) {
@@ -41,6 +51,14 @@ class GameLayer extends Layer {
                 piece.scale.set(2);
                 piece.position = this._piecePosList[i];
                 this._pieceMap[i] = piece;
+
+                let audio = wx.createInnerAudioContext();
+                audio.autoplay = true;
+                audio.src = './static/audio/piece_audio.mp3';
+                audio.onStop(() => {
+                    console.log('音频播放完成，删掉音频');
+                    audio.destroy();
+                })
             }
         }
     }
@@ -75,7 +93,7 @@ class GameLayer extends Layer {
         this._currentColorPiece.scale.set(2);
     }
     onTouchStart(event) {
-        let data = event.data;
+        let data = event.data.getLocalPosition(this);
         if (this.isTouching) {
             return
         }
@@ -102,9 +120,23 @@ class GameLayer extends Layer {
         }
         this._pieceMap = [];
     }
-    referPlayerInfo(data){
-        for (let i in this._headList){
+    referPlayerInfo(data) {
+        for (let i in this._headList) {
             this._headList[i].referPlayerInfo(data);
+        }
+    }
+    playerOffLine(playerId) {
+        console.log('玩家掉线');
+        for (let i in this._headList) {
+            if (this._headList[i].getId() == playerId) {
+                this.removeChild(this._headList[i]);
+                this._headList.splice(i, 1);
+            }
+        }
+    }
+    playerEnterBack(data){
+        for (let i in this._headList){
+            this._headList[i].playerEnterBack(data.id, data.state);
         }
     }
 }

@@ -35,11 +35,12 @@ class Button extends Layer {
 
             normalAlpha: 1,
             pressedAlpha: 0.5,
+            width: 100,
+            height: 60,
             touchCb: () => {
-
             }
-
         }
+
 
         if (spec) {
             for (let i in this._buttonStyle) {
@@ -66,7 +67,7 @@ class Button extends Layer {
         } else {
             this._graphics = new Graphics();
             this.addChild(this._graphics);
-            this._graphics.rectDraw(-50, - 30, 100, 60);
+            this._graphics.rectDraw(-this._buttonStyle.width * 0.5, - this._buttonStyle.height * 0.5, this._buttonStyle.width, this._buttonStyle.height);
         }
         if (this._buttonStyle.pressedTexture) {
             this._buttonStyle.touchType = TouchType.Sprite;
@@ -91,10 +92,17 @@ class Button extends Layer {
                 this._sprite.texture = this._buttonStyle.pressedTexture;
                 break;
             case TouchType.Scale:
-                this.scale.set(this._buttonStyle.pressedScale);
+                // this.scale.set(this._buttonStyle.pressedScale);
+                if (this._sprite) {
+                    this._sprite.scale.set(this._buttonStyle.pressedScale);
+                }
+
                 break;
             case TouchType.Alpha:
-                this._sprite.alpha = this._buttonStyle.pressedAlpha;
+                if (this._sprite) {
+                    this._sprite.alpha = this._buttonStyle.pressedAlpha;
+
+                }
                 break;
             default:
                 break;
@@ -107,10 +115,20 @@ class Button extends Layer {
 
                 break;
             case TouchType.Scale:
-                this.scale.set(this._buttonStyle.normalScale)
+                // this.scale.set(this._buttonStyle.normalScale)
+                if (this._sprite) {
+                    this._sprite.scale.set(this._buttonStyle.normalScale);
+
+                }
+
                 break;
             case TouchType.Alpha:
-                this.scale.set(this._buttonStyle.normalAlpha);
+                // this.scale.set(this._buttonStyle.normalAlpha);
+                if (this._sprite) {
+                    this._sprite.scale.set(this._buttonStyle.normalAlpha);
+
+                }
+
                 break;
             default:
                 break;
