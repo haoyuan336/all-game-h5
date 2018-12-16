@@ -47988,11 +47988,13 @@ __webpack_require__.r(__webpack_exports__);
 var res = {
   "bg": "./images/bg.jpg",
   "denglu_button": "./images/denglu_button.png",
+  "leave_room": "./images/leave_room.png",
+  "login_button": "./images/login_button.png",
   "piece_black": "./images/piece_black.png",
   "piece_white": "./images/piece_white.png",
   "share_button": "./images/share_button.png",
-  "login_button": "./images/login_button.png",
-  "wifi_logo": "./images/wifi_logo.png"
+  "wifi_logo": "./images/wifi_logo.png",
+  "yaoqing_button": "./images/yaoqing_button.png"
 };
 /* harmony default export */ __webpack_exports__["default"] = (res);
 
