@@ -45,12 +45,22 @@ class App {
         this.syncGameData();
         player.syncRankData(rank.getRankList());
     }
-    reConnect(socket, id){
-        console.log('app reconnect = ', id);
-        
-        if (this._playerMap[id]){
+    reConnect(socket, data) {
+        console.log('app reconnect = ', data);
+
+        if (this._playerMap[data.id]) {
             console.log('存在此玩家');
-            this._playerMap[id].reConnect(socket);
+            //如果存在此玩家的id 说明内存里还有次玩家的信息，那么重新监听一下 socket 信息
+            this._playerMap[data.id].reConnect(socket);
+
+            //如果这个玩家 没有在房间里面 。那么给他分配一个新的房间
+            if (!this._playerMap[data.id].isInRoom()) {
+                //如果这个玩家 没有在房间里面 。那么再给他分配一个新的房间
+                this.assignRoom(this._playerMap[data.id]);
+            }
+        } else {
+            //如果不存在此玩家 ，那么就得重新创建玩家了
+            this.createPlayer(socket, data);
         }
     }
     createRoom() {
@@ -109,8 +119,8 @@ class App {
         }
     }
 
-    syncRankData(data){
-        for (let i in this._playerMap){
+    syncRankData(data) {
+        for (let i in this._playerMap) {
             this._playerMap[i].syncRankData(data);
         }
     }

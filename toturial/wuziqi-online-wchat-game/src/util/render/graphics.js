@@ -1,5 +1,6 @@
 import Vec2 from './../math/vec2'
 import Rect from './../math/rect'
+import { SHAPES } from 'pixi.js';
 const ShapeType = {
     Circle: 1,
     Rect: 2
@@ -82,6 +83,7 @@ class Shape {
 
     }
 };
+Shape.ShapeType = ShapeType;
 
 
 class Graphics extends PIXI.Graphics {

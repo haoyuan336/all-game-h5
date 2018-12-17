@@ -2,7 +2,7 @@ import { Layer, Sprite, director, Vec2, Button } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
-
+import defines from './../defines'
 class GameLayer extends Layer {
     constructor(controller) {
         super();
@@ -31,16 +31,6 @@ class GameLayer extends Layer {
         }
         this.interactive = true;
         this.isTouching = false;
-
-
-        // let button = new Button({
-        //     normalTexture: global.resource[resources.share_button].texture
-        // });
-        // this.addChild(button);
-        // button.position = {
-        //     x: 200,
-        //     y: 500
-        // }
     }
     referBoard(data) {
         for (let i in data) {
@@ -54,7 +44,7 @@ class GameLayer extends Layer {
 
                 let audio = wx.createInnerAudioContext();
                 audio.autoplay = true;
-                audio.src = './static/audio/piece_audio.mp3';
+                audio.src = defines.resourcesUrl + + '/images/piece_audio.mp3';
                 audio.onStop(() => {
                     console.log('音频播放完成，删掉音频');
                     audio.destroy();
@@ -63,20 +53,22 @@ class GameLayer extends Layer {
         }
     }
     createHead(data) {
-        let id = data.id;
-        for (let i = 0; i < this._headList.length; i++) {
-            console.log('已经存在的id?', this._headList[i].getId());
-            if (this._headList[i].getId() == id) {
-                return;
-            }
-        }
-        // data.type = this._headList.length == 0 ? 'left' : 'right';
-        console.log('id = ', id);
-        console.log('global id = ', global.id);
-        data.type = id == global.id ? 'left' : 'right';
-        let head = new Head(data);
-        this.addChild(head);
-        this._headList.push(head);
+        // let id = data.id;
+        // for (let i = 0; i < this._headList.length; i++) {
+        //     console.log('已经存在的id?', this._headList[i].getId());
+        //     if (this._headList[i].getId() == id) {
+        //         return;
+        //     }
+        // }
+        // // data.type = this._headList.length == 0 ? 'left' : 'right';
+        // console.log('id = ', id);
+        // console.log('global id = ', global.id);
+        // data.type = id == global.id ? 'left' : 'right';
+        // let head = new Head(data);
+        // head.referInfo(data);
+        // this.addChild(head);
+        // this._headList.push(head);
+
     }
     changeCurrentColor(color) {
         let texture = global.resource[color == 'black' ? resources.piece_black : resources.piece_white].texture
@@ -121,22 +113,35 @@ class GameLayer extends Layer {
         this._pieceMap = [];
     }
     referPlayerInfo(data) {
+        // for (let i in this._headList) {
+        //     this._headList[i].referPlayerInfo(data);
+        // }
+    }
+
+    playerEnterBack(data) {
         for (let i in this._headList) {
-            this._headList[i].referPlayerInfo(data);
+            this._headList[i].playerEnterBack(data.id, data.state);
         }
     }
-    playerOffLine(playerId) {
-        console.log('玩家掉线');
-        for (let i in this._headList) {
-            if (this._headList[i].getId() == playerId) {
-                this.removeChild(this._headList[i]);
-                this._headList.splice(i, 1);
+    syncPlayerInfo(data) {
+        let count = data.length - this._headList.length;
+        if (count < 0) {
+            for (let i = 0; i < count * -1; i++) {
+                let head = this._headList.pop();
+                this.removeChild(head);
+            }
+        } else {
+
+            for (let i = 0; i < count; i++) {
+                // this.createHead();
+                let head = new Head();
+                this.addChild(head);
+                this._headList.push(head);
             }
         }
-    }
-    playerEnterBack(data){
-        for (let i in this._headList){
-            this._headList[i].playerEnterBack(data.id, data.state);
+
+        for (let i = 0; i < data.length; i++) {
+            this._headList[i].referPlayerInfo(data[i]);
         }
     }
 }

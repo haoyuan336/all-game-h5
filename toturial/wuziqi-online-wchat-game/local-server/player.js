@@ -13,30 +13,25 @@ class Player {
 
         this._isEnterBack = false;
 
-       this.onMessage();
+        this.onMessage();
         this.avatarUrl = data.avatarUrl;
         this.nickName = data.nickName;
 
+        this._online = true;
     }
-    reConnect(socket){
+    reConnect(socket) {
         //如果是重新连接进来的 ，那么重新监听这些消息
         console.log('玩家又连接上了');
         this._socket = socket;
+        this._online = true;
+        
         this.onMessage();
     }
-    onMessage(){
+    onMessage() {
         this._socket.on('disconnect', () => {
             console.log('掉线');
-            this._room.playerEnterBack(this, true);
-
-            // if (this._isEnterBack) {
-            //     this._room.playerEnterBack(this, true);
-            // } else {
-            //     this._room.removePlayer(this.id);
-            //     this._controller.removePlayer(this.id);
-            // }
-            // this._room.removePlayer(this.id);
-            // this._controller.removePlayer(this.id);
+            this._online = false;
+            this._room.playerOffLine(this);
         });
         this._socket.on('choose-board', (index) => {
             if (this._room) {
@@ -48,6 +43,9 @@ class Player {
         this._socket.on('enter-back', () => {
             console.log('进入了后台');
             this._isEnterBack = true;
+            if (this._room) {
+                this._room.playerEnterBack(this, true);
+            }
         });
         this._socket.on('enter-forward', () => {
             console.log('进入了前台');
@@ -55,6 +53,10 @@ class Player {
             if (this._room) {
                 this._room.playerEnterBack(this, false);
             }
+        });
+        this._socket.on('re-start-game', ()=>{
+            console.log('重新开始游戏');
+            this._room.reStartGame(this);
         });
     }
     assignRoom(room) {
@@ -72,9 +74,9 @@ class Player {
         });
     }
     referGameData(data) {
-        data.room_id = this._room.id;
-        data.room_player_count = this._room.getPlayerCount();
-        this._socket.emit('refer-game-data', data);
+        // data.room_id = this._room.id;
+        // data.room_player_count = this._room.getPlayerCount();
+        // this._socket.emit('refer-game-data', data);
     }
     getColor() {
         return this._color;
@@ -89,15 +91,15 @@ class Player {
         this._score++;
         this._rankNum = rank.rank(this);
         db.setPlayerScore(this.avatarUrl, this._score);
-        this._room.playerReferInfo(this);
+        this._room.playerReferInfo();
     }
-    syncPlayerInfo(player) {
-        let data = {
-            id: player.id,
-            score: player.getScore(),
-            rankNum: player.getRankNum()
+    syncPlayerInfo(data) {
+        // let data = {
+        //     id: player.id,
+        //     score: player.getScore(),
+        //     rankNum: player.getRankNum()
 
-        }
+        // }
         this._socket.emit('sync-player-info', data);
     }
 
@@ -118,28 +120,29 @@ class Player {
         }
         this._socket.emit('game-win', color);
     }
-    playerJoinRoom(playerList) {
-        let dataList = [];
-        for (let i = 0; i < playerList.length; i++) {
-            let data = {
-                id: playerList[i].id,
-                avatarUrl: playerList[i].avatarUrl,
-                nickName: playerList[i].nickName,
-                pieceColor: playerList[i].getColor(),
-                score: playerList[i].getScore(),
-                rankNum: playerList[i].getRankNum()
-            }
-            dataList.push(data)
-        }
+    // playerJoinRoom(playerList) {
+    //     let dataList = [];
+    //     for (let i = 0; i < playerList.length; i++) {
+    //         let data = {
+    //             id: playerList[i].id,
+    //             avatarUrl: playerList[i].avatarUrl,
+    //             nickName: playerList[i].nickName,
+    //             pieceColor: playerList[i].getColor(),
+    //             score: playerList[i].getScore(),
+    //             rankNum: playerList[i].getRankNum()
+    //         }
+    //         dataList.push(data)
+    //     }
 
-        console.log('player join room ', dataList);
-        this._socket.emit('player-join-room', dataList);
-    }
+    //     console.log('player join room ', dataList);
+    //     this._socket.emit('player-join-room', dataList);
+    // }
     syncRankData(data) {
         this._socket.emit('refer-rank', data);
     }
     destory() {
         console.log('销毁玩家');
+        this._controller.removePlayer(this);
     }
     playerOffLine(playerId) {
         this._socket.emit('player-offline', playerId);
@@ -149,6 +152,18 @@ class Player {
             id: player.id,
             state: state
         })
+    }
+    isOnline() {
+        return this._online;
+    }
+    outRoom(){
+        this._room = undefined;
+    }
+    isInRoom(){
+        if (this._room){
+            return true;
+        }
+        return false;
     }
 }
 module.exports = Player;

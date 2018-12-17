@@ -46911,6 +46911,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
 /* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
 /* harmony import */ var _head__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./head */ "./src/game/head.js");
+/* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../defines */ "./src/defines.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46928,6 +46929,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -46975,15 +46977,7 @@ function (_Layer) {
     }
 
     _this.interactive = true;
-    _this.isTouching = false; // let button = new Button({
-    //     normalTexture: global.resource[resources.share_button].texture
-    // });
-    // this.addChild(button);
-    // button.position = {
-    //     x: 200,
-    //     y: 500
-    // }
-
+    _this.isTouching = false;
     return _this;
   }
 
@@ -47005,7 +46999,7 @@ function (_Layer) {
             _this2._pieceMap[i] = piece;
             var audio = wx.createInnerAudioContext();
             audio.autoplay = true;
-            audio.src = './static/audio/piece_audio.mp3';
+            audio.src = _defines__WEBPACK_IMPORTED_MODULE_4__["default"].resourcesUrl + +'/images/piece_audio.mp3';
             audio.onStop(function () {
               console.log('音频播放完成，删掉音频');
               audio.destroy();
@@ -47016,25 +47010,21 @@ function (_Layer) {
     }
   }, {
     key: "createHead",
-    value: function createHead(data) {
-      var id = data.id;
-
-      for (var i = 0; i < this._headList.length; i++) {
-        console.log('已经存在的id?', this._headList[i].getId());
-
-        if (this._headList[i].getId() == id) {
-          return;
-        }
-      } // data.type = this._headList.length == 0 ? 'left' : 'right';
-
-
-      console.log('id = ', id);
-      console.log('global id = ', _global__WEBPACK_IMPORTED_MODULE_1__["default"].id);
-      data.type = id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id ? 'left' : 'right';
-      var head = new _head__WEBPACK_IMPORTED_MODULE_3__["default"](data);
-      this.addChild(head);
-
-      this._headList.push(head);
+    value: function createHead(data) {// let id = data.id;
+      // for (let i = 0; i < this._headList.length; i++) {
+      //     console.log('已经存在的id?', this._headList[i].getId());
+      //     if (this._headList[i].getId() == id) {
+      //         return;
+      //     }
+      // }
+      // // data.type = this._headList.length == 0 ? 'left' : 'right';
+      // console.log('id = ', id);
+      // console.log('global id = ', global.id);
+      // data.type = id == global.id ? 'left' : 'right';
+      // let head = new Head(data);
+      // head.referInfo(data);
+      // this.addChild(head);
+      // this._headList.push(head);
     }
   }, {
     key: "changeCurrentColor",
@@ -47093,29 +47083,41 @@ function (_Layer) {
     }
   }, {
     key: "referPlayerInfo",
-    value: function referPlayerInfo(data) {
-      for (var i in this._headList) {
-        this._headList[i].referPlayerInfo(data);
-      }
-    }
-  }, {
-    key: "playerOffLine",
-    value: function playerOffLine(playerId) {
-      console.log('玩家掉线');
-
-      for (var i in this._headList) {
-        if (this._headList[i].getId() == playerId) {
-          this.removeChild(this._headList[i]);
-
-          this._headList.splice(i, 1);
-        }
-      }
+    value: function referPlayerInfo(data) {// for (let i in this._headList) {
+      //     this._headList[i].referPlayerInfo(data);
+      // }
     }
   }, {
     key: "playerEnterBack",
     value: function playerEnterBack(data) {
       for (var i in this._headList) {
         this._headList[i].playerEnterBack(data.id, data.state);
+      }
+    }
+  }, {
+    key: "syncPlayerInfo",
+    value: function syncPlayerInfo(data) {
+      var count = data.length - this._headList.length;
+
+      if (count < 0) {
+        for (var i = 0; i < count * -1; i++) {
+          var head = this._headList.pop();
+
+          this.removeChild(head);
+        }
+      } else {
+        for (var _i = 0; _i < count; _i++) {
+          // this.createHead();
+          var _head = new _head__WEBPACK_IMPORTED_MODULE_3__["default"]();
+
+          this.addChild(_head);
+
+          this._headList.push(_head);
+        }
+      }
+
+      for (var _i2 = 0; _i2 < data.length; _i2++) {
+        this._headList[_i2].referPlayerInfo(data[_i2]);
       }
     }
   }]);
@@ -47143,6 +47145,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../global */ "./src/global.js");
 /* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../defines */ "./src/defines.js");
 /* harmony import */ var _rank_layer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./rank-layer */ "./src/game/rank-layer.js");
+/* harmony import */ var _wait_layer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./wait-layer */ "./src/game/wait-layer.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47160,6 +47163,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -47255,20 +47259,30 @@ function (_Scene) {
       this.addLayer(this._uiLayer);
       var _isOffline = false;
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
-      wx.onHide(function () {
-        //隐藏
+
+      var onHide = function onHide() {
         console.log('隐藏游戏');
         connect.emit('enter-back');
-      });
-      wx.onShow(function () {
-        //显示
-        connect.emit('enter-forward');
+      };
 
-        if (_global__WEBPACK_IMPORTED_MODULE_4__["default"].id) {
-          //如果存在用户id 说明是重连游戏 ，那么给服务器发送一条消息 ，重新连接的消息
-          connect.emit('re-connect', _global__WEBPACK_IMPORTED_MODULE_4__["default"].id);
+      var onShow = function onShow() {
+        //显示
+        if (_isOffline) {
+          console.log('重新连接 ' + _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl);
+          console.log('nick Name = ' + _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName);
+          connect.emit('re-connect', {
+            id: _global__WEBPACK_IMPORTED_MODULE_4__["default"].id,
+            avatarUrl: _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl,
+            nickName: _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName
+          });
+        } else {
+          console.log('进入前台');
+          connect.emit('enter-forward');
         }
-      });
+      };
+
+      wx.onHide(onHide);
+      wx.onShow(onShow);
       this._connect = connect;
       connect.on('disconnect', function () {
         console.log('掉线');
@@ -47279,12 +47293,10 @@ function (_Scene) {
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
         _isOffline = false;
       });
-      connect.on('player-join-room', function (data) {
-        console.log('create head ', data);
-
-        for (var i = 0; i < data.length; i++) {
-          _this2._gameLayer.createHead(data[i]);
-        }
+      connect.on('player-join-room', function (data) {// console.log('create head ', data);
+        // for (let i = 0; i < data.length; i++) {
+        //     this._gameLayer.createHead(data[i]);
+        // }
       });
       connect.on('player-enter-back', function (data) {
         console.log('player enter back', data);
@@ -47308,10 +47320,26 @@ function (_Scene) {
       });
       connect.on('sync-player-info', function (data) {
         //刷新玩家信息
-        _this2._gameLayer.referPlayerInfo(data);
+        _this2._gameLayer.syncPlayerInfo(data);
       });
       connect.on('player-offline', function (playerId) {
-        _this2._gameLayer.playerOffLine(playerId);
+        // this._gameLayer.playerOffLine(playerId);
+        //有玩家掉线了
+        if (_this2._waitLayer == undefined) {
+          var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this2);
+
+          _this2.addLayer(waitLayer);
+
+          _this2._waitLayer = waitLayer;
+        }
+      });
+      connect.on('player-online', function (playerId) {
+        //玩家又连接上了游戏
+        if (_this2._waitLayer) {
+          _this2.removeChild(_this2._waitLayer);
+
+          _this2._waitLayer = undefined;
+        }
       });
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
@@ -47331,6 +47359,12 @@ function (_Scene) {
       if (this._gameLayer) {
         this._gameLayer.removeAllPiece();
       }
+    }
+  }, {
+    key: "reStartGame",
+    value: function reStartGame() {
+      //充新开始游戏
+      this._connect.emit('re-start-game');
     }
   }]);
 
@@ -47501,6 +47535,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+
 var Head =
 /*#__PURE__*/
 function (_Layer) {
@@ -47512,89 +47547,64 @@ function (_Layer) {
     _classCallCheck(this, Head);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Head).call(this));
-    _this._id = spec.id;
+    _this._id = '';
     _this._avatar = undefined;
-    var image = wx.createImage();
-    image.src = spec.avatarUrl;
-    var type = spec.type;
-    _this._type = type;
-    _this.position = {
-      x: type == "left" ? 30 : _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width - 160,
-      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 100 : 150
+    var type = 'left'; // let type = spec.type;
+
+    _this._type = type; // this.position = {
+    //     x: type == "left" ? 30 : director.designSize.width - 160,
+    //     y: director.screenType == 'normal' ? 100 : 150
+    // }
+    // if (global.resource[spec.avatarUrl]) {
+    //     this._avatar = new PIXI.Sprite.from(global.resource[spec.avatarUrl]);
+    //     this.addChild(this._avatar);
+    // } else {
+    //     let image = wx.createImage();
+    //     image.src = spec.avatarUrl;
+    //     image.onload = () => {
+    //         this._avatar = new PIXI.Sprite.from(image);
+    //         global.resource[spec.avatarUrl] = image;
+    //         this.addChild(this._avatar);
+    //     }
+    // }
+
+    _this._wifiLogo = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].wifi_logo].texture);
+
+    _this.addChild(_this._wifiLogo);
+
+    _this._wifiLogo.scale.set(0.5);
+
+    _this._wifiLogo.position = {
+      x: 30,
+      y: -30
     };
-
-    image.onload = function () {
-      _this._avatar = new PIXI.Sprite.from(image);
-
-      _this.addChild(_this._avatar);
-
-      _this._wifiLogo = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].wifi_logo].texture);
-
-      _this.addChild(_this._wifiLogo);
-
-      _this._wifiLogo.scale.set(0.5);
-
-      _this._wifiLogo.position = {
-        x: 30,
-        y: 30
-      };
-    };
-
-    _this._nickNameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.nickName, {
+    _this._nickNameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fontSize: 40
     });
 
     _this.addChild(_this._nickNameLabel);
 
-    _this._nickNameLabel.anchor = {
-      x: type == 'left' ? 0 : 1,
-      y: 0
-    };
-    _this._nickNameLabel.position = {
-      x: type == 'left' ? 140 : 0,
-      y: 0
-    };
-    _this._scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](type == "left" ? '分:' + spec.score : spec.score + ":分", {
+    _this._scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fontSize: 40
     });
-    _this._scoreLabel.anchor = {
-      x: type == 'left' ? 0 : 1,
-      y: 0
-    };
-    _this._scoreLabel.position = {
-      x: type == 'left' ? 140 : 0,
-      y: 40
-    };
 
     _this.addChild(_this._scoreLabel);
 
-    _this.colorPiece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[spec.pieceColor == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture);
+    _this._colorPiece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black].texture);
 
-    _this.addChild(_this.colorPiece);
+    _this.addChild(_this._colorPiece);
 
-    _this.colorPiece.position = {
-      x: type == 'left' ? 170 : -30,
-      y: 120
-    };
+    _this._colorPiece.scale.set(2);
 
-    _this.colorPiece.scale.set(2);
-
-    _this._rankLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](type == "left" ? '排行:' + (spec.rankNum + 1) : spec.rankNum + 1 + ":排行", {
+    _this._rankLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fontSize: 30
     });
 
-    _this.addChild(_this._rankLabel);
+    _this.addChild(_this._rankLabel); //只有排行榜小于100的时候，才会显示这个排行榜标识
+    // this._rankLabel.visible = spec.rankNum < 100;
 
-    _this._rankLabel.anchor = {
-      x: type == 'left' ? 0 : 1,
-      y: 0.5
-    };
-    _this._rankLabel.position = {
-      x: type == 'left' ? 195 : -55,
-      y: 120 //只有排行榜小于100的时候，才会显示这个排行榜标识
 
-    };
-    _this._rankLabel.visible = spec.rankNum < 100;
+    console.log('创建head');
     return _this;
   }
 
@@ -47606,17 +47616,102 @@ function (_Layer) {
   }, {
     key: "referPlayerInfo",
     value: function referPlayerInfo(data) {
-      if (data.id == this._id) {
-        this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
-        this._rankLabel.visible = data.rankNum < 100;
-        this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : data.rankNum + 1 + ":排行";
+      var _this2 = this;
+
+      console.log('data', data);
+      var type = 'right';
+      type = data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id ? 'left' : 'right';
+
+      if (data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id) {
+        _global__WEBPACK_IMPORTED_MODULE_1__["default"].avatarUrl = data.avatarUrl;
+        _global__WEBPACK_IMPORTED_MODULE_1__["default"].nickName = data.nickName;
       }
+
+      this._type = type;
+      this.position = {
+        x: this._type == "left" ? 30 : _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width - 160,
+        y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 100 : 150
+      };
+      this._id = data.id;
+      this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
+      this._rankLabel.visible = data.rankNum < 100;
+      this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : data.rankNum + 1 + ":排行";
+      this._nickNameLabel.text = data.nickName;
+      var avatarUrl = data.avatarUrl;
+      this._colorPiece.texture = _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.pieceColor == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture;
+
+      this._colorPiece.scale.set(2);
+
+      this._colorPiece.position = {
+        x: type == 'left' ? 170 : -30,
+        y: 120
+      };
+      this._scoreLabel.anchor = {
+        x: type == 'left' ? 0 : 1,
+        y: 0
+      };
+      this._scoreLabel.position = {
+        x: type == 'left' ? 140 : 0,
+        y: 40
+      };
+      this._rankLabel.position = {
+        x: type == 'left' ? 195 : -55,
+        y: 120
+      };
+      this._rankLabel.anchor = {
+        x: type == 'left' ? 0 : 1,
+        y: 0.5
+      };
+      this._nickNameLabel.anchor = {
+        x: type == 'left' ? 0 : 1,
+        y: 0
+      };
+      this._nickNameLabel.position = {
+        x: type == 'left' ? 140 : 0,
+        y: 0
+      };
+      var p = new Promise(function (reo, rej) {
+        console.log('创建头像', _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource);
+        console.log('avatar url = ', avatarUrl);
+
+        if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]) {
+          console.log('不再去重新加载了');
+          reo(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]);
+        } else {
+          console.log('加载图片');
+          var image = wx.createImage();
+          image.src = avatarUrl;
+
+          image.onload = function () {
+            console.log('加载完成');
+            _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl] = image;
+            reo(image);
+          };
+        }
+      });
+      p.then(function (image) {
+        if (_this2._avatar) {
+          _this2._avatar.texture = new PIXI.Texture.from(image);
+        } else {
+          _this2._avatar = new PIXI.Sprite.from(image);
+          _this2._avatar.position = {
+            x: _this2._type == 'left' ? -0 : 0,
+            y: 0
+          };
+        }
+
+        _this2.addChild(_this2._avatar);
+      });
+    }
+  }, {
+    key: "getImage",
+    value: function getImage(avatarUrl) {
+      var p = new Promise(function (reo, rej) {});
     }
   }, {
     key: "playerEnterBack",
     value: function playerEnterBack(playerId, value) {
-      if (this._id == playerId) {
-        this._wifiLogo.alpha = value ? 0.5 : 1;
+      if (this._id == playerId) {// this._wifiLogo.alpha = value ? 0.3 : 1;
       }
     }
   }]);
@@ -47960,6 +48055,108 @@ function (_Layer) {
 
 /***/ }),
 
+/***/ "./src/game/wait-layer.js":
+/*!********************************!*\
+  !*** ./src/game/wait-layer.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/import */ "./src/util/import.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
+/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+/* harmony import */ var _util_render_graphics__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../util/render/graphics */ "./src/util/render/graphics.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+
+
+var WaitLayer =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(WaitLayer, _Layer);
+
+  function WaitLayer(controller) {
+    var _this;
+
+    _classCallCheck(this, WaitLayer);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(WaitLayer).call(this));
+    _this._controller = controller;
+    var graphics = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_3__["Graphics"]();
+
+    _this.addChild(graphics);
+
+    var rect = new _util_render_graphics__WEBPACK_IMPORTED_MODULE_3__["Shape"](_util_render_graphics__WEBPACK_IMPORTED_MODULE_3__["ShapeType"].Rect, 0, 0, 750, 1640, new _util_render_graphics__WEBPACK_IMPORTED_MODULE_3__["Style"]({
+      fill: 0x000000,
+      alpha: 0.5
+    }));
+    graphics.addChild(rect);
+    var title = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].wait_tips].texture);
+
+    _this.addChild(title);
+
+    title.position = {
+      x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5 - 140
+    };
+    title.scale.set(2);
+    var reStartButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+      normalTexture: _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].re_start_button].texture,
+      touchCb: function touchCb() {
+        console.log('重新匹配');
+
+        _this._controller.reStartGame();
+      }
+    });
+
+    _this.addChild(reStartButton);
+
+    reStartButton.scale.set(1.8);
+    reStartButton.position = {
+      x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
+    };
+    var putFriendButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+      normalTexture: _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].shard_friend_button].texture,
+      touchCb: function touchCb() {
+        console.log('邀请好友');
+      }
+    });
+
+    _this.addChild(putFriendButton);
+
+    putFriendButton.position = {
+      x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5 + 120
+    };
+    putFriendButton.scale.set(1.8);
+    return _this;
+  }
+
+  return WaitLayer;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (WaitLayer);
+
+/***/ }),
+
 /***/ "./src/global.js":
 /*!***********************!*\
   !*** ./src/global.js ***!
@@ -47992,9 +48189,11 @@ var res = {
   "login_button": "./images/login_button.png",
   "piece_black": "./images/piece_black.png",
   "piece_white": "./images/piece_white.png",
+  "re_start_button": "./images/re_start_button.png",
+  "shard_friend_button": "./images/shard_friend_button.png",
   "share_button": "./images/share_button.png",
-  "wifi_logo": "./images/wifi_logo.png",
-  "yaoqing_button": "./images/yaoqing_button.png"
+  "wait_tips": "./images/wait_tips.png",
+  "wifi_logo": "./images/wifi_logo.png"
 };
 /* harmony default export */ __webpack_exports__["default"] = (res);
 
@@ -48873,8 +49072,6 @@ function (_Layer) {
   }, {
     key: "onTouchStart",
     value: function onTouchStart() {
-      console.log('touch');
-
       switch (this._buttonStyle.touchType) {
         case TouchType.Sprite:
           this._sprite.texture = this._buttonStyle.pressedTexture;
@@ -49117,6 +49314,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShapeType", function() { return ShapeType; });
 /* harmony import */ var _math_vec2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../math/vec2 */ "./src/util/math/vec2.js");
 /* harmony import */ var _math_rect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../math/rect */ "./src/util/math/rect.js");
+/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(pixi_js__WEBPACK_IMPORTED_MODULE_2__);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
@@ -49134,6 +49333,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 
 
 
@@ -49241,6 +49441,7 @@ function () {
 }();
 
 ;
+Shape.ShapeType = ShapeType;
 
 var Graphics =
 /*#__PURE__*/

@@ -5,12 +5,10 @@ import resources from './../resources'
 import global from './../global'
 import defines from './../defines'
 import RankLayer from './rank-layer'
+import WaitLayer from './wait-layer'
 class GameScene extends Scene {
     constructor() {
         super();
-
-
-
     }
     setAuthorize(cb) {
         wx.getSetting({
@@ -30,7 +28,6 @@ class GameScene extends Scene {
             type: 'image',
             image: defines.resourcesUrl + '/images/login_button.png',
             // image: './static/textures/login_button.png',
-
             style: {
                 left: director.windowWidth * 0.5 - 136 * 0.5,
                 top: director.windowHeight * 0.5 - 74 * 0.5,
@@ -76,19 +73,33 @@ class GameScene extends Scene {
         let _isOffline = false;
         let connect = SocketIO(defines.socketUrl);
 
-        wx.onHide(() => {
-            //隐藏
+
+
+
+
+        const onHide = function () {
             console.log('隐藏游戏');
             connect.emit('enter-back');
-        });
-        wx.onShow(() => {
+        }
+        const onShow = function () {
             //显示
-            connect.emit('enter-forward');
-            if (global.id){
-                //如果存在用户id 说明是重连游戏 ，那么给服务器发送一条消息 ，重新连接的消息
-                connect.emit('re-connect', global.id);
+            if (_isOffline) {
+                console.log('重新连接 ' + global.avatarUrl);
+                console.log('nick Name = ' + global.nickName);
+                connect.emit('re-connect', {
+                    id: global.id,
+                    avatarUrl: global.avatarUrl,
+                    nickName: global.nickName
+                });
+            } else {
+                console.log('进入前台');
+                connect.emit('enter-forward');
+
             }
-        })
+        }
+
+        wx.onHide(onHide);
+        wx.onShow(onShow);
 
         this._connect = connect;
         connect.on('disconnect', () => {
@@ -102,15 +113,15 @@ class GameScene extends Scene {
         });
 
         connect.on('player-join-room', (data) => {
-            console.log('create head ', data);
-            for (let i = 0; i < data.length; i++) {
-                this._gameLayer.createHead(data[i]);
-            }
+            // console.log('create head ', data);
+            // for (let i = 0; i < data.length; i++) {
+            //     this._gameLayer.createHead(data[i]);
+            // }
         });
 
-        connect.on('player-enter-back', (data)=>{
+        connect.on('player-enter-back', (data) => {
             console.log('player enter back', data);
-            if (this._gameLayer){
+            if (this._gameLayer) {
                 this._gameLayer.playerEnterBack(data);
             }
         });
@@ -129,10 +140,24 @@ class GameScene extends Scene {
         });
         connect.on('sync-player-info', (data) => {
             //刷新玩家信息
-            this._gameLayer.referPlayerInfo(data);
+            this._gameLayer.syncPlayerInfo(data);
         });
         connect.on('player-offline', (playerId) => {
-            this._gameLayer.playerOffLine(playerId);
+            // this._gameLayer.playerOffLine(playerId);
+
+            //有玩家掉线了
+            if (this._waitLayer == undefined) {
+                let waitLayer = new WaitLayer(this);
+                this.addLayer(waitLayer);
+                this._waitLayer = waitLayer;
+            }
+        });
+        connect.on('player-online', (playerId) => {
+            //玩家又连接上了游戏
+            if (this._waitLayer) {
+                this.removeChild(this._waitLayer);
+                this._waitLayer = undefined;
+            }
         });
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
@@ -148,6 +173,10 @@ class GameScene extends Scene {
         if (this._gameLayer) {
             this._gameLayer.removeAllPiece();
         }
+    }
+    reStartGame() {
+        //充新开始游戏
+        this._connect.emit('re-start-game');
     }
 }
 export default GameScene;

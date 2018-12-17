@@ -7,9 +7,9 @@ class Room {
         this._gameLogic = new GameLogic();
         this._currentColor = Math.random() * 10 > 5 ? "black" : "white";
     }
-    getPlayerCount() {
-        return this._playerList.length;
-    }
+    // getPlayerCount() {
+    //     return this._playerList.length;
+    // }
     assignPlayer(player) {
         this._playerList.push(player);
 
@@ -18,45 +18,87 @@ class Room {
         }
         this.syncCurrentColor();
         this.syncBoardData();
-        this.playerJoinRoom(this._playerList);
+        // this.playerJoinRoom(this._playerList);
+        this.syncPlayerInfo();
 
     }
-    playerJoinRoom(player) {
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].playerJoinRoom(player);
-        }
-    }
+    // playerJoinRoom(player) {
+    //     for (let i = 0; i < this._playerList.length; i++) {
+    //         this._playerList[i].playerJoinRoom(player);
+    //     }
+    // }
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncCurrentColor(this._currentColor);
         }
     }
-    playerReferInfo(player) {
+    syncPlayerInfo() {
+        // id: player.id,
+        // score: player.getScore(),
+        // rankNum: player.getRankNum()
+
+        // id: playerList[i].id,
+        //             avatarUrl: playerList[i].avatarUrl,
+        //             nickName: playerList[i].nickName,
+        //             pieceColor: playerList[i].getColor(),
+        //             score: playerList[i].getScore(),
+        //             rankNum: playerList[i].getRankNum()
+        let data = [];
         for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].syncPlayerInfo(player);
+            data.push({
+                id: this._playerList[i].id,
+                score: this._playerList[i].getScore(),
+                ranKNum: this._playerList[i].getRankNum(),
+                avatarUrl: this._playerList[i].avatarUrl,
+                nickName: this._playerList[i].nickName,
+                pieceColor: this._playerList[i].getColor()
+            })
+        }
+
+        console.log('sync current info = ', data);
+        for (let i = 0; i < this._playerList.length; i++) {
+            this._playerList[i].syncPlayerInfo(data);
         }
     }
-    playerEnterBack(player, state){
-        for (let i = 0 ; i < this._playerList.length ; i ++){
+    playerEnterBack(player, state) {
+        for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].playerEnterBack(player, state);
         }
     }
-    removePlayer(playerId) {
+    playerOffLine(player) {
+        //看一下房间里面的玩家都是都掉线了
+        let isAllOffline = true;
         for (let i = 0; i < this._playerList.length; i++) {
-            if (this._playerList[i].id == playerId) {
-                this._playerList[i].destory();
-                this._playerList.splice(i, 1);
-                i --;
-            } else {
-                console.log('玩家掉线');
-                this._playerList[i].playerOffLine(playerId);
+            if (this._playerList[i].isOnline()) {
+                isAllOffline = false;
+                //只要有一个人还在线 
             }
         }
-        if (this._playerList.length == 1) {
-            this._controller.pushUnFullRoom(this);
-        } else if (this._playerList.length == 0) {
-            this._controller.removeRoom(this);
+
+        if (isAllOffline) {
+            //所有人都掉线了,那么关闭房间。删掉玩家
+            this.destory();
+            return;
         }
+        for (let i = 0; i < this._playerList.length; i++) {
+            this._playerList[i].playerOffLine(player.id);
+        }
+    }
+    reStartGame(player) {
+        //重新开始游戏
+        //那么需要将掉线的玩家从房间里面删掉
+        let offLinePlayer = undefined;
+        for (let i = 0; i < this._playerList.length; i++) {
+            if (this._playerList[i].isOnline() == false) {
+                offLinePlayer = this._playerList[i];
+            }
+        }
+        if (offLinePlayer) {
+            offLinePlayer.outRoom();
+        }
+        //然后给剩下的玩家 同步房间里面的 玩家信息
+        // player.syncPlayerInfo();
+        this.syncPlayerInfo();
     }
     playerChooseBoard(player, index) {
         console.log('current color = ', this._currentColor);
@@ -99,6 +141,14 @@ class Room {
             this._gameLogic.clearGameData();
         }, 2000);
 
+    }
+    destory() {
+        for (let i = 0; i < this._playerList.length; i++) {
+            this._playerList[i].destory();
+        }
+        this._playerList = null;
+        this._gameLogic = null;
+        this._controller.removeRoom(this);
     }
 }
 module.exports = Room;

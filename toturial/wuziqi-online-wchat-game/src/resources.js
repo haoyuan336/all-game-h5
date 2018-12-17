@@ -6,8 +6,10 @@ const res =
   "login_button": "./images/login_button.png",
   "piece_black": "./images/piece_black.png",
   "piece_white": "./images/piece_white.png",
+  "re_start_button": "./images/re_start_button.png",
+  "shard_friend_button": "./images/shard_friend_button.png",
   "share_button": "./images/share_button.png",
-  "wifi_logo": "./images/wifi_logo.png",
-  "yaoqing_button": "./images/yaoqing_button.png"
+  "wait_tips": "./images/wait_tips.png",
+  "wifi_logo": "./images/wifi_logo.png"
 };
 export default res;
