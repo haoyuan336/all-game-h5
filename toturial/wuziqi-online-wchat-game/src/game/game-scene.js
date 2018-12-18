@@ -73,10 +73,6 @@ class GameScene extends Scene {
         let _isOffline = false;
         let connect = SocketIO(defines.socketUrl);
 
-
-
-
-
         const onHide = function () {
             console.log('隐藏游戏');
             connect.emit('enter-back');
@@ -112,12 +108,12 @@ class GameScene extends Scene {
             _isOffline = false;
         });
 
-        connect.on('player-join-room', (data) => {
-            // console.log('create head ', data);
-            // for (let i = 0; i < data.length; i++) {
-            //     this._gameLayer.createHead(data[i]);
-            // }
-        });
+        // connect.on('player-join-room', (data) => {
+        //     // console.log('create head ', data);
+        //     // for (let i = 0; i < data.length; i++) {
+        //     //     this._gameLayer.createHead(data[i]);
+        //     // }
+        // });
 
         connect.on('player-enter-back', (data) => {
             console.log('player enter back', data);
@@ -129,6 +125,7 @@ class GameScene extends Scene {
             this._gameLayer.changeCurrentColor(color);
         });
         connect.on('sync-board-data', (data) => {
+            console.log('同步棋盘信息');
             this._gameLayer.referBoard(data);
         });
         connect.on('game-win', (color) => {
@@ -140,7 +137,8 @@ class GameScene extends Scene {
         });
         connect.on('sync-player-info', (data) => {
             //刷新玩家信息
-            this._gameLayer.syncPlayerInfo(data);
+            console.log('sync player info = ', data);
+            this._gameLayer.syncPlayerInfo(data.playerInfo);
         });
         connect.on('player-offline', (playerId) => {
             // this._gameLayer.playerOffLine(playerId);
@@ -157,6 +155,11 @@ class GameScene extends Scene {
             if (this._waitLayer) {
                 this.removeChild(this._waitLayer);
                 this._waitLayer = undefined;
+            }
+        });
+        connect.on('matching', () => {
+            if (this._waitLayer) {
+                this.removeChild(this._waitLayer);
             }
         });
         this.setAuthorize((data) => {
@@ -177,6 +180,25 @@ class GameScene extends Scene {
     reStartGame() {
         //充新开始游戏
         this._connect.emit('re-start-game');
+    }
+    shareToFriend() {
+        //邀请好友
+        this._connect.emit('share-to-friend');
+
+        wx.updateShareMenu({
+            withShareTicket: true,
+            isUpdatableMessage: true,
+            activityId: '', // 活动 ID
+            templateInfo: {
+                parameterList: [{
+                    name: 'member_count',
+                    value: '1'
+                }, {
+                    name: 'room_limit',
+                    value: '3'
+                }]
+            }
+        })
     }
 }
 export default GameScene;

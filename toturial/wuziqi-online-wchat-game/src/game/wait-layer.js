@@ -37,6 +37,7 @@ class WaitLayer extends Layer {
             normalTexture: global.resource[resources.shard_friend_button].texture,
             touchCb: () => {
                 console.log('邀请好友');
+                this._controller.shareToFriend();
             }
         });
         this.addChild(putFriendButton);
@@ -46,7 +47,7 @@ class WaitLayer extends Layer {
         }
         putFriendButton.scale.set(1.8);
 
-
+        this.interactive = true;
 
     }
 }

@@ -16,7 +16,9 @@ class GameScene extends Scene {
         this._uiLayer = new UILayer();
         this.addLayer(this._uiLayer);
          //链接服务器
-         let connect = Socket(defines.wuziqi_server_url);
+        //  let connect = Socket(defines.wuziqi_server_url);
+         let connect = Socket('https://chutianba.xyz/wechat-wuziqi-online/');
+
          connect.on('login-success', (id)=>{
              console.log('login success', id);
              if (this._uiLayer){

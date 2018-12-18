@@ -151,13 +151,9 @@ class Head extends Layer {
 
 
     }
-    getImage(avatarUrl) {
-        let p = new Promise((reo, rej) => {
-        });
-    }
     playerEnterBack(playerId, value) {
-        if (this._id == playerId) {
-            // this._wifiLogo.alpha = value ? 0.3 : 1;
+        if (this._id == playerId && this._wifiLogo) {
+            this._wifiLogo.alpha = value ? 0.3 : 1;
         }
     }
 }

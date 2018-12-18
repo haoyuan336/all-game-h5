@@ -41,7 +41,16 @@ class GameLogic {
         return false;
     }
     getBoardData() {
-        return this._pieceMap;
+
+        let data = [];
+        for (let i in this._pieceMap) {
+            data.push({
+                index: i,
+                color: this._pieceMap[i]
+            })
+        }
+
+        return data;
     }
     clearGameData() {
         this._pieceMap = {};

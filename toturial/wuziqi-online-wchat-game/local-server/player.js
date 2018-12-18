@@ -24,14 +24,16 @@ class Player {
         console.log('玩家又连接上了');
         this._socket = socket;
         this._online = true;
-        
+
         this.onMessage();
     }
     onMessage() {
         this._socket.on('disconnect', () => {
             console.log('掉线');
             this._online = false;
-            this._room.playerOffLine(this);
+            if (this._room) {
+                this._room.playerOffLine(this);
+            }
         });
         this._socket.on('choose-board', (index) => {
             if (this._room) {
@@ -54,10 +56,14 @@ class Player {
                 this._room.playerEnterBack(this, false);
             }
         });
-        this._socket.on('re-start-game', ()=>{
+        this._socket.on('re-start-game', () => {
             console.log('重新开始游戏');
             this._room.reStartGame(this);
         });
+        this._socket.on('share-to-friend', ()=>{
+            console.log('邀请好友');
+            
+        })
     }
     assignRoom(room) {
         this._room = room;
@@ -156,14 +162,18 @@ class Player {
     isOnline() {
         return this._online;
     }
-    outRoom(){
+    outRoom() {
         this._room = undefined;
     }
-    isInRoom(){
-        if (this._room){
+    isInRoom() {
+        if (this._room) {
             return true;
         }
         return false;
+    }
+    sendMatchingMsg(){
+        //给玩家发送匹配中的消息
+        this._socket.emit('matching');
     }
 }
 module.exports = Player;

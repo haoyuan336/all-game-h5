@@ -17,7 +17,7 @@ class GameLayer extends Layer {
         bg.scale.set(2);
         this._headList = [];
         this._currentColorPiece = undefined;
-        this._pieceMap = {};
+        this._pieceList = [];
         this._piecePosList = [];
         let offsetY = director.screenType == 'normal' ? 368 : 418
         for (let i = 0; i < 13; i++) {
@@ -33,43 +33,34 @@ class GameLayer extends Layer {
         this.isTouching = false;
     }
     referBoard(data) {
-        for (let i in data) {
-            if (this._pieceMap[i] == undefined) {
-                let color = data[i];
-                let piece = new Sprite(global.resource[color == 'black' ? resources.piece_black : resources.piece_white].texture);
+        let count = data.length - this._pieceList.length;
+        if (count > 0) {
+            for (let i = 0; i < count; i++) {
+                let piece = new Sprite(global.resource[resources.piece_black].texture);
                 this.addChild(piece);
-                piece.scale.set(2);
-                piece.position = this._piecePosList[i];
-                this._pieceMap[i] = piece;
-
+                this._pieceList.push(piece);
+                //每创建一个棋子的时候，播放一下音效
                 let audio = wx.createInnerAudioContext();
                 audio.autoplay = true;
-                audio.src = defines.resourcesUrl + + '/images/piece_audio.mp3';
+                audio.src = defines.resourcesUrl + '/images/piece_audio.mp3';
                 audio.onStop(() => {
                     console.log('音频播放完成，删掉音频');
                     audio.destroy();
                 })
             }
+        } else {
+            for (let i = 0; i < count * -1; i++) {
+                let obj = this._pieceList.pop();
+                this.removeChild(obj);
+            }
+        }
+        for (let i = 0; i < this._pieceList.length; i++) {
+            this._pieceList[i].position = this._piecePosList[parseInt(data[i].index)];
+            this._pieceList[i].texture = global.resource[data[i].color === 'black' ? resources.piece_black : resources.piece_white].texture;
+            this._pieceList[i].scale.set(2);
         }
     }
-    createHead(data) {
-        // let id = data.id;
-        // for (let i = 0; i < this._headList.length; i++) {
-        //     console.log('已经存在的id?', this._headList[i].getId());
-        //     if (this._headList[i].getId() == id) {
-        //         return;
-        //     }
-        // }
-        // // data.type = this._headList.length == 0 ? 'left' : 'right';
-        // console.log('id = ', id);
-        // console.log('global id = ', global.id);
-        // data.type = id == global.id ? 'left' : 'right';
-        // let head = new Head(data);
-        // head.referInfo(data);
-        // this.addChild(head);
-        // this._headList.push(head);
 
-    }
     changeCurrentColor(color) {
         let texture = global.resource[color == 'black' ? resources.piece_black : resources.piece_white].texture
         if (this._currentColorPiece) {
@@ -117,7 +108,6 @@ class GameLayer extends Layer {
         //     this._headList[i].referPlayerInfo(data);
         // }
     }
-
     playerEnterBack(data) {
         for (let i in this._headList) {
             this._headList[i].playerEnterBack(data.id, data.state);
@@ -139,7 +129,6 @@ class GameLayer extends Layer {
                 this._headList.push(head);
             }
         }
-
         for (let i = 0; i < data.length; i++) {
             this._headList[i].referPlayerInfo(data[i]);
         }

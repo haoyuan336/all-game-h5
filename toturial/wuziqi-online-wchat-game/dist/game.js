@@ -46890,8 +46890,8 @@ var ScreenSize = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 var defines = {
-  resourcesUrl: "http://chutianba.xyz:8000/wuziqi-online-resources",
-  socketUrl: "ws://www.chutianba.xyz:3002" // socketUrl: "http://localhost:3002"
+  resourcesUrl: "https://chutianba.xyz/wuziqi-online-resources",
+  socketUrl: "https://chutianba.xyz" // socketUrl: "http://localhost:3000"
 
 };
 /* harmony default export */ __webpack_exports__["default"] = (defines);
@@ -46960,7 +46960,7 @@ function (_Layer) {
     bg.scale.set(2);
     _this._headList = [];
     _this._currentColorPiece = undefined;
-    _this._pieceMap = {};
+    _this._pieceList = [];
     _this._piecePosList = [];
     var offsetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 368 : 418;
 
@@ -46986,45 +46986,43 @@ function (_Layer) {
     value: function referBoard(data) {
       var _this2 = this;
 
-      for (var i in data) {
-        if (this._pieceMap[i] == undefined) {
-          (function () {
-            var color = data[i];
-            var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[color == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture);
+      var count = data.length - this._pieceList.length;
 
-            _this2.addChild(piece);
+      if (count > 0) {
+        var _loop = function _loop(i) {
+          var piece = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black].texture);
 
-            piece.scale.set(2);
-            piece.position = _this2._piecePosList[i];
-            _this2._pieceMap[i] = piece;
-            var audio = wx.createInnerAudioContext();
-            audio.autoplay = true;
-            audio.src = _defines__WEBPACK_IMPORTED_MODULE_4__["default"].resourcesUrl + +'/images/piece_audio.mp3';
-            audio.onStop(function () {
-              console.log('音频播放完成，删掉音频');
-              audio.destroy();
-            });
-          })();
+          _this2.addChild(piece);
+
+          _this2._pieceList.push(piece); //每创建一个棋子的时候，播放一下音效
+
+
+          var audio = wx.createInnerAudioContext();
+          audio.autoplay = true;
+          audio.src = _defines__WEBPACK_IMPORTED_MODULE_4__["default"].resourcesUrl + '/images/piece_audio.mp3';
+          audio.onStop(function () {
+            console.log('音频播放完成，删掉音频');
+            audio.destroy();
+          });
+        };
+
+        for (var i = 0; i < count; i++) {
+          _loop(i);
+        }
+      } else {
+        for (var i = 0; i < count * -1; i++) {
+          var obj = this._pieceList.pop();
+
+          this.removeChild(obj);
         }
       }
-    }
-  }, {
-    key: "createHead",
-    value: function createHead(data) {// let id = data.id;
-      // for (let i = 0; i < this._headList.length; i++) {
-      //     console.log('已经存在的id?', this._headList[i].getId());
-      //     if (this._headList[i].getId() == id) {
-      //         return;
-      //     }
-      // }
-      // // data.type = this._headList.length == 0 ? 'left' : 'right';
-      // console.log('id = ', id);
-      // console.log('global id = ', global.id);
-      // data.type = id == global.id ? 'left' : 'right';
-      // let head = new Head(data);
-      // head.referInfo(data);
-      // this.addChild(head);
-      // this._headList.push(head);
+
+      for (var _i = 0; _i < this._pieceList.length; _i++) {
+        this._pieceList[_i].position = this._piecePosList[parseInt(data[_i].index)];
+        this._pieceList[_i].texture = _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data[_i].color === 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture;
+
+        this._pieceList[_i].scale.set(2);
+      }
     }
   }, {
     key: "changeCurrentColor",
@@ -47106,7 +47104,7 @@ function (_Layer) {
           this.removeChild(head);
         }
       } else {
-        for (var _i = 0; _i < count; _i++) {
+        for (var _i2 = 0; _i2 < count; _i2++) {
           // this.createHead();
           var _head = new _head__WEBPACK_IMPORTED_MODULE_3__["default"]();
 
@@ -47116,8 +47114,8 @@ function (_Layer) {
         }
       }
 
-      for (var _i2 = 0; _i2 < data.length; _i2++) {
-        this._headList[_i2].referPlayerInfo(data[_i2]);
+      for (var _i3 = 0; _i3 < data.length; _i3++) {
+        this._headList[_i3].referPlayerInfo(data[_i3]);
       }
     }
   }]);
@@ -47292,12 +47290,13 @@ function (_Scene) {
         console.log('登录成功');
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
         _isOffline = false;
-      });
-      connect.on('player-join-room', function (data) {// console.log('create head ', data);
-        // for (let i = 0; i < data.length; i++) {
-        //     this._gameLayer.createHead(data[i]);
-        // }
-      });
+      }); // connect.on('player-join-room', (data) => {
+      //     // console.log('create head ', data);
+      //     // for (let i = 0; i < data.length; i++) {
+      //     //     this._gameLayer.createHead(data[i]);
+      //     // }
+      // });
+
       connect.on('player-enter-back', function (data) {
         console.log('player enter back', data);
 
@@ -47309,6 +47308,8 @@ function (_Scene) {
         _this2._gameLayer.changeCurrentColor(color);
       });
       connect.on('sync-board-data', function (data) {
+        console.log('同步棋盘信息');
+
         _this2._gameLayer.referBoard(data);
       });
       connect.on('game-win', function (color) {
@@ -47320,7 +47321,9 @@ function (_Scene) {
       });
       connect.on('sync-player-info', function (data) {
         //刷新玩家信息
-        _this2._gameLayer.syncPlayerInfo(data);
+        console.log('sync player info = ', data);
+
+        _this2._gameLayer.syncPlayerInfo(data.playerInfo);
       });
       connect.on('player-offline', function (playerId) {
         // this._gameLayer.playerOffLine(playerId);
@@ -47339,6 +47342,11 @@ function (_Scene) {
           _this2.removeChild(_this2._waitLayer);
 
           _this2._waitLayer = undefined;
+        }
+      });
+      connect.on('matching', function () {
+        if (_this2._waitLayer) {
+          _this2.removeChild(_this2._waitLayer);
         }
       });
       this.setAuthorize(function (data) {
@@ -47365,6 +47373,28 @@ function (_Scene) {
     value: function reStartGame() {
       //充新开始游戏
       this._connect.emit('re-start-game');
+    }
+  }, {
+    key: "shareToFriend",
+    value: function shareToFriend() {
+      //邀请好友
+      this._connect.emit('share-to-friend');
+
+      wx.updateShareMenu({
+        withShareTicket: true,
+        isUpdatableMessage: true,
+        activityId: '',
+        // 活动 ID
+        templateInfo: {
+          parameterList: [{
+            name: 'member_count',
+            value: '1'
+          }, {
+            name: 'room_limit',
+            value: '3'
+          }]
+        }
+      });
     }
   }]);
 
@@ -47704,14 +47734,10 @@ function (_Layer) {
       });
     }
   }, {
-    key: "getImage",
-    value: function getImage(avatarUrl) {
-      var p = new Promise(function (reo, rej) {});
-    }
-  }, {
     key: "playerEnterBack",
     value: function playerEnterBack(playerId, value) {
-      if (this._id == playerId) {// this._wifiLogo.alpha = value ? 0.3 : 1;
+      if (this._id == playerId && this._wifiLogo) {
+        this._wifiLogo.alpha = value ? 0.3 : 1;
       }
     }
   }]);
@@ -48137,6 +48163,8 @@ function (_Layer) {
       normalTexture: _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].shard_friend_button].texture,
       touchCb: function touchCb() {
         console.log('邀请好友');
+
+        _this._controller.shareToFriend();
       }
     });
 
@@ -48147,6 +48175,7 @@ function (_Layer) {
       y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5 + 120
     };
     putFriendButton.scale.set(1.8);
+    _this.interactive = true;
     return _this;
   }
 
