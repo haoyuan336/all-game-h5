@@ -7,7 +7,6 @@ class GameScene extends Scene {
     constructor() {
         super();
         this.setDesignSize(800, 800 / director.sizeRate);
-
     }
     onLoad() {
         this._gameLayer = new GameLayer(this);
@@ -29,7 +28,7 @@ class GameScene extends Scene {
              console.log('refer game data', data);
             if (this._uiLayer){
                 this._uiLayer.referGameData(data);
-                
+
             }
         });
         connect.on('sync-current-color', (color)=>{

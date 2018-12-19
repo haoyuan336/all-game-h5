@@ -28,7 +28,7 @@ const typeList = ['.json', '.png', '.fnt', '.jpg', '.xml', '.bmp'];
 const fixList = ['.json', '.fnt', '.xml'];
 
 //输出resource文件
-const resOutput = process.argv[2] + "/resources.js";
+const resOutput = process.argv[2] + "/src/resources.js";
 //输出预加载文件
 // const preloadOutput = "src/resources-preload.js";
 

@@ -29,7 +29,7 @@ class WaitLayer extends Layer {
         this.addChild(reStartButton);
         reStartButton.scale.set(1.8);
         reStartButton.position = {
-            x: director.designSize.width * 0.5 ,
+            x: director.designSize.width * 0.5,
             y: director.designSize.height * 0.5
         }
 
@@ -38,11 +38,13 @@ class WaitLayer extends Layer {
             touchCb: () => {
                 console.log('邀请好友');
                 this._controller.shareToFriend();
+
             }
         });
+        this._title = title;
         this.addChild(putFriendButton);
         putFriendButton.position = {
-            x: director.designSize.width * 0.5 ,
+            x: director.designSize.width * 0.5,
             y: director.designSize.height * 0.5 + 120
         }
         putFriendButton.scale.set(1.8);
@@ -50,5 +52,14 @@ class WaitLayer extends Layer {
         this.interactive = true;
 
     }
+    reMatchGame() {
+        this._title.texture = global.resource[resources.matching_title].texture;
+        this._title.scale.set(2);
+    }
+    shareToFriend() {
+        this._title.texture = global.resource[resources.wait_friend_tips].texture;
+        this._title.scale.set(2);
+    }
+
 }
 export default WaitLayer;

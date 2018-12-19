@@ -120,8 +120,6 @@ class Head extends Layer {
             y: 0
         }
         let p = new Promise((reo, rej) => {
-            console.log('创建头像', global.resource);
-            console.log('avatar url = ', avatarUrl);
             if (global.resource[avatarUrl]) {
                 console.log('不再去重新加载了');
                 reo(global.resource[avatarUrl]);

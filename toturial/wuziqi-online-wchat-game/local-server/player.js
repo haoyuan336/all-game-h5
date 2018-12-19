@@ -27,7 +27,43 @@ class Player {
 
         this.onMessage();
     }
+    notify(messageType, messageIndex, data) {
+        this._socket.emit('notify-back', {
+            messageType: messageType,
+            messageIndex: messageIndex,
+            data: data
+        });
+    }
     onMessage() {
+
+        this._socket.on('notify', (messageData) => {
+            let messageType = messageData.messageType;
+            let messageIndex = messageData.messageIndex;
+
+            switch (messageType) {
+                case 'share-to-friend':
+                    //分享给好友的操作
+                    console.log('玩家发来的 邀请好友的消息')
+                    if (this._room) {
+                        this._room.shareRoomToFriend(this, (data) => {
+                            this.notify('share-to-friend', messageIndex, data);
+                        });
+                    }
+                    break;
+                case 're-match-game':
+                    console.log('玩家发来的 ，重新匹配的按钮')
+                    if (this._room) {
+                        this._room.reMatchGame(this, (data) => {
+                            this.notify(messageType, messageIndex, data);
+                        });
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+
         this._socket.on('disconnect', () => {
             console.log('掉线');
             this._online = false;
@@ -49,21 +85,26 @@ class Player {
                 this._room.playerEnterBack(this, true);
             }
         });
-        this._socket.on('enter-forward', () => {
+        this._socket.on('enter-forward', (data) => {
             console.log('进入了前台');
             this._isEnterBack = false;
-            if (this._room) {
-                this._room.playerEnterBack(this, false);
+            if (data && data.roomId) {
+                console.log('data room id = ', data.roomId);
+                //如果拿到了roomid  那么去重新匹配一下
+                if (this._room) {
+                    //玩家离开了房间
+                    this._room.playerLeaveRoom(this);
+                }
+                this._controller.assignRoom(this, data);
+                //退出当前的房间
+                // this._room.
+            } else {
+                if (this._room) {
+                    this._room.playerEnterBack(this, false);
+                }
             }
         });
-        this._socket.on('re-start-game', () => {
-            console.log('重新开始游戏');
-            this._room.reStartGame(this);
-        });
-        this._socket.on('share-to-friend', ()=>{
-            console.log('邀请好友');
-            
-        })
+
     }
     assignRoom(room) {
         this._room = room;
@@ -97,7 +138,7 @@ class Player {
         this._score++;
         this._rankNum = rank.rank(this);
         db.setPlayerScore(this.avatarUrl, this._score);
-        this._room.playerReferInfo();
+        this._room.syncPlayerInfo();
     }
     syncPlayerInfo(data) {
         // let data = {
@@ -126,23 +167,7 @@ class Player {
         }
         this._socket.emit('game-win', color);
     }
-    // playerJoinRoom(playerList) {
-    //     let dataList = [];
-    //     for (let i = 0; i < playerList.length; i++) {
-    //         let data = {
-    //             id: playerList[i].id,
-    //             avatarUrl: playerList[i].avatarUrl,
-    //             nickName: playerList[i].nickName,
-    //             pieceColor: playerList[i].getColor(),
-    //             score: playerList[i].getScore(),
-    //             rankNum: playerList[i].getRankNum()
-    //         }
-    //         dataList.push(data)
-    //     }
 
-    //     console.log('player join room ', dataList);
-    //     this._socket.emit('player-join-room', dataList);
-    // }
     syncRankData(data) {
         this._socket.emit('refer-rank', data);
     }
@@ -159,6 +184,11 @@ class Player {
             state: state
         })
     }
+    playerLeaveRoom(player) {
+        this._socket.emit('player-leave-room', {
+            playerId: player.id
+        });
+    }
     isOnline() {
         return this._online;
     }
@@ -171,9 +201,12 @@ class Player {
         }
         return false;
     }
-    sendMatchingMsg(){
-        //给玩家发送匹配中的消息
-        this._socket.emit('matching');
+    sendMatchSuccess() {
+        this._socket.emit('match-success');
     }
+    // sendMatchingMsg() {
+    //     //给玩家发送匹配中的消息
+    //     this._socket.emit('matching');
+    // }
 }
 module.exports = Player;

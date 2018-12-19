@@ -9,6 +9,9 @@ import WaitLayer from './wait-layer'
 class GameScene extends Scene {
     constructor() {
         super();
+        this._roomId = undefined;
+        this._callBackMap = {};
+        this._messageIndex = 1;
     }
     setAuthorize(cb) {
         wx.getSetting({
@@ -21,7 +24,18 @@ class GameScene extends Scene {
                     this.login(cb);
                 }
             }
-        })
+        });
+        //监听被动分享消息
+        wx.onShareAppMessage(() => {
+            return {
+                title: '跟我下一盘五子棋吧',
+                imageUrl: defines.resourcesUrl + '/images/share_image.png',
+                query: 'roomId=' + this._roomId
+            }
+        });
+        //显示分享按钮
+        wx.showShareMenu();
+
     }
     showLoginButton(cb) {
         let button = wx.createUserInfoButton({
@@ -36,7 +50,7 @@ class GameScene extends Scene {
             }
         });
         button.onTap((res) => {
-            console.log('res  =', res);
+            console.log('tap res  =', res);
             if (res.errMsg === 'getUserInfo:ok') {
                 button.hide();
                 if (cb) {
@@ -50,6 +64,8 @@ class GameScene extends Scene {
     login(cb) {
         wx.getUserInfo({
             success: (res) => {
+                console.log('res userinfo = ', res.userInfo);
+                console.log('res  = ', res);
                 var userInfo = res.userInfo
                 var nickName = userInfo.nickName
                 var avatarUrl = userInfo.avatarUrl
@@ -71,29 +87,44 @@ class GameScene extends Scene {
         this._uiLayer = new UILayer(this);
         this.addLayer(this._uiLayer);
         let _isOffline = false;
-        let connect = SocketIO(defines.socketUrl);
 
+        let waitLayer = new WaitLayer(this);
+        this.addLayer(waitLayer);
+        this._waitLayer = waitLayer;
+
+        let connect = SocketIO(defines.socketUrl);
         const onHide = function () {
             console.log('隐藏游戏');
             connect.emit('enter-back');
         }
-        const onShow = function () {
-            //显示
-            if (_isOffline) {
-                console.log('重新连接 ' + global.avatarUrl);
-                console.log('nick Name = ' + global.nickName);
-                connect.emit('re-connect', {
-                    id: global.id,
-                    avatarUrl: global.avatarUrl,
-                    nickName: global.nickName
-                });
-            } else {
-                console.log('进入前台');
-                connect.emit('enter-forward');
-
+        const onShow = function (res) {
+            console.log('on show');
+            let query = res.query;
+            console.log('query', query);
+            let roomId = query.roomId ? query.roomId : undefined;
+            if (roomId !== undefined) {
+                this._roomId = roomId;
             }
-        }
 
+            connect.emit('enter-forward', {
+                roomId: this._roomId
+            });
+
+            //显示
+            // if (_isOffline) {
+            //     console.log('重新连接 ' + global.avatarUrl);
+            //     console.log('nick Name = ' + global.nickName);
+            //     connect.emit('re-connect', {
+            //         id: global.id,
+            //         avatarUrl: global.avatarUrl,
+            //         nickName: global.nickName,
+            //         roomId: this._roomId
+            //     });
+            // } else {
+            //     console.log('进入前台');
+            //     connect.emit('enter-forward');
+            // }
+        }
         wx.onHide(onHide);
         wx.onShow(onShow);
 
@@ -107,14 +138,6 @@ class GameScene extends Scene {
             global.id = data;
             _isOffline = false;
         });
-
-        // connect.on('player-join-room', (data) => {
-        //     // console.log('create head ', data);
-        //     // for (let i = 0; i < data.length; i++) {
-        //     //     this._gameLayer.createHead(data[i]);
-        //     // }
-        // });
-
         connect.on('player-enter-back', (data) => {
             console.log('player enter back', data);
             if (this._gameLayer) {
@@ -138,6 +161,7 @@ class GameScene extends Scene {
         connect.on('sync-player-info', (data) => {
             //刷新玩家信息
             console.log('sync player info = ', data);
+            this._roomId = data.roomId;
             this._gameLayer.syncPlayerInfo(data.playerInfo);
         });
         connect.on('player-offline', (playerId) => {
@@ -157,16 +181,62 @@ class GameScene extends Scene {
                 this._waitLayer = undefined;
             }
         });
-        connect.on('matching', () => {
+        connect.on('match-success', () => {
+            //匹配成功
+            console.log('匹配成功');
             if (this._waitLayer) {
                 this.removeChild(this._waitLayer);
+                this._waitLayer = undefined;
             }
         });
+        connect.on('player-leave-room', ()=>{
+            //有玩家离开了房间
+             //有玩家掉线了
+             if (this._waitLayer == undefined) {
+                let waitLayer = new WaitLayer(this);
+                this.addLayer(waitLayer);
+                this._waitLayer = waitLayer;
+            }
+        });
+        connect.on('notify-back', (data) => {
+            let messageType = data.messageType;
+            let messageIndex = data.messageIndex;
+            if (this._callBackMap[messageIndex]) {
+                this._callBackMap[messageIndex](data.data);
+                delete this._callBackMap[messageIndex];
+            }
+            switch (messageType) {
+                case 'share-to-friend':
+                    console.log('收到了，分享消息的回调');
+                    break;
+                default:
+                    break;
+            }
+
+        });
+        this._connect = connect;
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
+            let query = wx.getLaunchOptionsSync().query;
+            console.log('data', query);
+            if (query && query.roomId) {
+                data.roomId = query.roomId;
+            }
+
+            console.log('登录' + JSON.stringify(data));
+
             this._connect.emit('login', data);
         });
         // this._uiLayer.showWin('black');
+    }
+    notify(messageType, data, cb) {
+        this._connect.emit('notify', {
+            messageType: messageType,
+            messageIndex: this._messageIndex,
+            data: data
+        })
+        this._callBackMap[this._messageIndex] = cb;
+        this._messageIndex++;
     }
     playerPushPiece(index) {
         this._connect.emit('choose-board', index);
@@ -179,25 +249,38 @@ class GameScene extends Scene {
     }
     reStartGame() {
         //充新开始游戏
-        this._connect.emit('re-start-game');
+        // this._connect.emit('re-start-game');
+        this.notify('re-match-game', {}, (data) => {
+            console.log('re metch game = ', data);
+            if (data.status === 'ok') {
+                console.log('可以重新开始游戏了');
+                if (this._waitLayer) {
+                    this._waitLayer.reMatchGame();
+                }
+            }
+            if (data.status === 'fail') {
+                console.warn('re match game = ', data.data);
+            }
+        });
     }
     shareToFriend() {
         //邀请好友
-        this._connect.emit('share-to-friend');
+        // this._connect.emit('share-to-friend');
 
-        wx.updateShareMenu({
-            withShareTicket: true,
-            isUpdatableMessage: true,
-            activityId: '', // 活动 ID
-            templateInfo: {
-                parameterList: [{
-                    name: 'member_count',
-                    value: '1'
-                }, {
-                    name: 'room_limit',
-                    value: '3'
-                }]
+        this.notify('share-to-friend', {}, (data) => {
+            if (data.status === 'ok') {
+                console.log('服务器返回的消息 ，可以分享');
+                if (this._waitLayer) {
+                    this._waitLayer.shareToFriend();
+                }
+            } else if (data.status == 'fail') {
+                console.warn('share to friend' + data.data);
             }
+            wx.shareAppMessage({
+                title: '跟我下一盘五子棋吧',
+                imageUrl: defines.resourcesUrl + '/images/share_image.png',
+                query: 'roomId=' + this._roomId
+            })
         })
     }
 }

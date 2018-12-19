@@ -13,13 +13,18 @@ class Room {
 
         if (this._playerList.length == 2) {
             player.setPieceColor(this._playerList[0].getColor() == 'black' ? 'white' : 'black');
+            this.sendMatchSuccess();
         }
         this.syncCurrentColor();
         this.syncBoardData();
         this.syncPlayerInfo();
 
     }
-
+    sendMatchSuccess() {
+        for (let i = 0; i < this._playerList.length; i++) {
+            this._playerList[i].sendMatchSuccess();
+        }
+    }
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncCurrentColor(this._currentColor);
@@ -51,8 +56,24 @@ class Room {
             this._playerList[i].playerEnterBack(player, state);
         }
     }
+
+    playerLeaveRoom(player) {
+        for (let i = 0; i < this._playerList.length; i++) {
+            if (this._playerList[i].id === player.id) {
+                this._playerList.splice(i, 1);
+            }
+        }
+        this.sendPlayerLeaveRoom(player);
+        this.syncPlayerInfo();
+    }
+    sendPlayerLeaveRoom(player){
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            this._playerList[i].playerLeaveRoom(player);
+        }
+    }
     playerOffLine(player) {
         //看一下房间里面的玩家都是都掉线了
+        console.log('玩家掉线');
         let isAllOffline = true;
         for (let i = 0; i < this._playerList.length; i++) {
             if (this._playerList[i].isOnline()) {
@@ -70,27 +91,7 @@ class Room {
             this._playerList[i].playerOffLine(player.id);
         }
     }
-    reStartGame(player) {
-        //重新开始游戏
-        //那么需要将掉线的玩家从房间里面删掉
-        let offLinePlayer = undefined;
-        for (let i = 0; i < this._playerList.length; i++) {
-            if (this._playerList[i].isOnline() == false) {
-                offLinePlayer = this._playerList[i];
-                this._playerList.splice(i, 1);
-            }
-        }
-        if (offLinePlayer) {
-            offLinePlayer.outRoom();
-        }
-        //然后给剩下的玩家 同步房间里面的 玩家信息
-        // player.syncPlayerInfo();
 
-        //然后将房间加到 不满房间列表里面
-        this._controller.pushUnFullRoom(this);
-        player.sendMatchingMsg();
-        this.syncPlayerInfo();
-    }
     playerChooseBoard(player, index) {
         if (this._currentColor == player.getColor()) {
             console.log('是你在玩游戏');
@@ -131,12 +132,78 @@ class Room {
 
     }
     destory() {
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].destory();
-        }
         this._playerList = null;
         this._gameLogic = null;
         this._controller.removeRoom(this);
+    }
+    shareRoomToFriend(player, cb) {
+        //玩家发来了 分享房间的操作，
+        this.removeOfflinePlayer();
+        this.syncPlayerInfo();
+        if (this._playerList.length !== 2) {
+            //首先房间里面玩家的个数 不能等于2 ，如果等于2 的话 ，说明正在游戏中，就不能再邀请其他的玩家了
+        } else {
+            cb({
+                'status': 'fail',
+                'data': 'room is full!',
+                'title': '房间人数已满！'
+            })
+            return;
+        }
+
+        if (this._controller.lockRoom(this)) {
+            //房间锁定成功
+            cb({
+                'status': 'ok'
+            })
+        } else {
+            cb({
+                'status': 'fail',
+                'data': 'room lock fail!',
+                'title': '房间已经不能邀请！'
+            })
+        }
+    }
+    removeOfflinePlayer() {
+        //删掉掉线的玩家
+        let offLinePlayer = undefined;
+        for (let i = 0; i < this._playerList.length; i++) {
+            if (this._playerList[i].isOnline() == false) {
+                offLinePlayer = this._playerList[i];
+                this._playerList.splice(i, 1);
+            }
+        }
+        if (offLinePlayer) {
+            offLinePlayer.outRoom();
+        }
+    }
+    reMatchGame(player, cb) {
+        this.removeOfflinePlayer();
+        //然后给剩下的玩家 同步房间里面的 玩家信息
+        // player.syncPlayerInfo();
+
+        //然后将房间加到 不满房间列表里面
+        if (this._controller.pushUnFullRoom(this)) {
+            if (cb) {
+                cb({
+                    status: 'ok'
+                });
+            }
+        } else {
+            if (cb) {
+                cb({
+                    status: 'fail',
+                    data: 'is matching!'
+                });
+            }
+        }
+        // player.sendMatchingMsg();
+        this.syncPlayerInfo();
+        // if (this._controller){
+        //     //将此房间 从分享房间列表里面剔除
+        //     this._controller.lockMatchRoom(this);
+        // }
+
     }
 }
 module.exports = Room;

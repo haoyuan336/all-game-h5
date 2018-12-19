@@ -46891,7 +46891,7 @@ var ScreenSize = {
 __webpack_require__.r(__webpack_exports__);
 var defines = {
   resourcesUrl: "https://chutianba.xyz/wuziqi-online-resources",
-  socketUrl: "https://chutianba.xyz" // socketUrl: "http://localhost:3000"
+  socketUrl: "https://chutianba.xyz" // socketUrl: "http://localhost:3002"
 
 };
 /* harmony default export */ __webpack_exports__["default"] = (defines);
@@ -47177,27 +47177,43 @@ function (_Scene) {
   _inherits(GameScene, _Scene);
 
   function GameScene() {
+    var _this;
+
     _classCallCheck(this, GameScene);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(GameScene).call(this));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(GameScene).call(this));
+    _this._roomId = undefined;
+    _this._callBackMap = {};
+    _this._messageIndex = 1;
+    return _this;
   }
 
   _createClass(GameScene, [{
     key: "setAuthorize",
     value: function setAuthorize(cb) {
-      var _this = this;
+      var _this2 = this;
 
       wx.getSetting({
         success: function success(res) {
           if (!res.authSetting['scope.userInfo']) {
             console.log('没有用户信息授权');
 
-            _this.showLoginButton(cb);
+            _this2.showLoginButton(cb);
           } else {
-            _this.login(cb);
+            _this2.login(cb);
           }
         }
-      });
+      }); //监听被动分享消息
+
+      wx.onShareAppMessage(function () {
+        return {
+          title: '跟我下一盘五子棋吧',
+          imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png',
+          query: 'roomId=' + _this2._roomId
+        };
+      }); //显示分享按钮
+
+      wx.showShareMenu();
     }
   }, {
     key: "showLoginButton",
@@ -47214,7 +47230,7 @@ function (_Scene) {
         }
       });
       button.onTap(function (res) {
-        console.log('res  =', res);
+        console.log('tap res  =', res);
 
         if (res.errMsg === 'getUserInfo:ok') {
           button.hide();
@@ -47230,6 +47246,8 @@ function (_Scene) {
     value: function login(cb) {
       wx.getUserInfo({
         success: function success(res) {
+          console.log('res userinfo = ', res.userInfo);
+          console.log('res  = ', res);
           var userInfo = res.userInfo;
           var nickName = userInfo.nickName;
           var avatarUrl = userInfo.avatarUrl;
@@ -47246,7 +47264,7 @@ function (_Scene) {
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var _this2 = this;
+      var _this3 = this;
 
       console.log('初始化游戏');
       this._gameLayer = new _game_layer__WEBPACK_IMPORTED_MODULE_1__["default"](this);
@@ -47256,6 +47274,9 @@ function (_Scene) {
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
       var _isOffline = false;
+      var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](this);
+      this.addLayer(waitLayer);
+      this._waitLayer = waitLayer;
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
 
       var onHide = function onHide() {
@@ -47263,20 +47284,32 @@ function (_Scene) {
         connect.emit('enter-back');
       };
 
-      var onShow = function onShow() {
-        //显示
-        if (_isOffline) {
-          console.log('重新连接 ' + _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl);
-          console.log('nick Name = ' + _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName);
-          connect.emit('re-connect', {
-            id: _global__WEBPACK_IMPORTED_MODULE_4__["default"].id,
-            avatarUrl: _global__WEBPACK_IMPORTED_MODULE_4__["default"].avatarUrl,
-            nickName: _global__WEBPACK_IMPORTED_MODULE_4__["default"].nickName
-          });
-        } else {
-          console.log('进入前台');
-          connect.emit('enter-forward');
+      var onShow = function onShow(res) {
+        console.log('on show');
+        var query = res.query;
+        console.log('query', query);
+        var roomId = query.roomId ? query.roomId : undefined;
+
+        if (roomId !== undefined) {
+          this._roomId = roomId;
         }
+
+        connect.emit('enter-forward', {
+          roomId: this._roomId
+        }); //显示
+        // if (_isOffline) {
+        //     console.log('重新连接 ' + global.avatarUrl);
+        //     console.log('nick Name = ' + global.nickName);
+        //     connect.emit('re-connect', {
+        //         id: global.id,
+        //         avatarUrl: global.avatarUrl,
+        //         nickName: global.nickName,
+        //         roomId: this._roomId
+        //     });
+        // } else {
+        //     console.log('进入前台');
+        //     connect.emit('enter-forward');
+        // }
       };
 
       wx.onHide(onHide);
@@ -47290,70 +47323,121 @@ function (_Scene) {
         console.log('登录成功');
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
         _isOffline = false;
-      }); // connect.on('player-join-room', (data) => {
-      //     // console.log('create head ', data);
-      //     // for (let i = 0; i < data.length; i++) {
-      //     //     this._gameLayer.createHead(data[i]);
-      //     // }
-      // });
-
+      });
       connect.on('player-enter-back', function (data) {
         console.log('player enter back', data);
 
-        if (_this2._gameLayer) {
-          _this2._gameLayer.playerEnterBack(data);
+        if (_this3._gameLayer) {
+          _this3._gameLayer.playerEnterBack(data);
         }
       });
       connect.on('sync-current-color', function (color) {
-        _this2._gameLayer.changeCurrentColor(color);
+        _this3._gameLayer.changeCurrentColor(color);
       });
       connect.on('sync-board-data', function (data) {
         console.log('同步棋盘信息');
 
-        _this2._gameLayer.referBoard(data);
+        _this3._gameLayer.referBoard(data);
       });
       connect.on('game-win', function (color) {
-        _this2._uiLayer.showWin(color);
+        _this3._uiLayer.showWin(color);
       });
       connect.on('refer-rank', function (data) {
         //刷新排行榜数据
-        _this2._rankLayer.referRankData(data);
+        _this3._rankLayer.referRankData(data);
       });
       connect.on('sync-player-info', function (data) {
         //刷新玩家信息
         console.log('sync player info = ', data);
+        _this3._roomId = data.roomId;
 
-        _this2._gameLayer.syncPlayerInfo(data.playerInfo);
+        _this3._gameLayer.syncPlayerInfo(data.playerInfo);
       });
       connect.on('player-offline', function (playerId) {
         // this._gameLayer.playerOffLine(playerId);
         //有玩家掉线了
-        if (_this2._waitLayer == undefined) {
-          var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this2);
+        if (_this3._waitLayer == undefined) {
+          var _waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
 
-          _this2.addLayer(waitLayer);
+          _this3.addLayer(_waitLayer);
 
-          _this2._waitLayer = waitLayer;
+          _this3._waitLayer = _waitLayer;
         }
       });
       connect.on('player-online', function (playerId) {
         //玩家又连接上了游戏
-        if (_this2._waitLayer) {
-          _this2.removeChild(_this2._waitLayer);
+        if (_this3._waitLayer) {
+          _this3.removeChild(_this3._waitLayer);
 
-          _this2._waitLayer = undefined;
+          _this3._waitLayer = undefined;
         }
       });
-      connect.on('matching', function () {
-        if (_this2._waitLayer) {
-          _this2.removeChild(_this2._waitLayer);
+      connect.on('match-success', function () {
+        //匹配成功
+        console.log('匹配成功');
+
+        if (_this3._waitLayer) {
+          _this3.removeChild(_this3._waitLayer);
+
+          _this3._waitLayer = undefined;
         }
       });
+      connect.on('player-leave-room', function () {
+        //有玩家离开了房间
+        //有玩家掉线了
+        if (_this3._waitLayer == undefined) {
+          var _waitLayer2 = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
+
+          _this3.addLayer(_waitLayer2);
+
+          _this3._waitLayer = _waitLayer2;
+        }
+      });
+      connect.on('notify-back', function (data) {
+        var messageType = data.messageType;
+        var messageIndex = data.messageIndex;
+
+        if (_this3._callBackMap[messageIndex]) {
+          _this3._callBackMap[messageIndex](data.data);
+
+          delete _this3._callBackMap[messageIndex];
+        }
+
+        switch (messageType) {
+          case 'share-to-friend':
+            console.log('收到了，分享消息的回调');
+            break;
+
+          default:
+            break;
+        }
+      });
+      this._connect = connect;
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
+        var query = wx.getLaunchOptionsSync().query;
+        console.log('data', query);
 
-        _this2._connect.emit('login', data);
+        if (query && query.roomId) {
+          data.roomId = query.roomId;
+        }
+
+        console.log('登录' + JSON.stringify(data));
+
+        _this3._connect.emit('login', data);
       }); // this._uiLayer.showWin('black');
+    }
+  }, {
+    key: "notify",
+    value: function notify(messageType, data, cb) {
+      this._connect.emit('notify', {
+        messageType: messageType,
+        messageIndex: this._messageIndex,
+        data: data
+      });
+
+      this._callBackMap[this._messageIndex] = cb;
+      this._messageIndex++;
     }
   }, {
     key: "playerPushPiece",
@@ -47371,29 +47455,49 @@ function (_Scene) {
   }, {
     key: "reStartGame",
     value: function reStartGame() {
+      var _this4 = this;
+
       //充新开始游戏
-      this._connect.emit('re-start-game');
+      // this._connect.emit('re-start-game');
+      this.notify('re-match-game', {}, function (data) {
+        console.log('re metch game = ', data);
+
+        if (data.status === 'ok') {
+          console.log('可以重新开始游戏了');
+
+          if (_this4._waitLayer) {
+            _this4._waitLayer.reMatchGame();
+          }
+        }
+
+        if (data.status === 'fail') {
+          console.warn('re match game = ', data.data);
+        }
+      });
     }
   }, {
     key: "shareToFriend",
     value: function shareToFriend() {
-      //邀请好友
-      this._connect.emit('share-to-friend');
+      var _this5 = this;
 
-      wx.updateShareMenu({
-        withShareTicket: true,
-        isUpdatableMessage: true,
-        activityId: '',
-        // 活动 ID
-        templateInfo: {
-          parameterList: [{
-            name: 'member_count',
-            value: '1'
-          }, {
-            name: 'room_limit',
-            value: '3'
-          }]
+      //邀请好友
+      // this._connect.emit('share-to-friend');
+      this.notify('share-to-friend', {}, function (data) {
+        if (data.status === 'ok') {
+          console.log('服务器返回的消息 ，可以分享');
+
+          if (_this5._waitLayer) {
+            _this5._waitLayer.shareToFriend();
+          }
+        } else if (data.status == 'fail') {
+          console.warn('share to friend' + data.data);
         }
+
+        wx.shareAppMessage({
+          title: '跟我下一盘五子棋吧',
+          imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png',
+          query: 'roomId=' + _this5._roomId
+        });
       });
     }
   }]);
@@ -47701,9 +47805,6 @@ function (_Layer) {
         y: 0
       };
       var p = new Promise(function (reo, rej) {
-        console.log('创建头像', _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource);
-        console.log('avatar url = ', avatarUrl);
-
         if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]) {
           console.log('不再去重新加载了');
           reo(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]);
@@ -48098,6 +48199,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
@@ -48167,6 +48272,7 @@ function (_Layer) {
         _this._controller.shareToFriend();
       }
     });
+    _this._title = title;
 
     _this.addChild(putFriendButton);
 
@@ -48178,6 +48284,22 @@ function (_Layer) {
     _this.interactive = true;
     return _this;
   }
+
+  _createClass(WaitLayer, [{
+    key: "reMatchGame",
+    value: function reMatchGame() {
+      this._title.texture = _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].matching_title].texture;
+
+      this._title.scale.set(2);
+    }
+  }, {
+    key: "shareToFriend",
+    value: function shareToFriend() {
+      this._title.texture = _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].wait_friend_tips].texture;
+
+      this._title.scale.set(2);
+    }
+  }]);
 
   return WaitLayer;
 }(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
@@ -48216,11 +48338,14 @@ var res = {
   "denglu_button": "./images/denglu_button.png",
   "leave_room": "./images/leave_room.png",
   "login_button": "./images/login_button.png",
+  "matching_title": "./images/matching_title.png",
   "piece_black": "./images/piece_black.png",
   "piece_white": "./images/piece_white.png",
   "re_start_button": "./images/re_start_button.png",
   "shard_friend_button": "./images/shard_friend_button.png",
   "share_button": "./images/share_button.png",
+  "share_image": "./images/share_image.png",
+  "wait_friend_tips": "./images/wait_friend_tips.png",
   "wait_tips": "./images/wait_tips.png",
   "wifi_logo": "./images/wifi_logo.png"
 };
