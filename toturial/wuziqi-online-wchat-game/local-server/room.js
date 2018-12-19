@@ -63,6 +63,10 @@ class Room {
                 this._playerList.splice(i, 1);
             }
         }
+        if(this._playerList.length === 0){
+            //玩家都走光了 ，这时候 把房间销毁
+            this.destory();
+        }
         this.sendPlayerLeaveRoom(player);
         this.syncPlayerInfo();
     }
