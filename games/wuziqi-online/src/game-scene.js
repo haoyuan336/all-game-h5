@@ -29,6 +29,7 @@ class GameScene extends Scene {
              console.log('refer game data', data);
             if (this._uiLayer){
                 this._uiLayer.referGameData(data);
+                
             }
         });
         connect.on('sync-current-color', (color)=>{
