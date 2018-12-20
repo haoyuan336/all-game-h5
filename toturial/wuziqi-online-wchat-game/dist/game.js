@@ -47073,25 +47073,23 @@ function (_Layer) {
   }, {
     key: "removeAllPiece",
     value: function removeAllPiece() {
-      for (var i in this._pieceMap) {
-        this.removeChild(this._pieceMap[i]);
+      for (var i in this._pieceList) {
+        this.removeChild(this._pieceList[i]);
       }
 
-      this._pieceMap = [];
+      this._pieceList = [];
     }
   }, {
     key: "referPlayerInfo",
-    value: function referPlayerInfo(data) {// for (let i in this._headList) {
-      //     this._headList[i].referPlayerInfo(data);
-      // }
-    }
-  }, {
-    key: "playerEnterBack",
-    value: function playerEnterBack(data) {
-      for (var i in this._headList) {
-        this._headList[i].playerEnterBack(data.id, data.state);
-      }
-    }
+    value: function referPlayerInfo(data) {} // for (let i in this._headList) {
+    //     this._headList[i].referPlayerInfo(data);
+    // }
+    // playerEnterBack(data) {
+    //     for (let i in this._headList) {
+    //         this._headList[i].playerEnterBack(data.id, data.state);
+    //     }
+    // }
+
   }, {
     key: "syncPlayerInfo",
     value: function syncPlayerInfo(data) {
@@ -47273,10 +47271,10 @@ function (_Scene) {
       this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
-      var _isOffline = false;
-      var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](this);
-      this.addLayer(waitLayer);
-      this._waitLayer = waitLayer;
+      var _isOffline = false; // let waitLayer = new WaitLayer(this);
+      // this.addLayer(waitLayer);
+      // this._waitLayer = waitLayer;
+
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
 
       var onHide = function onHide() {
@@ -47319,18 +47317,29 @@ function (_Scene) {
         console.log('掉线');
         _isOffline = true;
       });
+      connect.on('no-login-msg', function () {
+        console.log('服务器 没有收到login 消息 需要重复发送'); //那么这时候 ，玩家需要重新发送 login的消息
+
+        _this3.connectServer();
+      });
       connect.on('login-success', function (data) {
         console.log('登录成功');
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
         _isOffline = false;
-      });
-      connect.on('player-enter-back', function (data) {
-        console.log('player enter back', data);
+      }); // connect.on('player-enter-back', (data) => {
+      //     console.log('player enter back', data);
+      //     if (this._gameLayer) {
+      //         this._gameLayer.playerEnterBack(data);
+      //     }
+      // });
+      // connect.on('player-reenter-room', () => {
+      //     //玩家又进入了教室
+      //     if (this._waitLayer) {
+      //         this.removeChild(this._waitLayer);
+      //         this._waitLayer = undefined;
+      //     }
+      // });
 
-        if (_this3._gameLayer) {
-          _this3._gameLayer.playerEnterBack(data);
-        }
-      });
       connect.on('sync-current-color', function (color) {
         _this3._gameLayer.changeCurrentColor(color);
       });
@@ -47349,7 +47358,22 @@ function (_Scene) {
       connect.on('sync-player-info', function (data) {
         //刷新玩家信息
         console.log('sync player info = ', data);
-        _this3._roomId = data.roomId;
+        _this3._roomId = data.roomId; //同步玩家信息的时候，如果是两个玩家在房间里面
+
+        var allOnline = true;
+
+        for (var i = 0; i < data.playerInfo.length; i++) {
+          if (allOnline) {
+            //只要有一个玩家 不在线 或者是 没有在前台的状态 ,那么就不能开始游戏
+            allOnline = data.playerInfo[i].online;
+          }
+        }
+
+        if (allOnline && _this3._waitLayer) {
+          _this3.removeChild(_this3._waitLayer);
+
+          _this3._waitLayer = undefined;
+        }
 
         _this3._gameLayer.syncPlayerInfo(data.playerInfo);
       });
@@ -47357,11 +47381,11 @@ function (_Scene) {
         // this._gameLayer.playerOffLine(playerId);
         //有玩家掉线了
         if (_this3._waitLayer == undefined) {
-          var _waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
+          var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
 
-          _this3.addLayer(_waitLayer);
+          _this3.addLayer(waitLayer);
 
-          _this3._waitLayer = _waitLayer;
+          _this3._waitLayer = waitLayer;
         }
       });
       connect.on('player-online', function (playerId) {
@@ -47386,11 +47410,11 @@ function (_Scene) {
         //有玩家离开了房间
         //有玩家掉线了
         if (_this3._waitLayer == undefined) {
-          var _waitLayer2 = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
+          var waitLayer = new _wait_layer__WEBPACK_IMPORTED_MODULE_7__["default"](_this3);
 
-          _this3.addLayer(_waitLayer2);
+          _this3.addLayer(waitLayer);
 
-          _this3._waitLayer = _waitLayer2;
+          _this3._waitLayer = waitLayer;
         }
       });
       connect.on('notify-back', function (data) {
@@ -47413,6 +47437,13 @@ function (_Scene) {
         }
       });
       this._connect = connect;
+      this.connectServer(); // this._uiLayer.showWin('black');
+    }
+  }, {
+    key: "connectServer",
+    value: function connectServer() {
+      var _this4 = this;
+
       this.setAuthorize(function (data) {
         console.log('获取头像信息', data);
         var query = wx.getLaunchOptionsSync().query;
@@ -47422,10 +47453,14 @@ function (_Scene) {
           data.roomId = query.roomId;
         }
 
+        if (_global__WEBPACK_IMPORTED_MODULE_4__["default"].id) {
+          data.id = _global__WEBPACK_IMPORTED_MODULE_4__["default"].id;
+        }
+
         console.log('登录' + JSON.stringify(data));
 
-        _this3._connect.emit('login', data);
-      }); // this._uiLayer.showWin('black');
+        _this4._connect.emit('login', data);
+      });
     }
   }, {
     key: "notify",
@@ -47455,7 +47490,7 @@ function (_Scene) {
   }, {
     key: "reStartGame",
     value: function reStartGame() {
-      var _this4 = this;
+      var _this5 = this;
 
       //充新开始游戏
       // this._connect.emit('re-start-game');
@@ -47465,8 +47500,8 @@ function (_Scene) {
         if (data.status === 'ok') {
           console.log('可以重新开始游戏了');
 
-          if (_this4._waitLayer) {
-            _this4._waitLayer.reMatchGame();
+          if (_this5._waitLayer) {
+            _this5._waitLayer.reMatchGame();
           }
         }
 
@@ -47478,7 +47513,7 @@ function (_Scene) {
   }, {
     key: "shareToFriend",
     value: function shareToFriend() {
-      var _this5 = this;
+      var _this6 = this;
 
       //邀请好友
       // this._connect.emit('share-to-friend');
@@ -47486,8 +47521,8 @@ function (_Scene) {
         if (data.status === 'ok') {
           console.log('服务器返回的消息 ，可以分享');
 
-          if (_this5._waitLayer) {
-            _this5._waitLayer.shareToFriend();
+          if (_this6._waitLayer) {
+            _this6._waitLayer.shareToFriend();
           }
         } else if (data.status == 'fail') {
           console.warn('share to friend' + data.data);
@@ -47496,8 +47531,17 @@ function (_Scene) {
         wx.shareAppMessage({
           title: '跟我下一盘五子棋吧',
           imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png',
-          query: 'roomId=' + _this5._roomId
+          query: 'roomId=' + _this6._roomId
         });
+      });
+    }
+  }, {
+    key: "noPSharedButton",
+    value: function noPSharedButton() {
+      //没有参数的分享按钮
+      wx.shareAppMessage({
+        title: '跟我下一盘五子棋吧',
+        imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png'
       });
     }
   }]);
@@ -47609,6 +47653,10 @@ function (_Layer) {
       height: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height,
       touchCb: function touchCb() {
         console.log('分享的操作');
+
+        if (_this._controller) {
+          _this._controller.noPSharedButton();
+        }
       }
     });
     button.scale.set(2);
@@ -47710,7 +47758,7 @@ function (_Layer) {
 
     _this._wifiLogo.position = {
       x: 30,
-      y: -30
+      y: 150
     };
     _this._nickNameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fontSize: 40
@@ -47752,9 +47800,11 @@ function (_Layer) {
     value: function referPlayerInfo(data) {
       var _this2 = this;
 
-      console.log('data', data);
+      console.log('refer player info  head data', data);
       var type = 'right';
       type = data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id ? 'left' : 'right';
+      var isOnline = data.online;
+      var enterBack = data.enterBack;
 
       if (data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id) {
         _global__WEBPACK_IMPORTED_MODULE_1__["default"].avatarUrl = data.avatarUrl;
@@ -47833,13 +47883,16 @@ function (_Layer) {
 
         _this2.addChild(_this2._avatar);
       });
+
+      if (this._wifiLogo) {
+        this._wifiLogo.alpha = isOnline && !enterBack ? 1 : 0.3;
+      }
     }
   }, {
     key: "playerEnterBack",
-    value: function playerEnterBack(playerId, value) {
-      if (this._id == playerId && this._wifiLogo) {
-        this._wifiLogo.alpha = value ? 0.3 : 1;
-      }
+    value: function playerEnterBack(playerId, value) {// if (this._id == playerId && this._wifiLogo) {
+      //     this._wifiLogo.alpha = value ? 0.3 : 1;
+      // }
     }
   }]);
 
@@ -48171,6 +48224,13 @@ function (_Layer) {
 
       if (this._controller) {
         this._controller.closeGameOverLayer();
+      }
+    }
+  }, {
+    key: "noPSharedButton",
+    value: function noPSharedButton() {
+      if (this._controller) {
+        this._controller.noPSharedButton();
       }
     }
   }]);

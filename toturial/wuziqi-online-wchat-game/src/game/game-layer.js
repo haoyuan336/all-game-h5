@@ -98,21 +98,21 @@ class GameLayer extends Layer {
         }
     }
     removeAllPiece() {
-        for (let i in this._pieceMap) {
-            this.removeChild(this._pieceMap[i]);
+        for (let i in this._pieceList) {
+            this.removeChild(this._pieceList[i]);
         }
-        this._pieceMap = [];
+        this._pieceList = [];
     }
     referPlayerInfo(data) {
         // for (let i in this._headList) {
         //     this._headList[i].referPlayerInfo(data);
         // }
     }
-    playerEnterBack(data) {
-        for (let i in this._headList) {
-            this._headList[i].playerEnterBack(data.id, data.state);
-        }
-    }
+    // playerEnterBack(data) {
+    //     for (let i in this._headList) {
+    //         this._headList[i].playerEnterBack(data.id, data.state);
+    //     }
+    // }
     syncPlayerInfo(data) {
         let count = data.length - this._headList.length;
         if (count < 0) {

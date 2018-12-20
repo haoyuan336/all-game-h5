@@ -25,6 +25,7 @@ class Room {
             this._playerList[i].sendMatchSuccess();
         }
     }
+  
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncCurrentColor(this._currentColor);
@@ -39,7 +40,9 @@ class Room {
                 ranKNum: this._playerList[i].getRankNum(),
                 avatarUrl: this._playerList[i].avatarUrl,
                 nickName: this._playerList[i].nickName,
-                pieceColor: this._playerList[i].getColor()
+                pieceColor: this._playerList[i].getColor(),
+                online: this._playerList[i].isOnline(),
+                enterBack: this._playerList[i].isInBack()
             })
         }
 
@@ -51,11 +54,11 @@ class Room {
             });
         }
     }
-    playerEnterBack(player, state) {
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].playerEnterBack(player, state);
-        }
-    }
+    // playerEnterBack(player, state) {
+    //     for (let i = 0; i < this._playerList.length; i++) {
+    //         this._playerList[i].playerEnterBack(player, state);
+    //     }
+    // }
 
     playerLeaveRoom(player) {
         for (let i = 0; i < this._playerList.length; i++) {
@@ -96,6 +99,7 @@ class Room {
         }
     }
 
+   
     playerChooseBoard(player, index) {
         if (this._currentColor == player.getColor()) {
             console.log('是你在玩游戏');
@@ -201,13 +205,8 @@ class Room {
                 });
             }
         }
-        // player.sendMatchingMsg();
         this.syncPlayerInfo();
-        // if (this._controller){
-        //     //将此房间 从分享房间列表里面剔除
-        //     this._controller.lockMatchRoom(this);
-        // }
-
     }
+  
 }
 module.exports = Room;

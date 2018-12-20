@@ -24,7 +24,7 @@ class Player {
         console.log('玩家又连接上了');
         this._socket = socket;
         this._online = true;
-
+        this._isEnterBack = false;
         this.onMessage();
     }
     notify(messageType, messageIndex, data) {
@@ -81,8 +81,11 @@ class Player {
         this._socket.on('enter-back', () => {
             console.log('进入了后台');
             this._isEnterBack = true;
+            // if (this._room) {
+            //     this._room.playerEnterBack(this, true);
+            // }
             if (this._room) {
-                this._room.playerEnterBack(this, true);
+                this._room.syncPlayerInfo();
             }
         });
         this._socket.on('enter-forward', (data) => {
@@ -100,7 +103,7 @@ class Player {
                 // this._room.
             } else {
                 if (this._room) {
-                    this._room.playerEnterBack(this, false);
+                    this._room.syncPlayerInfo();
                 }
             }
         });
@@ -141,12 +144,6 @@ class Player {
         this._room.syncPlayerInfo();
     }
     syncPlayerInfo(data) {
-        // let data = {
-        //     id: player.id,
-        //     score: player.getScore(),
-        //     rankNum: player.getRankNum()
-
-        // }
         this._socket.emit('sync-player-info', data);
     }
 
@@ -178,12 +175,7 @@ class Player {
     playerOffLine(playerId) {
         this._socket.emit('player-offline', playerId);
     }
-    playerEnterBack(player, state) {
-        this._socket.emit('player-enter-back', {
-            id: player.id,
-            state: state
-        })
-    }
+
     playerLeaveRoom(player) {
         this._socket.emit('player-leave-room', {
             playerId: player.id
@@ -193,7 +185,8 @@ class Player {
         return this._online;
     }
     outRoom() {
-        this._room = undefined;
+        // this._room = undefined;
+        delete this._room;
     }
     isInRoom() {
         if (this._room) {
@@ -201,12 +194,18 @@ class Player {
         }
         return false;
     }
+    getRoomId() {
+        return this._room.id;
+    }
+    getRoom() {
+        return this._room;
+    }
     sendMatchSuccess() {
         this._socket.emit('match-success');
     }
-    // sendMatchingMsg() {
-    //     //给玩家发送匹配中的消息
-    //     this._socket.emit('matching');
-    // }
+    isInBack() {
+        return this._isEnterBack;
+    }
+
 }
 module.exports = Player;

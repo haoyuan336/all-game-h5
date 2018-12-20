@@ -33,7 +33,7 @@ class Head extends Layer {
         this._wifiLogo.scale.set(0.5);
         this._wifiLogo.position = {
             x: 30,
-            y: -30
+            y: 150
         }
         this._nickNameLabel = new Label('', {
             fontSize: 40
@@ -67,10 +67,11 @@ class Head extends Layer {
         return this._id;
     }
     referPlayerInfo(data) {
-        console.log('data', data);
+        console.log('refer player info  head data', data);
         let type = 'right';
         type = (data.id == global.id) ? 'left' : 'right';
-
+        let isOnline = data.online;
+        let enterBack = data.enterBack;
         if (data.id == global.id) {
             global.avatarUrl = data.avatarUrl;
             global.nickName = data.nickName;
@@ -147,12 +148,15 @@ class Head extends Layer {
             this.addChild(this._avatar);
         });
 
+        if (this._wifiLogo) {
+            this._wifiLogo.alpha = isOnline && !enterBack ? 1 : 0.3;
 
+        }
     }
     playerEnterBack(playerId, value) {
-        if (this._id == playerId && this._wifiLogo) {
-            this._wifiLogo.alpha = value ? 0.3 : 1;
-        }
+        // if (this._id == playerId && this._wifiLogo) {
+        //     this._wifiLogo.alpha = value ? 0.3 : 1;
+        // }
     }
 }
 export default Head;

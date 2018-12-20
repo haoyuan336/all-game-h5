@@ -55,6 +55,9 @@ class GameOverLayer extends Layer {
             height: director.designSize.height,
             touchCb: () => {
                 console.log('分享的操作');
+                if (this._controller){
+                    this._controller.noPSharedButton();
+                }
             }
         });
         button.scale.set(2);

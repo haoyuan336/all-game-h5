@@ -88,9 +88,9 @@ class GameScene extends Scene {
         this.addLayer(this._uiLayer);
         let _isOffline = false;
 
-        let waitLayer = new WaitLayer(this);
-        this.addLayer(waitLayer);
-        this._waitLayer = waitLayer;
+        // let waitLayer = new WaitLayer(this);
+        // this.addLayer(waitLayer);
+        // this._waitLayer = waitLayer;
 
         let connect = SocketIO(defines.socketUrl);
         const onHide = function () {
@@ -133,17 +133,31 @@ class GameScene extends Scene {
             console.log('掉线');
             _isOffline = true;
         });
+        connect.on('no-login-msg', () => {
+            console.log('服务器 没有收到login 消息 需要重复发送');
+            //那么这时候 ，玩家需要重新发送 login的消息
+            this.connectServer();
+        })
         connect.on('login-success', (data) => {
             console.log('登录成功');
             global.id = data;
             _isOffline = false;
         });
-        connect.on('player-enter-back', (data) => {
-            console.log('player enter back', data);
-            if (this._gameLayer) {
-                this._gameLayer.playerEnterBack(data);
-            }
-        });
+        // connect.on('player-enter-back', (data) => {
+        //     console.log('player enter back', data);
+
+        //     if (this._gameLayer) {
+        //         this._gameLayer.playerEnterBack(data);
+        //     }
+        // });
+
+        // connect.on('player-reenter-room', () => {
+        //     //玩家又进入了教室
+        //     if (this._waitLayer) {
+        //         this.removeChild(this._waitLayer);
+        //         this._waitLayer = undefined;
+        //     }
+        // });
         connect.on('sync-current-color', (color) => {
             this._gameLayer.changeCurrentColor(color);
         });
@@ -162,6 +176,20 @@ class GameScene extends Scene {
             //刷新玩家信息
             console.log('sync player info = ', data);
             this._roomId = data.roomId;
+            //同步玩家信息的时候，如果是两个玩家在房间里面
+            let allOnline = true;
+            for (let i = 0; i < data.playerInfo.length; i++) {
+                if (allOnline) {
+                    //只要有一个玩家 不在线 或者是 没有在前台的状态 ,那么就不能开始游戏
+                    allOnline = data.playerInfo[i].online;
+                }
+            }
+            if (allOnline && this._waitLayer) {
+                this.removeChild(this._waitLayer);
+                this._waitLayer = undefined;
+            }
+
+
             this._gameLayer.syncPlayerInfo(data.playerInfo);
         });
         connect.on('player-offline', (playerId) => {
@@ -189,10 +217,10 @@ class GameScene extends Scene {
                 this._waitLayer = undefined;
             }
         });
-        connect.on('player-leave-room', ()=>{
+        connect.on('player-leave-room', () => {
             //有玩家离开了房间
-             //有玩家掉线了
-             if (this._waitLayer == undefined) {
+            //有玩家掉线了
+            if (this._waitLayer == undefined) {
                 let waitLayer = new WaitLayer(this);
                 this.addLayer(waitLayer);
                 this._waitLayer = waitLayer;
@@ -215,6 +243,11 @@ class GameScene extends Scene {
 
         });
         this._connect = connect;
+        this.connectServer();
+        // this._uiLayer.showWin('black');
+    }
+
+    connectServer() {
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
             let query = wx.getLaunchOptionsSync().query;
@@ -222,13 +255,16 @@ class GameScene extends Scene {
             if (query && query.roomId) {
                 data.roomId = query.roomId;
             }
+            if (global.id) {
+                data.id = global.id;
+            }
 
             console.log('登录' + JSON.stringify(data));
 
             this._connect.emit('login', data);
         });
-        // this._uiLayer.showWin('black');
     }
+
     notify(messageType, data, cb) {
         this._connect.emit('notify', {
             messageType: messageType,
@@ -281,6 +317,13 @@ class GameScene extends Scene {
                 imageUrl: defines.resourcesUrl + '/images/share_image.png',
                 query: 'roomId=' + this._roomId
             })
+        })
+    }
+    noPSharedButton(){
+        //没有参数的分享按钮
+        wx.shareAppMessage({
+            title: '跟我下一盘五子棋吧',
+            imageUrl: defines.resourcesUrl + '/images/share_image.png'
         })
     }
 }

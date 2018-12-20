@@ -38,32 +38,32 @@ class App {
         this._shareFriendRoomList = []; //邀请等待好友的房间
     }
     createPlayer(socket, data) {
-        let id = this._idCreate.getNextID();
-        console.log('创建玩家 =', id);
-        let player = new Player(socket, id, this, data);
-        this._playerMap[id] = player;
-        console.log('创建玩家' + JSON.stringify(data));
-        this.assignRoom(player, data);
+        let player = undefined;
+        if (this._playerMap[data.id]) {
+            //存在此玩家
+            console.log('存在此玩家');
+            this._playerMap[data.id].reConnect(socket);
+            player = this._playerMap[data.id];
+        } else {
+            console.log('不存在此玩家');
+            let id = this._idCreate.getNextID();
+            console.log('创建玩家 =', id);
+            player = new Player(socket, id, this, data);
+            this._playerMap[id] = player;
+            console.log('创建玩家' + JSON.stringify(data));
+        }
+        if (player.isInRoom()) {
+            //因为玩家还在房间里面 ，所以不做任何操作
+            //不过需要告诉房间里面玩家 ，我回来了
+            console.log('玩家还在房间里面');
+            player.getRoom().syncPlayerInfo();
+        } else {
+            this.assignRoom(player, data);
+        }
+        
         player.syncRankData(rank.getRankList());
     }
-    reConnect(socket, data) {
-        console.log('app reconnect = ', data);
-
-        if (this._playerMap[data.id]) {
-            console.log('存在此玩家');
-            //如果存在此玩家的id 说明内存里还有次玩家的信息，那么重新监听一下 socket 信息
-            this._playerMap[data.id].reConnect(socket);
-
-            //如果这个玩家 没有在房间里面 。那么给他分配一个新的房间
-            if (!this._playerMap[data.id].isInRoom()) {
-                //如果这个玩家 没有在房间里面 。那么再给他分配一个新的房间
-                this.assignRoom(this._playerMap[data.id], data);
-            }
-        } else {
-            //如果不存在此玩家 ，那么就得重新创建玩家了
-            this.createPlayer(socket, data);
-        }
-    }
+   
     createRoom() {
         let id = this._idCreate.getNextID();
         let room = new Room(id, this);
@@ -129,7 +129,7 @@ class App {
     }
     removePlayer(id) {
         delete this._playerMap[id];
-        this.syncGameData();
+        // this.syncGameData();
     }
     removeRoom(room) {
         console.log("删除空房间");
@@ -141,18 +141,18 @@ class App {
                 this._unFullRoomList.splice(i, 1);
             }
         }
-        this.syncGameData();
+        // this.syncGameData();
     }
-    syncGameData() {
-        // let gameData = {
-        //     room_count: Object.keys(this._roomMap).length,
-        //     unfull_room_count: this._unFullRoomList.length,
-        //     online_player_count: Object.keys(this._playerMap).length,
-        // }
-        // for (let i in this._playerMap) {
-        //     this._playerMap[i].referGameData(gameData);
-        // }
-    }
+    // syncGameData() {
+    //     // let gameData = {
+    //     //     room_count: Object.keys(this._roomMap).length,
+    //     //     unfull_room_count: this._unFullRoomList.length,
+    //     //     online_player_count: Object.keys(this._playerMap).length,
+    //     // }
+    //     // for (let i in this._playerMap) {
+    //     //     this._playerMap[i].referGameData(gameData);
+    //     // }
+    // }
 
     syncRankData(data) {
         for (let i in this._playerMap) {

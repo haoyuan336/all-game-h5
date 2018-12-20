@@ -20,10 +20,14 @@ class UILayer extends Layer {
         if (this._gameOverLayer) {
             this.removeChild(this._gameOverLayer);
             this._gameOverLayer = undefined;
-
         }
         if (this._controller) {
             this._controller.closeGameOverLayer();
+        }
+    }
+    noPSharedButton(){
+        if (this._controller){
+            this._controller.noPSharedButton();
         }
     }
     
