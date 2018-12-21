@@ -47271,7 +47271,28 @@ function (_Scene) {
       this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
-      var _isOffline = false; // let waitLayer = new WaitLayer(this);
+      var _isOffline = false;
+
+      var _shareButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+        normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].shard_friend_button].texture,
+        touchCb: function touchCb() {
+          console.log('邀请按钮');
+          wx.shareAppMessage({
+            title: '跟我下一盘五子棋吧',
+            imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png',
+            query: 'roomId=' + _this3._roomId
+          });
+        }
+      });
+
+      _shareButton.position = {
+        x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+        y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
+      };
+
+      _shareButton.scale.set(2);
+
+      this.addChild(_shareButton); // let waitLayer = new WaitLayer(this);
       // this.addLayer(waitLayer);
       // this._waitLayer = waitLayer;
 
@@ -47362,6 +47383,10 @@ function (_Scene) {
 
         var allOnline = true;
 
+        if (data.playerInfo.length !== 2) {
+          allOnline = false; //如果房间里面的 玩家人数 不等于2  那么 不能继续游戏哦
+        }
+
         for (var i = 0; i < data.playerInfo.length; i++) {
           if (allOnline) {
             //只要有一个玩家 不在线 或者是 没有在前台的状态 ,那么就不能开始游戏
@@ -47373,6 +47398,12 @@ function (_Scene) {
           _this3.removeChild(_this3._waitLayer);
 
           _this3._waitLayer = undefined;
+        }
+
+        if (data.playerInfo.length === 1) {
+          _shareButton.visible = true;
+        } else {
+          _shareButton.visible = false;
         }
 
         _this3._gameLayer.syncPlayerInfo(data.playerInfo);

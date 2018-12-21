@@ -16,8 +16,8 @@ class Player {
         this.onMessage();
         this.avatarUrl = data.avatarUrl;
         this.nickName = data.nickName;
-
         this._online = true;
+        this._roomId = undefined;
     }
     reConnect(socket) {
         //如果是重新连接进来的 ，那么重新监听这些消息
@@ -111,6 +111,7 @@ class Player {
     }
     assignRoom(room) {
         this._room = room;
+        this._roomId = this._room.id;
         //从数据库里面取出来数据之后 ，才去
         db.getPlayerScore(this.avatarUrl, (err, data) => {
             if (err == null && data !== null) {
@@ -186,7 +187,8 @@ class Player {
     }
     outRoom() {
         // this._room = undefined;
-        delete this._room;
+        // delete this._room;
+        this._roomId = undefined;
     }
     isInRoom() {
         if (this._room) {

@@ -55,5 +55,6 @@ class GameLogic {
     clearGameData() {
         this._pieceMap = {};
     }
+    
 }
 module.exports = GameLogic

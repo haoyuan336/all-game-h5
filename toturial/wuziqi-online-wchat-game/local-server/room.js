@@ -25,14 +25,18 @@ class Room {
             this._playerList[i].sendMatchSuccess();
         }
     }
-  
+
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncCurrentColor(this._currentColor);
         }
     }
     syncPlayerInfo() {
+        if (!this._playerList) {
+            return;
+        }
         let data = [];
+        console.log('player list = ', this._playerList);
         for (let i = 0; i < this._playerList.length; i++) {
             data.push({
                 id: this._playerList[i].id,
@@ -66,19 +70,29 @@ class Room {
                 this._playerList.splice(i, 1);
             }
         }
-        if(this._playerList.length === 0){
+        if (this._playerList.length === 0) {
             //玩家都走光了 ，这时候 把房间销毁
-            this.destory();
+            // this.destory();
+            this.emptyRoom();
         }
         this.sendPlayerLeaveRoom(player);
         this.syncPlayerInfo();
     }
-    sendPlayerLeaveRoom(player){
-        for (let i = 0 ; i < this._playerList.length ; i ++){
+    emptyRoom() {
+        //空房间
+        this._playerList = [];
+        this._gameLogic.clearGameData();//清除游戏数据
+        this._controller.pushEmptyRoom(this);
+    }
+    sendPlayerLeaveRoom(player) {
+        for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].playerLeaveRoom(player);
         }
     }
     playerOffLine(player) {
+        if (!this._playerList) {
+            return;
+        }
         //看一下房间里面的玩家都是都掉线了
         console.log('玩家掉线');
         let isAllOffline = true;
@@ -91,7 +105,8 @@ class Room {
 
         if (isAllOffline) {
             //所有人都掉线了,那么关闭房间。删掉玩家
-            this.destory();
+            // this.destory();
+            this.emptyRoom();
             return;
         }
         for (let i = 0; i < this._playerList.length; i++) {
@@ -99,7 +114,7 @@ class Room {
         }
     }
 
-   
+
     playerChooseBoard(player, index) {
         if (this._currentColor == player.getColor()) {
             console.log('是你在玩游戏');
@@ -139,11 +154,12 @@ class Room {
         }, 2000);
 
     }
-    destory() {
-        this._playerList = null;
-        this._gameLogic = null;
-        this._controller.removeRoom(this);
-    }
+    // destory() {
+    //     console.log('销毁房间');
+    //     this._playerList = null;
+    //     this._gameLogic = null;
+    //     this._controller.removeRoom(this);
+    // }
     shareRoomToFriend(player, cb) {
         //玩家发来了 分享房间的操作，
         this.removeOfflinePlayer();
@@ -207,6 +223,10 @@ class Room {
         }
         this.syncPlayerInfo();
     }
-  
+    /***
+     * 楚浩远
+     * 1.课件录课，协助刘杰实现奖杯特效（完成度100%）
+     * 
+     */
 }
 module.exports = Room;

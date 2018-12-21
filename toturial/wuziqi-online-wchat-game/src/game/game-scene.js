@@ -88,6 +88,24 @@ class GameScene extends Scene {
         this.addLayer(this._uiLayer);
         let _isOffline = false;
 
+        let _shareButton = new Button({
+            normalTexture: global.resource[resources.shard_friend_button].texture,
+            touchCb: () => {
+                console.log('邀请按钮');
+                wx.shareAppMessage({
+                    title: '跟我下一盘五子棋吧',
+                    imageUrl: defines.resourcesUrl + '/images/share_image.png',
+                    query: 'roomId=' + this._roomId
+                })
+            }
+        })
+        _shareButton.position = {
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.5
+        }
+        _shareButton.scale.set(2);
+        this.addChild(_shareButton);
+
         // let waitLayer = new WaitLayer(this);
         // this.addLayer(waitLayer);
         // this._waitLayer = waitLayer;
@@ -178,6 +196,10 @@ class GameScene extends Scene {
             this._roomId = data.roomId;
             //同步玩家信息的时候，如果是两个玩家在房间里面
             let allOnline = true;
+            if (data.playerInfo.length !== 2){
+                allOnline = false;
+                //如果房间里面的 玩家人数 不等于2  那么 不能继续游戏哦
+            }
             for (let i = 0; i < data.playerInfo.length; i++) {
                 if (allOnline) {
                     //只要有一个玩家 不在线 或者是 没有在前台的状态 ,那么就不能开始游戏
@@ -188,8 +210,11 @@ class GameScene extends Scene {
                 this.removeChild(this._waitLayer);
                 this._waitLayer = undefined;
             }
-
-
+            if (data.playerInfo.length === 1){
+                _shareButton.visible = true;
+            }else{
+                _shareButton.visible = false;
+            }
             this._gameLayer.syncPlayerInfo(data.playerInfo);
         });
         connect.on('player-offline', (playerId) => {
@@ -319,7 +344,7 @@ class GameScene extends Scene {
             })
         })
     }
-    noPSharedButton(){
+    noPSharedButton() {
         //没有参数的分享按钮
         wx.shareAppMessage({
             title: '跟我下一盘五子棋吧',
