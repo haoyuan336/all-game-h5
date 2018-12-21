@@ -191,10 +191,10 @@ class Player {
         this._roomId = undefined;
     }
     isInRoom() {
-        if (this._room) {
-            return true;
+        if (!this._room) {
+            return false;
         }
-        return false;
+        return this._room.isHavePlayer(this);
     }
     getRoomId() {
         return this._room.id;

@@ -47271,7 +47271,6 @@ function (_Scene) {
       this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
       this.addLayer(this._uiLayer);
-      var _isOffline = false;
 
       var _shareButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
         normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].shard_friend_button].texture,
@@ -47292,10 +47291,7 @@ function (_Scene) {
 
       _shareButton.scale.set(2);
 
-      this.addChild(_shareButton); // let waitLayer = new WaitLayer(this);
-      // this.addLayer(waitLayer);
-      // this._waitLayer = waitLayer;
-
+      this.addChild(_shareButton);
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
 
       var onHide = function onHide() {
@@ -47315,20 +47311,7 @@ function (_Scene) {
 
         connect.emit('enter-forward', {
           roomId: this._roomId
-        }); //显示
-        // if (_isOffline) {
-        //     console.log('重新连接 ' + global.avatarUrl);
-        //     console.log('nick Name = ' + global.nickName);
-        //     connect.emit('re-connect', {
-        //         id: global.id,
-        //         avatarUrl: global.avatarUrl,
-        //         nickName: global.nickName,
-        //         roomId: this._roomId
-        //     });
-        // } else {
-        //     console.log('进入前台');
-        //     connect.emit('enter-forward');
-        // }
+        });
       };
 
       wx.onHide(onHide);
@@ -47336,7 +47319,6 @@ function (_Scene) {
       this._connect = connect;
       connect.on('disconnect', function () {
         console.log('掉线');
-        _isOffline = true;
       });
       connect.on('no-login-msg', function () {
         console.log('服务器 没有收到login 消息 需要重复发送'); //那么这时候 ，玩家需要重新发送 login的消息
@@ -47346,21 +47328,7 @@ function (_Scene) {
       connect.on('login-success', function (data) {
         console.log('登录成功');
         _global__WEBPACK_IMPORTED_MODULE_4__["default"].id = data;
-        _isOffline = false;
-      }); // connect.on('player-enter-back', (data) => {
-      //     console.log('player enter back', data);
-      //     if (this._gameLayer) {
-      //         this._gameLayer.playerEnterBack(data);
-      //     }
-      // });
-      // connect.on('player-reenter-room', () => {
-      //     //玩家又进入了教室
-      //     if (this._waitLayer) {
-      //         this.removeChild(this._waitLayer);
-      //         this._waitLayer = undefined;
-      //     }
-      // });
-
+      });
       connect.on('sync-current-color', function (color) {
         _this3._gameLayer.changeCurrentColor(color);
       });
@@ -47945,6 +47913,8 @@ function (_Layer) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
+/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47965,20 +47935,22 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+
+
 var RankHead =
 /*#__PURE__*/
 function (_Layer) {
   _inherits(RankHead, _Layer);
 
-  function RankHead(spec) {
+  function RankHead() {
     var _this;
 
     _classCallCheck(this, RankHead);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(RankHead).call(this));
-    console.log('创建排行榜数据', JSON.stringify(spec));
-    var ranNumLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.rankNum + 1 + ':', {
-      fill: 0xffffff
+    var ranNumLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
+      fill: 0xffffff,
+      fontSize: 28
     });
     ranNumLabel.anchor.set(0.5);
     ranNumLabel.position = {
@@ -47988,30 +47960,8 @@ function (_Layer) {
 
     _this.addChild(ranNumLabel);
 
-    var image = wx.createImage();
-    image.src = spec.avatar;
-    _this._avatarUrl = spec.avatar;
-
-    image.onload = function () {
-      _this._avatar = new PIXI.Sprite.from(image);
-
-      _this._avatar.scale.set(0.5);
-
-      _this.addChild(_this._avatar);
-
-      _this._avatar.position = {
-        x: 50,
-        y: 0
-      };
-    };
-
-    var rankNum = spec.rankNum;
-    console.log('rank num = ', rankNum);
-    _this.position = {
-      x: rankNum % 3 * 240 + 20,
-      y: Math.floor(rankNum / 3) * 90 + 100
-    };
-    var nameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.nickName, {
+    _this._rankNumLabel = ranNumLabel;
+    var nameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fill: 0xffffff,
       fontSize: 30
     });
@@ -48026,7 +47976,8 @@ function (_Layer) {
       x: 120,
       y: 0
     };
-    var scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"](spec.score, {
+    _this._nameLabel = nameLabel;
+    var scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
       fill: 0xfffff,
       fontSize: 35
     });
@@ -48038,6 +47989,12 @@ function (_Layer) {
       y: 30
     };
     _this._scoreLabel = scoreLabel;
+    _this._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black].texture);
+
+    _this.addChild(_this._avatar);
+
+    _this._avatar.anchor.set(0.5);
+
     return _this;
   }
 
@@ -48046,27 +48003,31 @@ function (_Layer) {
     value: function referInfo(data) {
       var _this2 = this;
 
-      if (this._avatarUrl !== data.avatar) {
-        //这里切换头像精灵
-        // this.removeChild(this._avatar);
-        var image = wx.createImage();
-        image.src = data.avatar;
-        this._avatarUrl = data.avatar;
+      var rankNum = data.rankNum; //这里切换头像精灵
+      // this.removeChild(this._avatar);
 
-        image.onload = function () {
-          var texture = new PIXI.Texture.from(image);
-          _this2._avatar.texture = texture;
+      var image = wx.createImage();
+      image.src = data.avatar;
 
-          _this2._avatar.scale.set(0.5);
+      image.onload = function () {
+        var texture = new PIXI.Texture.from(image);
+        _this2._avatar.texture = texture;
 
-          _this2._avatar.position = {
-            x: 50,
-            y: 0
-          };
+        _this2._avatar.scale.set(0.5);
+
+        _this2._avatar.position = {
+          x: 80,
+          y: 30
         };
-      }
+      };
 
+      this._rankNumLabel.text = data.rankNum + 1 + ':';
       this._scoreLabel.text = data.score;
+      this._nameLabel.text = data.nickName;
+      this.position = {
+        x: rankNum % 3 * 240 + 20,
+        y: Math.floor(rankNum / 3) * 90 + 50
+      };
     }
   }]);
 
@@ -48140,7 +48101,7 @@ function (_Layer) {
     _this.interactive = true;
     _this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
     _this._isDown = false;
-    _this._rankHeadMap = {};
+    _this._rankHeadList = [];
     return _this;
   }
 
@@ -48166,16 +48127,36 @@ function (_Layer) {
   }, {
     key: "referRankData",
     value: function referRankData(data) {
-      console.log('刷新排行榜数据', data);
+      console.log('刷新排行榜数据', data); // for (let i = 0; i < data.length; i++) {
+      //     if (this._rankHeadMap[i]) {
+      //         this._rankHeadMap[i].referInfo(data[i]);
+      //     } else if (!this._rankHeadMap[i]) {
+      //         let head = new RankHead(data[i]);
+      //         this._rankHeadMap[i] = head;
+      //         this.addChild(head);
+      //     }
+      // }
 
-      for (var i = 0; i < data.length; i++) {
-        if (this._rankHeadMap[i]) {
-          this._rankHeadMap[i].referInfo(data[i]);
-        } else if (!this._rankHeadMap[i]) {
-          var head = new _rank_head__WEBPACK_IMPORTED_MODULE_2__["default"](data[i]);
-          this._rankHeadMap[i] = head;
+      var count = data.length - this._rankHeadList.length;
+
+      if (count > 0) {
+        for (var i = 0; i < count; i++) {
+          var head = new _rank_head__WEBPACK_IMPORTED_MODULE_2__["default"]();
+
+          this._rankHeadList.push(head);
+
           this.addChild(head);
         }
+      } else if (count < 0) {
+        for (var _i = 0; _i < count * -1; _i++) {
+          var _head = this._rankHeadList.pop();
+
+          this.removeChild(_head);
+        }
+      }
+
+      for (var _i2 = 0; _i2 < data.length; _i2++) {
+        this._rankHeadList[_i2].referInfo(data[_i2]);
       }
     }
   }]);

@@ -9,6 +9,8 @@ class Room {
     }
 
     assignPlayer(player) {
+        console.log('添加玩家信息' + player.id);
+        console.log('room id = ', this.id);
         this._playerList.push(player);
 
         if (this._playerList.length == 2) {
@@ -32,11 +34,13 @@ class Room {
         }
     }
     syncPlayerInfo() {
+        console.log('同步玩家信息' + this.id);
         if (!this._playerList) {
+            console.log('没有玩家信息');
             return;
         }
         let data = [];
-        console.log('player list = ', this._playerList);
+        console.log('player list = ', this._playerList.length);
         for (let i = 0; i < this._playerList.length; i++) {
             data.push({
                 id: this._playerList[i].id,
@@ -73,6 +77,7 @@ class Room {
         if (this._playerList.length === 0) {
             //玩家都走光了 ，这时候 把房间销毁
             // this.destory();
+            console.log('玩家数量为0  player leave room');
             this.emptyRoom();
         }
         this.sendPlayerLeaveRoom(player);
@@ -97,6 +102,7 @@ class Room {
         console.log('玩家掉线');
         let isAllOffline = true;
         for (let i = 0; i < this._playerList.length; i++) {
+            console.log('player online = ', this._playerList[i].isOnline());
             if (this._playerList[i].isOnline()) {
                 isAllOffline = false;
                 //只要有一个人还在线 
@@ -106,6 +112,7 @@ class Room {
         if (isAllOffline) {
             //所有人都掉线了,那么关闭房间。删掉玩家
             // this.destory();
+            console.log('所有的玩家都掉线了？');
             this.emptyRoom();
             return;
         }
@@ -222,6 +229,15 @@ class Room {
             }
         }
         this.syncPlayerInfo();
+    }
+
+    isHavePlayer (player){
+        for (let i = 0 ; i < this._playerList.length ; i ++){
+            if (this._playerList[i].id === player.id){
+                return true;
+            }
+        }
+        return false;
     }
     /***
      * 楚浩远

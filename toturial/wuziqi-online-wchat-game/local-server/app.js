@@ -42,7 +42,7 @@ class App {
         let player = undefined;
         if (this._playerMap[data.id]) {
             //存在此玩家
-            console.log('存在此玩家');
+            console.log('存在此玩家' + data.id);
             this._playerMap[data.id].reConnect(socket);
             player = this._playerMap[data.id];
         } else {
@@ -56,7 +56,7 @@ class App {
         if (player.isInRoom()) {
             //因为玩家还在房间里面 ，所以不做任何操作
             //不过需要告诉房间里面玩家 ，我回来了
-            console.log('玩家还在房间里面');
+            console.log('玩家还在房间里面' + player.getRoom().id);
             player.getRoom().syncPlayerInfo();
         } else {
             this.assignRoom(player, data);
@@ -104,8 +104,10 @@ class App {
                 if (this._emptyRoomList.length > 0) {
                     //如果空房间列表的长度不为0  那么 就从里面取出一个房间出来
                     tempRoom = this._emptyRoomList.pop();
+                    console.log('取出空房间一个');
                 } else {
                     //如果空房间列表长度为0， 那么就创建一个 房间出来
+                    console.log('创建一个空的房间');
                     tempRoom = this.createRoom();
                 }
                 this._unFullRoomList.push(tempRoom);
@@ -114,12 +116,13 @@ class App {
         //给新加进来的玩家分配房间
         // let room = undefined;
         if (tempRoom) {
+            console.log('将房间分配给这个玩家' + tempRoom.id);
             player.assignRoom(tempRoom);
         }
     }
     pushEmptyRoom(room) {
         console.log('将空房间 储存起来 ，备用', room.id);
-        this._unFullRoomList.push(room);
+        this._emptyRoomList.push(room);
     }
     pushUnFullRoom(room) {
         for (let i = 0; i < this._unFullRoomList.length; i++) {
@@ -127,7 +130,6 @@ class App {
                 return false;
             }
         }
-
         for (let i = 0; i < this._shareFriendRoomList.length; i++) {
             if (this._shareFriendRoomList[i].id === room.id) {
                 this._shareFriendRoomList.splice(i, 1);
@@ -143,29 +145,6 @@ class App {
         delete this._playerMap[id];
         // this.syncGameData();
     }
-    // removeRoom(room) {
-    //     console.log("删除空房间");
-    //     //把房间从房间map里面删掉
-    //     delete this._roomMap[room.id];
-    //     //从不满房间的列表里面 把房间删掉
-    //     for (let i = 0; i < this._unFullRoomList.length; i++) {
-    //         if (this._unFullRoomList[i].id == room.id) {
-    //             this._unFullRoomList.splice(i, 1);
-    //         }
-    //     }
-    //     // this.syncGameData();
-    // }
-    // syncGameData() {
-    //     // let gameData = {
-    //     //     room_count: Object.keys(this._roomMap).length,
-    //     //     unfull_room_count: this._unFullRoomList.length,
-    //     //     online_player_count: Object.keys(this._playerMap).length,
-    //     // }
-    //     // for (let i in this._playerMap) {
-    //     //     this._playerMap[i].referGameData(gameData);
-    //     // }
-    // }
-
     syncRankData(data) {
         for (let i in this._playerMap) {
             this._playerMap[i].syncRankData(data);

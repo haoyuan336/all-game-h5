@@ -8,14 +8,20 @@ exports.initRankList = function (target) {
         if (!err && data.length !== 0) {
             rankList = JSON.parse(data[0].value);
             rankList.sort((a, b) => {
-                b.score - a.score;
+                console.log('a= ', a.score);
+                console.log('b=', b.score);
+                return b.score - a.score;
             })
+            console.log('rank list = ', JSON.stringify(rankList));
+            for (let i = 0; i < rankList.length; i++) {
+                rankList[i].rankNum = i;
+            }
         } else {
             rankList = [];
         }
 
         oldRankList = JSON.parse(JSON.stringify(rankList));
-        
+
         //取出排行榜数据之后，就要给在游戏里面的所有人都发送一下排行榜数据
     });
 }

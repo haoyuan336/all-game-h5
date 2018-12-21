@@ -86,8 +86,6 @@ class GameScene extends Scene {
         this.addLayer(this._rankLayer);
         this._uiLayer = new UILayer(this);
         this.addLayer(this._uiLayer);
-        let _isOffline = false;
-
         let _shareButton = new Button({
             normalTexture: global.resource[resources.shard_friend_button].texture,
             touchCb: () => {
@@ -105,11 +103,6 @@ class GameScene extends Scene {
         }
         _shareButton.scale.set(2);
         this.addChild(_shareButton);
-
-        // let waitLayer = new WaitLayer(this);
-        // this.addLayer(waitLayer);
-        // this._waitLayer = waitLayer;
-
         let connect = SocketIO(defines.socketUrl);
         const onHide = function () {
             console.log('隐藏游戏');
@@ -123,25 +116,9 @@ class GameScene extends Scene {
             if (roomId !== undefined) {
                 this._roomId = roomId;
             }
-
             connect.emit('enter-forward', {
                 roomId: this._roomId
             });
-
-            //显示
-            // if (_isOffline) {
-            //     console.log('重新连接 ' + global.avatarUrl);
-            //     console.log('nick Name = ' + global.nickName);
-            //     connect.emit('re-connect', {
-            //         id: global.id,
-            //         avatarUrl: global.avatarUrl,
-            //         nickName: global.nickName,
-            //         roomId: this._roomId
-            //     });
-            // } else {
-            //     console.log('进入前台');
-            //     connect.emit('enter-forward');
-            // }
         }
         wx.onHide(onHide);
         wx.onShow(onShow);
@@ -149,7 +126,6 @@ class GameScene extends Scene {
         this._connect = connect;
         connect.on('disconnect', () => {
             console.log('掉线');
-            _isOffline = true;
         });
         connect.on('no-login-msg', () => {
             console.log('服务器 没有收到login 消息 需要重复发送');
@@ -159,23 +135,7 @@ class GameScene extends Scene {
         connect.on('login-success', (data) => {
             console.log('登录成功');
             global.id = data;
-            _isOffline = false;
         });
-        // connect.on('player-enter-back', (data) => {
-        //     console.log('player enter back', data);
-
-        //     if (this._gameLayer) {
-        //         this._gameLayer.playerEnterBack(data);
-        //     }
-        // });
-
-        // connect.on('player-reenter-room', () => {
-        //     //玩家又进入了教室
-        //     if (this._waitLayer) {
-        //         this.removeChild(this._waitLayer);
-        //         this._waitLayer = undefined;
-        //     }
-        // });
         connect.on('sync-current-color', (color) => {
             this._gameLayer.changeCurrentColor(color);
         });
@@ -196,7 +156,7 @@ class GameScene extends Scene {
             this._roomId = data.roomId;
             //同步玩家信息的时候，如果是两个玩家在房间里面
             let allOnline = true;
-            if (data.playerInfo.length !== 2){
+            if (data.playerInfo.length !== 2) {
                 allOnline = false;
                 //如果房间里面的 玩家人数 不等于2  那么 不能继续游戏哦
             }
@@ -210,9 +170,9 @@ class GameScene extends Scene {
                 this.removeChild(this._waitLayer);
                 this._waitLayer = undefined;
             }
-            if (data.playerInfo.length === 1){
+            if (data.playerInfo.length === 1) {
                 _shareButton.visible = true;
-            }else{
+            } else {
                 _shareButton.visible = false;
             }
             this._gameLayer.syncPlayerInfo(data.playerInfo);
@@ -265,7 +225,6 @@ class GameScene extends Scene {
                 default:
                     break;
             }
-
         });
         this._connect = connect;
         this.connectServer();

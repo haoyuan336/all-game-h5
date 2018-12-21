@@ -18,7 +18,7 @@ class RankLayer extends Layer {
         this._targetY = director.screenType == 'normal' ? 1050 : 1100;
         this._isDown = false;
 
-        this._rankHeadMap = {};
+        this._rankHeadList = [];
 
     }
     onTouchStart(event) {
@@ -37,15 +37,35 @@ class RankLayer extends Layer {
     }
     referRankData(data) {
         console.log('刷新排行榜数据', data);
-        for (let i = 0; i < data.length; i++) {
-            if (this._rankHeadMap[i]) {
-                this._rankHeadMap[i].referInfo(data[i]);
-            } else if (!this._rankHeadMap[i]) {
-                let head = new RankHead(data[i]);
-                this._rankHeadMap[i] = head;
+        // for (let i = 0; i < data.length; i++) {
+        //     if (this._rankHeadMap[i]) {
+        //         this._rankHeadMap[i].referInfo(data[i]);
+        //     } else if (!this._rankHeadMap[i]) {
+        //         let head = new RankHead(data[i]);
+        //         this._rankHeadMap[i] = head;
+        //         this.addChild(head);
+        //     }
+        // }
+
+        let count = data.length - this._rankHeadList.length;
+        if (count > 0) {
+            for (let i = 0; i < count; i++) {
+                let head = new RankHead();
+                this._rankHeadList.push(head);
                 this.addChild(head);
             }
+        } else if (count < 0) {
+            for (let i = 0; i < count * -1; i++) {
+                let head = this._rankHeadList.pop();
+                this.removeChild(head);
+            }
         }
+        for (let i = 0; i < data.length; i++) {
+            this._rankHeadList[i].referInfo(data[i]);
+        }
+
+
+
 
     }
 
