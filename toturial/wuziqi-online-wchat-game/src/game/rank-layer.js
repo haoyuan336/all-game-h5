@@ -12,10 +12,10 @@ class RankLayer extends Layer {
 
         this.position = {
             x: 0,
-            y: director.screenType == 'normal' ? 1050 : 1100
+            y: 1100
         }
         this.interactive = true;
-        this._targetY = director.screenType == 'normal' ? 1050 : 1100;
+        this._targetY = 1100;
         this._isDown = false;
 
         this._rankHeadList = [];
@@ -27,9 +27,9 @@ class RankLayer extends Layer {
         // }
         this._isDown = !this._isDown;
         if (this._isDown) {
-            this._targetY = director.screenType == 'normal' ? 1050 : 1100;
+            this._targetY = 1100;
         } else {
-            this._targetY = director.screenType == 'normal' ? 0 : 0;
+            this._targetY = 0;
         }
     }
     update(dt) {

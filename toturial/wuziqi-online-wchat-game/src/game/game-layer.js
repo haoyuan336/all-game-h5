@@ -1,4 +1,4 @@
-import { Layer, Sprite, director, Vec2, Button } from './../util/import'
+import { Layer, Sprite, director, Vec2 } from './../util/import'
 import global from './../global'
 import resources from './../resources'
 import Head from './head'
@@ -9,20 +9,15 @@ class GameLayer extends Layer {
         this._controller = controller;
         let bg = new Sprite(global.resource[resources.bg].texture);
         this.addChild(bg);
-        bg.position = {
-            x: 0,
-            y: director.screenType == 'normal' ? -50 : 0
-        }
         bg.anchor.set(0);
         bg.scale.set(2);
         this._headList = [];
         this._currentColorPiece = undefined;
         this._pieceList = [];
         this._piecePosList = [];
-        let offsetY = director.screenType == 'normal' ? 368 : 418
         for (let i = 0; i < 13; i++) {
             for (let j = 0; j < 13; j++) {
-                let pos = new Vec2(62 + 52 * j, 52 * i + offsetY);
+                let pos = new Vec2(62 + 52 * j, 52 * i + 398);
                 if (i == 0 && j == 0) {
                     console.log('pos', pos);
                 }
@@ -70,13 +65,14 @@ class GameLayer extends Layer {
             this.addChild(this._currentColorPiece);
             this._currentColorPiece.position = {
                 x: 60,
-                y: director.screenType == 'normal' ? 300 : 350
+                y: 330
             }
         }
         this._currentColorPiece.scale.set(2);
     }
     onTouchStart(event) {
         let data = event.data.getLocalPosition(this);
+        console.log('data = ', data);
         if (this.isTouching) {
             return
         }
@@ -89,8 +85,8 @@ class GameLayer extends Layer {
         for (let i = 0; i < this._piecePosList.length; i++) {
             let pos = this._piecePosList[i];
             let dis = touchVec.distance(pos);
-            // console.log('dis = ' , pos);
             if (dis < 30) {
+                console.log('index = ', i);
                 //给服务器发消息
                 // choose-board
                 this._controller.playerPushPiece(i);

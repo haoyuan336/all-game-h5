@@ -56,9 +56,7 @@ class GameScene extends Scene {
                 if (cb) {
                     cb(res.userInfo);
                 }
-            } else {
-
-            }
+            } 
         });
     }
     login(cb) {
@@ -102,7 +100,7 @@ class GameScene extends Scene {
             y: director.designSize.height * 0.5
         }
         _shareButton.scale.set(2);
-        this.addChild(_shareButton);
+        // this.addChild(_shareButton);
         let connect = SocketIO(defines.socketUrl);
         const onHide = function () {
             console.log('隐藏游戏');
@@ -230,7 +228,6 @@ class GameScene extends Scene {
         this.connectServer();
         // this._uiLayer.showWin('black');
     }
-
     connectServer() {
         this.setAuthorize((data) => {
             console.log('获取头像信息', data);
@@ -242,13 +239,10 @@ class GameScene extends Scene {
             if (global.id) {
                 data.id = global.id;
             }
-
             console.log('登录' + JSON.stringify(data));
-
             this._connect.emit('login', data);
         });
     }
-
     notify(messageType, data, cb) {
         this._connect.emit('notify', {
             messageType: messageType,

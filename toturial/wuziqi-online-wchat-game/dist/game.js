@@ -46952,21 +46952,16 @@ function (_Layer) {
 
     _this.addChild(bg);
 
-    bg.position = {
-      x: 0,
-      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? -50 : 0
-    };
     bg.anchor.set(0);
     bg.scale.set(2);
     _this._headList = [];
     _this._currentColorPiece = undefined;
     _this._pieceList = [];
     _this._piecePosList = [];
-    var offsetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 368 : 418;
 
     for (var i = 0; i < 13; i++) {
       for (var j = 0; j < 13; j++) {
-        var pos = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](62 + 52 * j, 52 * i + offsetY);
+        var pos = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](62 + 52 * j, 52 * i + 398);
 
         if (i == 0 && j == 0) {
           console.log('pos', pos);
@@ -47036,7 +47031,7 @@ function (_Layer) {
         this.addChild(this._currentColorPiece);
         this._currentColorPiece.position = {
           x: 60,
-          y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 300 : 350
+          y: 330
         };
       }
 
@@ -47048,6 +47043,7 @@ function (_Layer) {
       var _this3 = this;
 
       var data = event.data.getLocalPosition(this);
+      console.log('data = ', data);
 
       if (this.isTouching) {
         return;
@@ -47061,11 +47057,12 @@ function (_Layer) {
 
       for (var i = 0; i < this._piecePosList.length; i++) {
         var pos = this._piecePosList[i];
-        var dis = touchVec.distance(pos); // console.log('dis = ' , pos);
+        var dis = touchVec.distance(pos);
 
         if (dis < 30) {
-          //给服务器发消息
+          console.log('index = ', i); //给服务器发消息
           // choose-board
+
           this._controller.playerPushPiece(i);
         }
       }
@@ -47236,7 +47233,7 @@ function (_Scene) {
           if (cb) {
             cb(res.userInfo);
           }
-        } else {}
+        }
       });
     }
   }, {
@@ -47289,9 +47286,9 @@ function (_Scene) {
         y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
       };
 
-      _shareButton.scale.set(2);
+      _shareButton.scale.set(2); // this.addChild(_shareButton);
 
-      this.addChild(_shareButton);
+
       var connect = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_5__["default"].socketUrl);
 
       var onHide = function onHide() {
@@ -47813,7 +47810,7 @@ function (_Layer) {
       this._type = type;
       this.position = {
         x: this._type == "left" ? 30 : _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width - 160,
-        y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 100 : 150
+        y: 100
       };
       this._id = data.id;
       this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
@@ -48096,10 +48093,10 @@ function (_Layer) {
     graphics.addChild(rect);
     _this.position = {
       x: 0,
-      y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100
+      y: 1100
     };
     _this.interactive = true;
-    _this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
+    _this._targetY = 1100;
     _this._isDown = false;
     _this._rankHeadList = [];
     return _this;
@@ -48114,9 +48111,9 @@ function (_Layer) {
       this._isDown = !this._isDown;
 
       if (this._isDown) {
-        this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 1050 : 1100;
+        this._targetY = 1100;
       } else {
-        this._targetY = _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].screenType == 'normal' ? 0 : 0;
+        this._targetY = 0;
       }
     }
   }, {
@@ -49382,7 +49379,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var _wx$getSystemInfoSync = wx.getSystemInfoSync(),
     pixelRatio = _wx$getSystemInfoSync.pixelRatio,
     windowHeight = _wx$getSystemInfoSync.windowHeight,
-    windowWidth = _wx$getSystemInfoSync.windowWidth;
+    windowWidth = _wx$getSystemInfoSync.windowWidth,
+    screenWidth = _wx$getSystemInfoSync.screenWidth,
+    screenHeight = _wx$getSystemInfoSync.screenHeight,
+    model = _wx$getSystemInfoSync.model;
 
 var Director =
 /*#__PURE__*/
@@ -49394,8 +49394,13 @@ function () {
   _createClass(Director, [{
     key: "init",
     value: function init(width, height) {
+      var systemInfo = wx.getSystemInfoSync();
+      var modelType = systemInfo.model;
+      console.log('model type = ', modelType);
       console.log('width ', windowWidth);
       console.log('height', windowHeight);
+      console.log('screen width ', screenWidth);
+      console.log('screen height', screenHeight);
       this.width = windowWidth * pixelRatio;
       this.height = windowHeight * pixelRatio;
       this.windowWidth = windowWidth;
@@ -49432,6 +49437,10 @@ function () {
         };
       }
 
+      if (modelType.indexOf('iPhone XS Max') != -1) {
+        console.log('iPhone xs Max');
+      }
+
       this.designSize = {
         width: 750,
         height: 1334
@@ -49440,18 +49449,18 @@ function () {
       //     point.y = y * 3;
       // }
 
-      if (director.screenType == 'normal') {
-        this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
-          point.x = x * 750 / windowWidth;
-          point.y = y * 750 / windowWidth;
-        };
-      } else {
-        // console.log('设置')
-        this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
-          point.x = x * 750 / windowWidth;
-          point.y = y * 1334 / windowHeight;
-        };
-      } // wx.onTouchStart((event) => {
+      this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
+        point.x = x * 750 / windowWidth;
+        point.y = y * 750 / windowWidth;
+      }; // if (director.screenType == 'normal') {
+      // } else {
+      //     // console.log('设置')
+      //     this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+      //         point.x = x * 750 / windowWidth;
+      //         point.y = y * 1334 / windowHeight;
+      //     }
+      // }
+      // wx.onTouchStart((event) => {
       //     let data = {
       //         x: event.touches[0].clientX * 750 / windowWidth,
       //         y: event.touches[0].clientY * 750 / windowWidth

@@ -80,7 +80,7 @@ class Head extends Layer {
         this._type = type;
         this.position = {
             x: this._type == "left" ? 30 : director.designSize.width - 160,
-            y: director.screenType == 'normal' ? 100 : 150
+            y: 100
         }
         this._id = data.id;
         this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";

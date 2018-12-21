@@ -1,8 +1,17 @@
-const { pixelRatio, windowHeight, windowWidth } = wx.getSystemInfoSync()
+const { pixelRatio, windowHeight, windowWidth , screenWidth, screenHeight, model} = wx.getSystemInfoSync()
 class Director {
     init(width, height) {
+
+        let systemInfo = wx.getSystemInfoSync();
+        let modelType = systemInfo.model;
+        console.log('model type = ', modelType);
+
         console.log('width ', windowWidth);
         console.log('height', windowHeight);
+
+        console.log('screen width ' , screenWidth);
+        console.log('screen height', screenHeight);
+
         this.width = windowWidth * pixelRatio;
         this.height = windowHeight * pixelRatio;
         this.windowWidth = windowWidth;
@@ -42,6 +51,10 @@ class Director {
                 y: this.width / this.height * (1334 / 750)
             }
         }
+        if (modelType.indexOf('iPhone XS Max') !=-1) {
+            console.log('iPhone xs Max')
+        }
+
 
         this.designSize = {
             width: 750,
@@ -51,21 +64,20 @@ class Director {
         //     point.x = x * 3;
         //     point.y = y * 3;
         // }
-
-
-        if (director.screenType == 'normal') {
-            this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-                point.x = x * 750 / windowWidth;
-                point.y = y * 750 / windowWidth;
-            }
-        }else {
-            // console.log('设置')
-            this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-                point.x = x * 750/windowWidth;
-                point.y = y * 1334/windowHeight;
-            }
+        this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+            point.x = x * 750 / windowWidth;
+            point.y = y * 750 / windowWidth;
         }
 
+        // if (director.screenType == 'normal') {
+
+        // } else {
+        //     // console.log('设置')
+        //     this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
+        //         point.x = x * 750 / windowWidth;
+        //         point.y = y * 1334 / windowHeight;
+        //     }
+        // }
 
         // wx.onTouchStart((event) => {
         //     let data = {
