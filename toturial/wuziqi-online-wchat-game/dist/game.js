@@ -46920,11 +46920,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Connect =
 /*#__PURE__*/
 function () {
-  function Connect() {
+  function Connect(controller) {
     var _this = this;
 
     _classCallCheck(this, Connect);
 
+    this._controller = controller;
     this._messageIndex = 1;
     this._messageBack = {};
     this._connection = SocketIO(_defines__WEBPACK_IMPORTED_MODULE_0__["default"].socketUrl);
@@ -46933,6 +46934,17 @@ function () {
       console.log(' 收到了 服务器请求登陆的消息');
 
       _this.login();
+    });
+
+    this._connection.on('login-success', function (data) {
+      console.log('login success');
+      _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id = data.id;
+
+      _this._controller.loginSuccess();
+    });
+
+    this._connection.on('sync-player-info', function (data) {
+      _this._controller.syncPlayerInfo(data);
     });
   }
 
@@ -47342,24 +47354,17 @@ function (_Scene) {
       this._rankLayer = new _rank_layer__WEBPACK_IMPORTED_MODULE_6__["default"](this);
       this.addLayer(this._rankLayer);
       this._uiLayer = new _ui_layer__WEBPACK_IMPORTED_MODULE_2__["default"](this);
-      this.addLayer(this._uiLayer); // let _shareButton = new Button({
-      //     normalTexture: global.resource[resources.shard_friend_button].texture,
-      //     touchCb: () => {
-      //         console.log('邀请按钮');
-      //         wx.shareAppMessage({
-      //             title: '跟我下一盘五子棋吧',
-      //             imageUrl: defines.resourcesUrl + '/images/share_image.png',
-      //             query: 'roomId=' + this._roomId
-      //         })
-      //     }
-      // })
-      // _shareButton.position = {
-      //     x: director.designSize.width * 0.5,
-      //     y: director.designSize.height * 0.5
-      // }
-      // _shareButton.scale.set(2);
-      // this.addChild(_shareButton);
+      this.addLayer(this._uiLayer);
+      this._titleLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].matching_title].texture);
+      this.addChild(this._titleLabel);
+      this._titleLabel.position = {
+        x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+        y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5 - 150
+      };
 
+      this._titleLabel.scale.set(2);
+
+      this._titleLabel.visible = false;
       this.setAuthorize(function () {
         console.log('授权成功');
         wx.getUserInfo({
@@ -47368,7 +47373,7 @@ function (_Scene) {
             console.log('data ' + JSON.stringify(res));
             _global__WEBPACK_IMPORTED_MODULE_4__["default"].playerInfo.avatarUrl = res.userInfo.avatarUrl;
             _global__WEBPACK_IMPORTED_MODULE_4__["default"].playerInfo.nickName = res.userInfo.nickName;
-            _this3._connect = new _connect__WEBPACK_IMPORTED_MODULE_8__["default"]();
+            _this3._connect = new _connect__WEBPACK_IMPORTED_MODULE_8__["default"](_this3);
           },
           fail: function fail() {},
           complete: function complete() {}
@@ -47496,6 +47501,65 @@ function (_Scene) {
       // });
       // this._connect = connect;
       // this._uiLayer.showWin('black');
+    }
+  }, {
+    key: "loginSuccess",
+    value: function loginSuccess() {
+      var _this4 = this;
+
+      if (!this._shareButton) {
+        this._shareButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+          normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].shard_friend_button].texture,
+          touchCb: function touchCb() {
+            console.log('邀请按钮');
+            wx.shareAppMessage({
+              title: '跟我下一盘五子棋吧',
+              imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png',
+              query: 'roomId=' + _this4._roomId
+            });
+          }
+        });
+        this._shareButton.position = {
+          x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+          y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5
+        };
+
+        this._shareButton.scale.set(2);
+
+        this.addChild(this._shareButton);
+        this._titleLabel.texture = _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].matching_title].texture;
+
+        this._titleLabel.scale.set(2);
+
+        this._titleLabel.visible = true;
+      }
+    }
+  }, {
+    key: "syncPlayerInfo",
+    value: function syncPlayerInfo(data) {
+      console.log('sync player info = ', data);
+      var roomId = data.roomId;
+      var playerInfo = data.playerInfo;
+
+      this._gameLayer.syncPlayerInfo(playerInfo);
+
+      var state = data.roomState;
+
+      switch (state) {
+        case 'gameing':
+          console.log('游戏中');
+
+          if (this._titleLabel) {
+            this._titleLabel.visible = false;
+          }
+
+          if (this._shareButton) {
+            this._shareButton.visible = false;
+          }
+
+        default:
+          break;
+      }
     } // connectServer() {
     //     this.setAuthorize((data) => {
     //         console.log('获取头像信息', data);
@@ -47848,11 +47912,11 @@ function (_Layer) {
 
       console.log('refer player info  head data', data);
       var type = 'right';
-      type = data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id ? 'left' : 'right';
+      type = data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id ? 'left' : 'right';
       var isOnline = data.online;
       var enterBack = data.enterBack;
 
-      if (data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].id) {
+      if (data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id) {
         _global__WEBPACK_IMPORTED_MODULE_1__["default"].avatarUrl = data.avatarUrl;
         _global__WEBPACK_IMPORTED_MODULE_1__["default"].nickName = data.nickName;
       }
@@ -48441,7 +48505,9 @@ __webpack_require__.r(__webpack_exports__);
 var global = {
   resource: {},
   event: new _util_import__WEBPACK_IMPORTED_MODULE_0__["EventListener"](),
-  playerInfo: {}
+  playerInfo: {
+    id: '000000'
+  }
 };
 /* harmony default export */ __webpack_exports__["default"] = (global);
 

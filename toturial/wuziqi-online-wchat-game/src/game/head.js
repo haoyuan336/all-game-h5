@@ -69,10 +69,10 @@ class Head extends Layer {
     referPlayerInfo(data) {
         console.log('refer player info  head data', data);
         let type = 'right';
-        type = (data.id == global.id) ? 'left' : 'right';
+        type = (data.id == global.playerInfo.id) ? 'left' : 'right';
         let isOnline = data.online;
         let enterBack = data.enterBack;
-        if (data.id == global.id) {
+        if (data.id == global.playerInfo.id) {
             global.avatarUrl = data.avatarUrl;
             global.nickName = data.nickName;
         }

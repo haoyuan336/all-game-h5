@@ -1,14 +1,23 @@
 import defines from './../defines'
 import global from './../global'
 class Connect {
-    constructor() {
+    constructor(controller) {
+        this._controller = controller;
         this._messageIndex = 1;
         this._messageBack = {};
         this._connection = SocketIO(defines.socketUrl);
         this._connection.on('request-login', () => {
             console.log(' 收到了 服务器请求登陆的消息');
             this.login();
-        })
+        });
+        this._connection.on('login-success', (data)=>{
+            console.log('login success');
+            global.playerInfo.id = data.id;
+            this._controller.loginSuccess();
+        });
+        this._connection.on('sync-player-info', (data)=>{
+            this._controller.syncPlayerInfo(data);
+        });
     }
     login(data) {
         let param = {

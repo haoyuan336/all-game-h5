@@ -1,4 +1,4 @@
-import { Scene, director, Button } from './../util/import'
+import { Scene, director, Button, Sprite } from './../util/import'
 import GameLayer from './game-layer'
 import UILayer from './ui-layer'
 import resources from './../resources'
@@ -89,23 +89,15 @@ class GameScene extends Scene {
         this.addLayer(this._rankLayer);
         this._uiLayer = new UILayer(this);
         this.addLayer(this._uiLayer);
-        // let _shareButton = new Button({
-        //     normalTexture: global.resource[resources.shard_friend_button].texture,
-        //     touchCb: () => {
-        //         console.log('邀请按钮');
-        //         wx.shareAppMessage({
-        //             title: '跟我下一盘五子棋吧',
-        //             imageUrl: defines.resourcesUrl + '/images/share_image.png',
-        //             query: 'roomId=' + this._roomId
-        //         })
-        //     }
-        // })
-        // _shareButton.position = {
-        //     x: director.designSize.width * 0.5,
-        //     y: director.designSize.height * 0.5
-        // }
-        // _shareButton.scale.set(2);
-        // this.addChild(_shareButton);
+
+        this._titleLabel = new Sprite(global.resource[resources.matching_title].texture);
+        this.addChild(this._titleLabel);
+        this._titleLabel.position = {
+            x: director.designSize.width * 0.5,
+            y: director.designSize.height * 0.5 - 150
+        }
+        this._titleLabel.scale.set(2);
+        this._titleLabel.visible = false;
 
         this.setAuthorize(() => {
             console.log('授权成功');
@@ -116,7 +108,7 @@ class GameScene extends Scene {
 
                     global.playerInfo.avatarUrl = res.userInfo.avatarUrl;
                     global.playerInfo.nickName = res.userInfo.nickName;
-                    this._connect = new Connect();
+                    this._connect = new Connect(this);
                 },
                 fail: () => { },
                 complete: () => { }
@@ -125,6 +117,7 @@ class GameScene extends Scene {
             //首选成功之后，保存当前的 头像信息等
 
         });
+
         // let connect = SocketIO(defines.socketUrl);
         // const onHide = function () {
         //     console.log('隐藏游戏');
@@ -249,6 +242,56 @@ class GameScene extends Scene {
         // });
         // this._connect = connect;
         // this._uiLayer.showWin('black');
+    }
+    loginSuccess() {
+        if (!this._shareButton) {
+
+
+
+            this._shareButton = new Button({
+                normalTexture: global.resource[resources.shard_friend_button].texture,
+                touchCb: () => {
+                    console.log('邀请按钮');
+                    wx.shareAppMessage({
+                        title: '跟我下一盘五子棋吧',
+                        imageUrl: defines.resourcesUrl + '/images/share_image.png',
+                        query: 'roomId=' + this._roomId
+                    })
+                }
+            })
+            this._shareButton.position = {
+                x: director.designSize.width * 0.5,
+                y: director.designSize.height * 0.5
+            }
+            this._shareButton.scale.set(2);
+            this.addChild(this._shareButton);
+
+            this._titleLabel.texture = global.resource[resources.matching_title].texture;
+            this._titleLabel.scale.set(2);
+            this._titleLabel.visible = true;
+        }
+    }
+    syncPlayerInfo(data) {
+        console.log('sync player info = ', data);
+        let roomId = data.roomId;
+        let playerInfo = data.playerInfo;
+        this._gameLayer.syncPlayerInfo(playerInfo);
+        let state = data.roomState;
+        switch (state) {
+            case 'gameing':
+                console.log('游戏中');
+                if (this._titleLabel) {
+                    this._titleLabel.visible = false;
+
+                }
+                if (this._shareButton) {
+                    this._shareButton.visible = false;
+
+                }
+            default:
+                break;
+        }
+
     }
     // connectServer() {
     //     this.setAuthorize((data) => {

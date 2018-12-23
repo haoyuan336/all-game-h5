@@ -1,14 +1,32 @@
-const GameLogic = require('./game-logic')
+const GameLogic = require('./game-logic');
+const State = require('./state')
+const RoomState = {
+    Gameing: 'gameing'
+}
 class Room {
     constructor(id, controller) {
         this._playerList = [];
         this.id = id;
+        this._state = new State();
         this._controller = controller;
         this._gameLogic = new GameLogic();
         this._currentColor = Math.random() * 10 > 5 ? "black" : "white";
     }
 
-   
+    joinPlayer(player) {
+        console.log('player id = ', player.id);
+        this._playerList.push(player);
+        if (this._playerList.length == 2) {
+            let fristPlayer = this._playerList[0];
+            player.setPieceColor(fristPlayer.getColor() === 'black' ? 'white' : 'black');
+            this._state.setState(RoomState.Gameing);
+        }
+
+
+
+
+        this.syncPlayerInfo();
+    }
 
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
@@ -37,9 +55,12 @@ class Room {
         }
 
         console.log('sync current info = ', data);
+        let state = this._state.getState();
+        console.log('state = ', state);
         for (let i = 0; i < this._playerList.length; i++) {
             this._playerList[i].syncPlayerInfo({
                 roomId: this.id,
+                roomState: state,
                 playerInfo: data
             });
         }
@@ -50,7 +71,7 @@ class Room {
     //     }
     // }
 
-   
+
 
 
     playerChooseBoard(player, index) {
@@ -92,7 +113,7 @@ class Room {
         }, 2000);
 
     }
-   
+
     shareRoomToFriend(player, cb) {
         //玩家发来了 分享房间的操作，
         this.removeOfflinePlayer();
@@ -121,8 +142,8 @@ class Room {
             })
         }
     }
-   
-    
+
+
     isHavePlayer(player) {
         for (let i = 0; i < this._playerList.length; i++) {
             if (this._playerList[i].id === player.id) {
@@ -135,15 +156,14 @@ class Room {
         return this._playerList[0];
     }
     getPlayerCount() {
-        return this._playerList.length; 
+        return this._playerList.length;
     }
-    initGameLoginData(){
+    initGameLoginData() {
         this._gameLogic.clearGameData();
     }
-    /***
-     * 楚浩远
-     * 1.课件录课，协助刘杰实现奖杯特效（完成度100%）
-     * 
-     */
+
+    getState() {
+        return this._state.state;
+    }
 }
 module.exports = Room;

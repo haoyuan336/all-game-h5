@@ -5,7 +5,8 @@ let PlayerState = {
     disconnect: 'disconnect',
     loginSuccess: 'login-success',
     enterBack: 'enter-back',
-    enterForward: 'enter-forward'
+    enterForward: 'enter-forward',
+    isMatching: 'is-matching'
 }
 class Player {
     constructor(socket, id, controller, data) {
@@ -31,9 +32,17 @@ class Player {
                 id: this.id
             }
             console.log('玩家登陆成功了' + JSON.stringify(data));
-            this._socket.emit('login-success');
+            this._socket.emit('login-success', {
+                id: this.id
+            });
+            this._state.setState(PlayerState.isMatching);
+            
         });
 
+        this._state.addState(PlayerState.isMatching, ()=>{
+            console.log('player matching');
+            this._controller.playerMatching(this);
+        });
 
         this.onMessage();
     }
@@ -57,7 +66,7 @@ class Player {
             } else {
                 this._score = 0;
             }
-            this._state.setState('login-success');
+            this._state.setState(PlayerState.loginSuccess);
         });
 
 
@@ -166,6 +175,11 @@ class Player {
     isInRoom() {
 
     }
-
+    isMatching(){
+        if (this._state.state === PlayerState.isMatching){
+            return true;
+        }
+        return false;
+    }
 }
 module.exports = Player;

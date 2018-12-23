@@ -7,6 +7,8 @@ class State{
         if (state == this._state){
             return;
         }
+        this._state = state;
+        console.log('change state =' + this._state);
         if (this._register[state]){
             let handlerList = this._register[state];
             for (let i = 0 ; i < handlerList.length ; i ++){
@@ -14,7 +16,6 @@ class State{
                 handler.call(null);
             }
         }
-        this._state = state;
     }
     addState(state, cb){
         if (this._register[state]){
@@ -28,4 +29,4 @@ class State{
     }
 
 }
-exports.State = State;
+module.exports = State;
