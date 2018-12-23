@@ -1,7 +1,8 @@
 const GameLogic = require('./game-logic');
 const State = require('./state')
 const RoomState = {
-    Gameing: 'gameing'
+    Gameing: 'gameing',
+    Shareing: 'shareing'
 }
 class Room {
     constructor(id, controller) {
@@ -16,15 +17,12 @@ class Room {
     joinPlayer(player) {
         console.log('player id = ', player.id);
         this._playerList.push(player);
+        player.setRoom(this);
         if (this._playerList.length == 2) {
             let fristPlayer = this._playerList[0];
             player.setPieceColor(fristPlayer.getColor() === 'black' ? 'white' : 'black');
             this._state.setState(RoomState.Gameing);
         }
-
-
-
-
         this.syncPlayerInfo();
     }
 
@@ -115,32 +113,40 @@ class Room {
     }
 
     shareRoomToFriend(player, cb) {
+        console.log('邀请');
         //玩家发来了 分享房间的操作，
         this.removeOfflinePlayer();
         this.syncPlayerInfo();
-        if (this._playerList.length !== 2) {
-            //首先房间里面玩家的个数 不能等于2 ，如果等于2 的话 ，说明正在游戏中，就不能再邀请其他的玩家了
-        } else {
-            cb({
-                'status': 'fail',
-                'data': 'room is full!',
-                'title': '房间人数已满！'
-            })
-            return;
-        }
 
-        if (this._controller.lockRoom(this)) {
-            //房间锁定成功
-            cb({
-                'status': 'ok'
-            })
-        } else {
-            cb({
-                'status': 'fail',
-                'data': 'room lock fail!',
-                'title': '房间已经不能邀请！'
-            })
+        this._state.setState(RoomState.Shareing);
+
+        if (cb){
+            cb();
         }
+        
+        // if (this._playerList.length !== 2) {
+        //     //首先房间里面玩家的个数 不能等于2 ，如果等于2 的话 ，说明正在游戏中，就不能再邀请其他的玩家了
+        // } else {
+        //     cb({
+        //         'status': 'fail',
+        //         'data': 'room is full!',
+        //         'title': '房间人数已满！'
+        //     })
+        //     return;
+        // }
+
+        // if (this._controller.lockRoom(this)) {
+        //     //房间锁定成功
+        //     cb({
+        //         'status': 'ok'
+        //     })
+        // } else {
+        //     cb({
+        //         'status': 'fail',
+        //         'data': 'room lock fail!',
+        //         'title': '房间已经不能邀请！'
+        //     })
+        // }
     }
 
 
@@ -163,7 +169,25 @@ class Room {
     }
 
     getState() {
-        return this._state.state;
+        return this._state.getState();
+    }
+    isGameing(player) {
+        let isHave = false;
+        for (let i = 0; i < this._playerList.length; i++) {
+            if (this._playerList[i].id === player.id) {
+                isHave = true;
+            }
+        }
+        if (this._state.getState() === RoomState.Gameing && isHave) {
+            return true;
+        }
+        return false;
+    }
+    isShareing() {
+        if (this._playerList.length === 1 && this._state.getState() === RoomState.Shareing) {
+            return true;
+        }
+        return false;
     }
 }
 module.exports = Room;

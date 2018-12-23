@@ -5,8 +5,10 @@ let PlayerState = {
     disconnect: 'disconnect',
     loginSuccess: 'login-success',
     enterBack: 'enter-back',
-    enterForward: 'enter-forward',
-    isMatching: 'is-matching'
+    // enterForward: 'enter-forward',
+    isMatching: 'is-matching',
+    gameing: 'gameing',
+    outRoom: 'out-room'
 }
 class Player {
     constructor(socket, id, controller, data) {
@@ -24,6 +26,10 @@ class Player {
 
         this._state.addState(PlayerState.disconnect, () => {
             console.log('掉线');
+            if (this._state.getState() === PlayerState.isMatching) {
+                //如果正在匹配的玩家掉线了 ，那么需要把它从匹配里面里面删掉
+
+            }
 
         });
         this._state.addState(PlayerState.loginSuccess, () => {
@@ -36,14 +42,31 @@ class Player {
                 id: this.id
             });
             this._state.setState(PlayerState.isMatching);
-            
-        });
 
-        this._state.addState(PlayerState.isMatching, ()=>{
+        });
+        this._state.addState(PlayerState.enterBack, () => {
+            if (this._room) {
+                this._room.syncPlayerInfo();
+            }
+        });
+        this._state.addState(PlayerState.gameing, () => {
+            console.log('进入前台');
+            if (this._room) {
+                this._room.syncPlayerInfo();
+            }
+        });
+        this._state.addState(PlayerState.isMatching, () => {
             console.log('player matching');
             this._controller.playerMatching(this);
         });
-
+        db.getPlayerScore(this.avatarUrl, (err, data) => {
+            if (err == null && data !== null) {
+                this._score = data.value;
+            } else {
+                this._score = 0;
+            }
+            this._state.setState(PlayerState.loginSuccess);
+        });
         this.onMessage();
     }
     reConnect(socket) {
@@ -51,6 +74,24 @@ class Player {
         console.log('玩家又连接上了');
         this._socket = socket;
         this.onMessage();
+
+        //玩家又连上的时候 ，根据当前的玩家状态 ，去做不同的操作
+        switch (this._state.getState()) {
+            case PlayerState.disconnect:
+                //如果仅仅是断开链接
+                if (!this._room) {
+                    //如股没有房间 ，那么就去重新匹配
+                    this._state.setState(PlayerState.isMatching);
+                } else if (this._room && this._room.isGameing(this)) {
+                    //玩家还在房间里面 
+                    this._state.setState(PlayerState.gameing);
+                }
+                break;
+            case PlayerState.outRoom:
+                break;
+            default:
+                break;
+        }
     }
     notify(messageType, messageIndex, data) {
         this._socket.emit('notify-back', {
@@ -60,16 +101,6 @@ class Player {
         });
     }
     onMessage() {
-        db.getPlayerScore(this.avatarUrl, (err, data) => {
-            if (err == null && data !== null) {
-                this._score = data.value;
-            } else {
-                this._score = 0;
-            }
-            this._state.setState(PlayerState.loginSuccess);
-        });
-
-
         this._socket.on('notify', (messageData) => {
             let messageType = messageData.messageType;
             let messageIndex = messageData.messageIndex;
@@ -80,6 +111,7 @@ class Player {
                     console.log('玩家发来的 邀请好友的消息')
                     if (this._room) {
                         this._room.shareRoomToFriend(this, (data) => {
+                            console.log('返回消息');
                             this.notify('share-to-friend', messageIndex, data);
                         });
                     }
@@ -100,6 +132,7 @@ class Player {
 
         this._socket.on('disconnect', () => {
             console.log('掉线');
+            this._controller.outMatchingList(this);
             this._state.setState('disconnect');
         });
         this._socket.on('choose-board', (index) => {
@@ -110,11 +143,17 @@ class Player {
 
         this._socket.on('enter-back', () => {
             this._state.setState(PlayerState.enterBack);
-        });
-        this._socket.on('enter-forward', (data) => {
-            //根据发来的数据状态 。进行判断
 
-            this._state.setState(PlayerState.enterForward);
+        });
+        this._socket.on('enter-forward', () => {
+            //根据发来的数据状态 。进行判断
+            console.log('收到了 进入前台的消息');
+            if (this._room && this._room.getState() === 'gameing') {
+                this._state.setState(PlayerState.gameing);
+            } else {
+                this._state.setState(PlayerState.isMatching);
+            }
+
         });
 
     }
@@ -160,13 +199,14 @@ class Player {
         this._socket.emit('refer-rank', data);
     }
     isOnline() {
-        if (this._state.state !== PlayerState.disconnect) {
+        if (this._state.getState() !== PlayerState.disconnect) {
             return true;
         }
         return false;
     }
     isInBack() {
-        if (this._state.state === PlayerState.enterBack || this._state.state === PlayerState.disconnect) {
+        console.log('state = ', this._state.getState());
+        if (this._state.getState() === PlayerState.enterBack) {
             return true;
         }
         return false;
@@ -175,11 +215,22 @@ class Player {
     isInRoom() {
 
     }
-    isMatching(){
-        if (this._state.state === PlayerState.isMatching){
+    setRoom(room) {
+        this._room = room;
+    }
+    enterForWord() {
+        this._state.setState(PlayerState.gameing);
+
+    }
+    isMatching() {
+        if (this._state.getState() === PlayerState.isMatching) {
             return true;
         }
         return false;
+    }
+    leaveCurrentRoom(){
+        //玩家离开当前的房间
+        console.log('玩家离开当前的房间');
     }
 }
 module.exports = Player;

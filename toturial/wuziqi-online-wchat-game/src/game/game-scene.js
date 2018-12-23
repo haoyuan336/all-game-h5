@@ -252,11 +252,12 @@ class GameScene extends Scene {
                 normalTexture: global.resource[resources.shard_friend_button].texture,
                 touchCb: () => {
                     console.log('邀请按钮');
-                    wx.shareAppMessage({
-                        title: '跟我下一盘五子棋吧',
-                        imageUrl: defines.resourcesUrl + '/images/share_image.png',
-                        query: 'roomId=' + this._roomId
-                    })
+                    // wx.shareAppMessage({
+                    //     title: '跟我下一盘五子棋吧',
+                    //     imageUrl: defines.resourcesUrl + '/images/share_image.png',
+                    //     query: 'roomId=' + this._roomId
+                    // })
+                    this._connect.shareToFriend();
                 }
             })
             this._shareButton.position = {
@@ -273,7 +274,6 @@ class GameScene extends Scene {
     }
     syncPlayerInfo(data) {
         console.log('sync player info = ', data);
-        let roomId = data.roomId;
         let playerInfo = data.playerInfo;
         this._gameLayer.syncPlayerInfo(playerInfo);
         let state = data.roomState;
@@ -286,7 +286,6 @@ class GameScene extends Scene {
                 }
                 if (this._shareButton) {
                     this._shareButton.visible = false;
-
                 }
             default:
                 break;
@@ -369,5 +368,8 @@ class GameScene extends Scene {
     //         imageUrl: defines.resourcesUrl + '/images/share_image.png'
     //     })
     // }
+    waitFriendEnterRoom(){
+        console.log('等待好友进入房间');
+    }
 }
 export default GameScene;
