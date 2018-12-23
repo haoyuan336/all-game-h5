@@ -8,25 +8,7 @@ class Room {
         this._currentColor = Math.random() * 10 > 5 ? "black" : "white";
     }
 
-    assignPlayer(player) {
-        console.log('添加玩家信息' + player.id);
-        console.log('room id = ', this.id);
-        this._playerList.push(player);
-
-        if (this._playerList.length == 2) {
-            player.setPieceColor(this._playerList[0].getColor() == 'black' ? 'white' : 'black');
-            this.sendMatchSuccess();
-        }
-        this.syncCurrentColor();
-        this.syncBoardData();
-        this.syncPlayerInfo();
-
-    }
-    sendMatchSuccess() {
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].sendMatchSuccess();
-        }
-    }
+   
 
     syncCurrentColor() {
         for (let i = 0; i < this._playerList.length; i++) {
@@ -68,58 +50,7 @@ class Room {
     //     }
     // }
 
-    playerLeaveRoom(player) {
-        for (let i = 0; i < this._playerList.length; i++) {
-            if (this._playerList[i].id === player.id) {
-                this._playerList.splice(i, 1);
-            }
-        }
-        if (this._playerList.length === 0) {
-            //玩家都走光了 ，这时候 把房间销毁
-            // this.destory();
-            console.log('玩家数量为0  player leave room');
-            this.emptyRoom();
-        }
-        this.sendPlayerLeaveRoom(player);
-        this.syncPlayerInfo();
-    }
-    emptyRoom() {
-        //空房间
-        this._playerList = [];
-        this._gameLogic.clearGameData();//清除游戏数据
-        this._controller.pushEmptyRoom(this);
-    }
-    sendPlayerLeaveRoom(player) {
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].playerLeaveRoom(player);
-        }
-    }
-    playerOffLine(player) {
-        if (!this._playerList) {
-            return;
-        }
-        //看一下房间里面的玩家都是都掉线了
-        console.log('玩家掉线');
-        let isAllOffline = true;
-        for (let i = 0; i < this._playerList.length; i++) {
-            console.log('player online = ', this._playerList[i].isOnline());
-            if (this._playerList[i].isOnline()) {
-                isAllOffline = false;
-                //只要有一个人还在线 
-            }
-        }
-
-        if (isAllOffline) {
-            //所有人都掉线了,那么关闭房间。删掉玩家
-            // this.destory();
-            console.log('所有的玩家都掉线了？');
-            this.emptyRoom();
-            return;
-        }
-        for (let i = 0; i < this._playerList.length; i++) {
-            this._playerList[i].playerOffLine(player.id);
-        }
-    }
+   
 
 
     playerChooseBoard(player, index) {
@@ -161,12 +92,7 @@ class Room {
         }, 2000);
 
     }
-    // destory() {
-    //     console.log('销毁房间');
-    //     this._playerList = null;
-    //     this._gameLogic = null;
-    //     this._controller.removeRoom(this);
-    // }
+   
     shareRoomToFriend(player, cb) {
         //玩家发来了 分享房间的操作，
         this.removeOfflinePlayer();
@@ -195,42 +121,8 @@ class Room {
             })
         }
     }
-    removeOfflinePlayer() {
-        //删掉掉线的玩家
-        let offLinePlayer = undefined;
-        for (let i = 0; i < this._playerList.length; i++) {
-            if (this._playerList[i].isOnline() == false) {
-                offLinePlayer = this._playerList[i];
-                this._playerList.splice(i, 1);
-            }
-        }
-        if (offLinePlayer) {
-            offLinePlayer.outRoom();
-        }
-    }
-    reMatchGame(player, cb) {
-        this.removeOfflinePlayer();
-        //然后给剩下的玩家 同步房间里面的 玩家信息
-        // player.syncPlayerInfo();
-
-        //然后将房间加到 不满房间列表里面
-        if (this._controller.pushUnFullRoom(this)) {
-            if (cb) {
-                cb({
-                    status: 'ok'
-                });
-            }
-        } else {
-            if (cb) {
-                cb({
-                    status: 'fail',
-                    data: 'is matching!'
-                });
-            }
-        }
-        this.syncPlayerInfo();
-    }
-
+   
+    
     isHavePlayer(player) {
         for (let i = 0; i < this._playerList.length; i++) {
             if (this._playerList[i].id === player.id) {

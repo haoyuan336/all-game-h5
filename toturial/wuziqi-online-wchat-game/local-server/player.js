@@ -1,5 +1,12 @@
 const db = require('./db')
 const rank = require('./rank');
+const State = require('./state')
+let PlayerState = {
+    disconnect: 'disconnect',
+    loginSuccess: 'login-success',
+    enterBack: 'enter-back',
+    enterForward: 'enter-forward'
+}
 class Player {
     constructor(socket, id, controller, data) {
         this.id = id;
@@ -9,22 +16,31 @@ class Player {
         this._color = Math.random() * 10 > 5 ? 'black' : 'white';
         this._score = 0;
         this._rankNum = 9999;
-
-
-        this._isEnterBack = false;
-
-        this.onMessage();
         this.avatarUrl = data.avatarUrl;
         this.nickName = data.nickName;
         this._online = true;
-        this._roomId = undefined;
+        this._state = new State();
+
+        this._state.addState(PlayerState.disconnect, () => {
+            console.log('掉线');
+
+        });
+        this._state.addState(PlayerState.loginSuccess, () => {
+            let data = {
+                score: this._score,
+                id: this.id
+            }
+            console.log('玩家登陆成功了' + JSON.stringify(data));
+            this._socket.emit('login-success');
+        });
+
+
+        this.onMessage();
     }
     reConnect(socket) {
         //如果是重新连接进来的 ，那么重新监听这些消息
         console.log('玩家又连接上了');
         this._socket = socket;
-        this._online = true;
-        this._isEnterBack = false;
         this.onMessage();
     }
     notify(messageType, messageIndex, data) {
@@ -35,6 +51,15 @@ class Player {
         });
     }
     onMessage() {
+        db.getPlayerScore(this.avatarUrl, (err, data) => {
+            if (err == null && data !== null) {
+                this._score = data.value;
+            } else {
+                this._score = 0;
+            }
+            this._state.setState('login-success');
+        });
+
 
         this._socket.on('notify', (messageData) => {
             let messageType = messageData.messageType;
@@ -66,69 +91,25 @@ class Player {
 
         this._socket.on('disconnect', () => {
             console.log('掉线');
-            this._online = false;
-            if (this._room) {
-                this._room.playerOffLine(this);
-            }
+            this._state.setState('disconnect');
         });
         this._socket.on('choose-board', (index) => {
             if (this._room) {
                 this._room.playerChooseBoard(this, index);
             }
         });
-        this._socket.emit('login-success', this.id);
 
         this._socket.on('enter-back', () => {
-            console.log('进入了后台');
-            this._isEnterBack = true;
-            // if (this._room) {
-            //     this._room.playerEnterBack(this, true);
-            // }
-            if (this._room) {
-                this._room.syncPlayerInfo();
-            }
+            this._state.setState(PlayerState.enterBack);
         });
         this._socket.on('enter-forward', (data) => {
-            console.log('进入了前台');
-            this._isEnterBack = false;
-            if (data && data.roomId) {
-                console.log('data room id = ', data.roomId);
-                //如果拿到了roomid  那么去重新匹配一下
-                if (this._room) {
-                    //玩家离开了房间
-                    this._room.playerLeaveRoom(this);
-                }
-                this._controller.assignRoom(this, data);
-                //退出当前的房间
-                // this._room.
-            } else {
-                if (this._room) {
-                    this._room.syncPlayerInfo();
-                }
-            }
+            //根据发来的数据状态 。进行判断
+
+            this._state.setState(PlayerState.enterForward);
         });
 
     }
-    assignRoom(room) {
-        this._room = room;
-        this._roomId = this._room.id;
-        //从数据库里面取出来数据之后 ，才去
-        db.getPlayerScore(this.avatarUrl, (err, data) => {
-            if (err == null && data !== null) {
-                this._score = data.value;
-            } else {
-                this._score = 0;
-            }
-            console.log('this. score = ', this._score);
-            room.assignPlayer(this);
-            // this.addScore();
-        });
-    }
-    referGameData(data) {
-        // data.room_id = this._room.id;
-        // data.room_player_count = this._room.getPlayerCount();
-        // this._socket.emit('refer-game-data', data);
-    }
+
     getColor() {
         return this._color;
     }
@@ -142,17 +123,17 @@ class Player {
         this._score++;
         this._rankNum = rank.rank(this);
         db.setPlayerScore(this.avatarUrl, this._score);
-        this._room.syncPlayerInfo();
+
     }
     syncPlayerInfo(data) {
         this._socket.emit('sync-player-info', data);
     }
 
     setPieceColor(value) {
-        // this._socket.emit('set-color', value);
         this._color = value;
     }
     syncCurrentColor(color) {
+
         this._socket.emit('sync-current-color', color);
     }
     syncBoardData(data) {
@@ -169,44 +150,21 @@ class Player {
     syncRankData(data) {
         this._socket.emit('refer-rank', data);
     }
-    destory() {
-        console.log('销毁玩家');
-        this._controller.removePlayer(this);
-    }
-    playerOffLine(playerId) {
-        this._socket.emit('player-offline', playerId);
-    }
-
-    playerLeaveRoom(player) {
-        this._socket.emit('player-leave-room', {
-            playerId: player.id
-        });
-    }
     isOnline() {
-        return this._online;
-    }
-    outRoom() {
-        // this._room = undefined;
-        // delete this._room;
-        this._roomId = undefined;
-    }
-    isInRoom() {
-        if (!this._room) {
-            return false;
+        if (this._state.state !== PlayerState.disconnect) {
+            return true;
         }
-        return this._room.isHavePlayer(this);
-    }
-    getRoomId() {
-        return this._room.id;
-    }
-    getRoom() {
-        return this._room;
-    }
-    sendMatchSuccess() {
-        this._socket.emit('match-success');
+        return false;
     }
     isInBack() {
-        return this._isEnterBack;
+        if (this._state.state === PlayerState.enterBack || this._state.state === PlayerState.disconnect) {
+            return true;
+        }
+        return false;
+    }
+
+    isInRoom() {
+
     }
 
 }
