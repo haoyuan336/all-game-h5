@@ -46794,7 +46794,6 @@ function (_PIXI$Container) {
     value: function _loadRes(loader, resList) {
       var _this2 = this;
 
-      console.log('res list = ' + JSON.stringify(resList));
       this.drawProgress((this._totalCount - this._resList.length) / this._totalCount);
 
       if (this._resList.length == 0) {
@@ -46961,7 +46960,7 @@ function (_Layer) {
 
     for (var i = 0; i < 13; i++) {
       for (var j = 0; j < 13; j++) {
-        var pos = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](62 + 52 * j, 52 * i + 398);
+        var pos = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Vec2"](62 + 52 * j, 52 * i + 418);
 
         if (i == 0 && j == 0) {
           console.log('pos', pos);
@@ -47628,10 +47627,18 @@ function (_Layer) {
       x: 750 * 0.5,
       y: 600
     };
+    var _canTouch = false;
+    setTimeout(function () {
+      _canTouch = true;
+    }, 400);
     var bgButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
       width: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width,
       height: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height,
       touchCb: function touchCb() {
+        if (!_canTouch) {
+          return;
+        }
+
         _this._controller.gameOverClose();
       }
     });
@@ -47649,6 +47656,12 @@ function (_Layer) {
       height: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height,
       touchCb: function touchCb() {
         console.log('分享的操作');
+
+        if (!_canTouch) {
+          return;
+        }
+
+        _this._controller.gameOverClose();
 
         if (_this._controller) {
           _this._controller.noPSharedButton();
@@ -49370,7 +49383,8 @@ Button.TouchType = TouchType;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(PIXI, TWEEN) {function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+/* WEBPACK VAR INJECTION */(function(PIXI, TWEEN) {/* harmony import */ var _defines__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../defines */ "./src/defines.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -49383,6 +49397,8 @@ var _wx$getSystemInfoSync = wx.getSystemInfoSync(),
     screenWidth = _wx$getSystemInfoSync.screenWidth,
     screenHeight = _wx$getSystemInfoSync.screenHeight,
     model = _wx$getSystemInfoSync.model;
+
+
 
 var Director =
 /*#__PURE__*/
@@ -49422,58 +49438,38 @@ function () {
         width: width,
         height: height
       });
+      this.app.renderer.autoResize = true;
       this.app.ticker.add(this.update.bind(this));
       this.nowTime = new Date().getTime();
       this.root = new PIXI.Container();
-      this.app.stage.addChild(this.root);
-      var currentRate = this.width / this.height;
-      director.screenType = 'normal';
+      this.app.stage.addChild(this.root); // let currentRate = this.width / this.height;
+      // if (currentRate < 0.462) {
+      //     this.root.scale = {
+      //         x: 1,
+      //         y: this.width / this.height * (1334 / 750)
+      //     }
+      // }
 
-      if (currentRate < 0.462) {
-        director.screenType = 'length';
-        this.root.scale = {
-          x: 1,
-          y: this.width / this.height * (1334 / 750)
-        };
-      }
-
-      if (modelType.indexOf('iPhone XS Max') != -1) {
-        console.log('iPhone xs Max');
-      }
-
+      this.app.renderer.resize(750, 1334);
       this.designSize = {
         width: 750,
         height: 1334
-      }; // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-      //     point.x = x * 3;
-      //     point.y = y * 3;
-      // }
+      };
+
+      if (modelType.indexOf('iPhone XS Max') != -1) {
+        console.log('iPhone xs Max'); // let button = wx.createBu
+
+        this.app.renderer.resize(750, 1624);
+        this.designSize = {
+          width: 750,
+          height: 1624
+        };
+      }
 
       this.app.renderer.plugins.interaction.mapPositionToPoint = function (point, x, y) {
         point.x = x * 750 / windowWidth;
         point.y = y * 750 / windowWidth;
-      }; // if (director.screenType == 'normal') {
-      // } else {
-      //     // console.log('设置')
-      //     this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-      //         point.x = x * 750 / windowWidth;
-      //         point.y = y * 1334 / windowHeight;
-      //     }
-      // }
-      // wx.onTouchStart((event) => {
-      //     let data = {
-      //         x: event.touches[0].clientX * 750 / windowWidth,
-      //         y: event.touches[0].clientY * 750 / windowWidth
-      //     }
-      //     if (director.screenType == 'length') {
-      //         data = {
-      //             x: event.touches[0].clientX * 2,
-      //             y: event.touches[0].clientY * 2
-      //         }
-      //     }
-      //     this.onTouchStart({ data: data });
-      // });
-
+      };
     }
   }, {
     key: "update",

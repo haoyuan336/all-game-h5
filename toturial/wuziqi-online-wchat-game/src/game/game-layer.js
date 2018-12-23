@@ -17,7 +17,7 @@ class GameLayer extends Layer {
         this._piecePosList = [];
         for (let i = 0; i < 13; i++) {
             for (let j = 0; j < 13; j++) {
-                let pos = new Vec2(62 + 52 * j, 52 * i + 398);
+                let pos = new Vec2(62 + 52 * j, 52 * i + 418);
                 if (i == 0 && j == 0) {
                     console.log('pos', pos);
                 }

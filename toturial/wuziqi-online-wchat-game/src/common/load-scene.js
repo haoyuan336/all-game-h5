@@ -27,7 +27,6 @@ class LoadScene extends PIXI.Container {
 
     }
     _loadRes(loader, resList) {
-        console.log('res list = ' + JSON.stringify(resList));
         this.drawProgress((this._totalCount - this._resList.length) / this._totalCount);
         if (this._resList.length == 0) {
             if (this.loadAllCb) {

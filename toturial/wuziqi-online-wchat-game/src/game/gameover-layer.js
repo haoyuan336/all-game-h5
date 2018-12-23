@@ -32,10 +32,18 @@ class GameOverLayer extends Layer {
         }
 
 
+        let _canTouch = false;
+
+        setTimeout(() => {
+            _canTouch = true;
+        }, 400);
         let bgButton = new Button({
             width: director.designSize.width,
             height: director.designSize.height,
             touchCb: () => {
+                if (!_canTouch) {
+                    return;
+                }
                 this._controller.gameOverClose();
 
             }
@@ -49,13 +57,19 @@ class GameOverLayer extends Layer {
 
 
 
+
+
         let button = new Button({
             normalTexture: global.resource[resources.share_button].texture,
             width: director.designSize.width,
             height: director.designSize.height,
             touchCb: () => {
                 console.log('分享的操作');
-                if (this._controller){
+                if (!_canTouch) {
+                    return;
+                }
+                this._controller.gameOverClose();
+                if (this._controller) {
                     this._controller.noPSharedButton();
                 }
             }

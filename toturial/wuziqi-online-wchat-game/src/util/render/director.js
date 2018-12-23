@@ -1,4 +1,5 @@
-const { pixelRatio, windowHeight, windowWidth , screenWidth, screenHeight, model} = wx.getSystemInfoSync()
+const { pixelRatio, windowHeight, windowWidth, screenWidth, screenHeight, model } = wx.getSystemInfoSync()
+import defines from './../../defines'
 class Director {
     init(width, height) {
 
@@ -9,7 +10,7 @@ class Director {
         console.log('width ', windowWidth);
         console.log('height', windowHeight);
 
-        console.log('screen width ' , screenWidth);
+        console.log('screen width ', screenWidth);
         console.log('screen height', screenHeight);
 
         this.width = windowWidth * pixelRatio;
@@ -33,65 +34,45 @@ class Director {
             width: width,
             height: height
         });
-
-
+      
+        this.app.renderer.autoResize = true;
+    
 
         this.app.ticker.add(this.update.bind(this));
         this.nowTime = new Date().getTime();
 
         this.root = new PIXI.Container();
         this.app.stage.addChild(this.root);
-        let currentRate = this.width / this.height;
-        director.screenType = 'normal';
+        // let currentRate = this.width / this.height;
 
-        if (currentRate < 0.462) {
-            director.screenType = 'length';
-            this.root.scale = {
-                x: 1,
-                y: this.width / this.height * (1334 / 750)
-            }
-        }
-        if (modelType.indexOf('iPhone XS Max') !=-1) {
-            console.log('iPhone xs Max')
-        }
-
-
+        // if (currentRate < 0.462) {
+        //     this.root.scale = {
+        //         x: 1,
+        //         y: this.width / this.height * (1334 / 750)
+        //     }
+        // }
+        this.app.renderer.resize(750, 1334);
         this.designSize = {
             width: 750,
             height: 1334
         };
-        // this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-        //     point.x = x * 3;
-        //     point.y = y * 3;
-        // }
+        if (modelType.indexOf('iPhone XS Max') != -1) {
+            console.log('iPhone xs Max')
+            // let button = wx.createBu
+            this.app.renderer.resize(750, 1624);
+            this.designSize = {
+                width: 750,
+                height: 1624
+            };
+        }
+
+
+       
+    
         this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
             point.x = x * 750 / windowWidth;
             point.y = y * 750 / windowWidth;
         }
-
-        // if (director.screenType == 'normal') {
-
-        // } else {
-        //     // console.log('设置')
-        //     this.app.renderer.plugins.interaction.mapPositionToPoint = (point, x, y) => {
-        //         point.x = x * 750 / windowWidth;
-        //         point.y = y * 1334 / windowHeight;
-        //     }
-        // }
-
-        // wx.onTouchStart((event) => {
-        //     let data = {
-        //         x: event.touches[0].clientX * 750 / windowWidth,
-        //         y: event.touches[0].clientY * 750 / windowWidth
-        //     }
-        //     if (director.screenType == 'length') {
-        //         data = {
-        //             x: event.touches[0].clientX * 2,
-        //             y: event.touches[0].clientY * 2
-        //         }
-        //     }
-        //     this.onTouchStart({ data: data });
-        // });
     }
 
 

@@ -231,13 +231,22 @@ class Room {
         this.syncPlayerInfo();
     }
 
-    isHavePlayer (player){
-        for (let i = 0 ; i < this._playerList.length ; i ++){
-            if (this._playerList[i].id === player.id){
+    isHavePlayer(player) {
+        for (let i = 0; i < this._playerList.length; i++) {
+            if (this._playerList[i].id === player.id) {
                 return true;
             }
         }
         return false;
+    }
+    getFirstPlayer() {
+        return this._playerList[0];
+    }
+    getPlayerCount() {
+        return this._playerList.length; 
+    }
+    initGameLoginData(){
+        this._gameLogic.clearGameData();
     }
     /***
      * 楚浩远

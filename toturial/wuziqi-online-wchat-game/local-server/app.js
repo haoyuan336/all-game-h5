@@ -99,18 +99,20 @@ class App {
             if (this._unFullRoomList.length !== 0) {
                 tempRoom = this._unFullRoomList.pop();
                 console.log('取出未满的房间' + tempRoom.id);
+                console.log('player count = ' + tempRoom.getPlayerCount());
             } else {
 
                 if (this._emptyRoomList.length > 0) {
                     //如果空房间列表的长度不为0  那么 就从里面取出一个房间出来
                     tempRoom = this._emptyRoomList.pop();
-                    console.log('取出空房间一个');
+                    console.log('取出空房间一个' + tempRoom.getPlayerCount());
                 } else {
                     //如果空房间列表长度为0， 那么就创建一个 房间出来
                     console.log('创建一个空的房间');
                     tempRoom = this.createRoom();
                 }
-                this._unFullRoomList.push(tempRoom);
+                // this._unFullRoomList.push(tempRoom);
+                this.pushUnFullRoom(tempRoom);
             }
         }
         //给新加进来的玩家分配房间
@@ -122,9 +124,11 @@ class App {
     }
     pushEmptyRoom(room) {
         console.log('将空房间 储存起来 ，备用', room.id);
+        console.log('player count = ' + room.getPlayerCount())
         this._emptyRoomList.push(room);
     }
     pushUnFullRoom(room) {
+        console.log('room player count ' , room.getPlayerCount());
         for (let i = 0; i < this._unFullRoomList.length; i++) {
             if (this._unFullRoomList[i].id === room.id) {
                 return false;
@@ -138,6 +142,15 @@ class App {
         }
 
         this._unFullRoomList.push(room);
+        if (this._unFullRoomList.length >= 2) {
+            console.log('不满的房间的个数 大于等于2  ，这样是不合理的')
+            let room = this._unFullRoomList.pop();
+            let room2 = this._unFullRoomList.pop();
+            let player = room.getFirstPlayer();
+            room2.initGameLoginData();
+            player.assignRoom(room2);
+            // room.
+        }
         // this.syncGameData();
         return true;
     }
