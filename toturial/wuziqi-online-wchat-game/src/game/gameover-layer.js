@@ -55,10 +55,6 @@ class GameOverLayer extends Layer {
             y: director.designSize.height * 0.5
         };
 
-
-
-
-
         let button = new Button({
             normalTexture: global.resource[resources.share_button].texture,
             width: director.designSize.width,
@@ -80,9 +76,6 @@ class GameOverLayer extends Layer {
             x: director.designSize.width * 0.5,
             y: 800
         }
-
-
-
     }
     onTouchStart() {
         // this._controller.gameOverClose();

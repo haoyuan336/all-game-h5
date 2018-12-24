@@ -26,6 +26,18 @@ class Connect {
             this._controller.syncPlayerInfo(data);
         });
 
+        this._connection.on('sync-current-color', (data) => {
+            this._controller.syncCurrentColor(data);
+        });
+        this._connection.on('sync-board-data', (data) => {
+            this._controller.syncBoardData(data);
+        });
+        this._connection.on('refer-rank', (data) => {
+            this._controller.syncReferRank(data);
+        });
+        this._connection.on('game-win', (data) => {
+            this._controller.gameWin(data);
+        });
         this._connection.on('notify-back', (messageData) => {
             let messageType = messageData.messageType;
             let messageIndex = messageData.messageIndex;
@@ -37,16 +49,12 @@ class Connect {
 
         wx.onShow((res) => {
             let query = res.query;
-            console.log('query', query);
-            let roomId = query.roomId ? query.roomId : undefined;
+            console.log(' on show query', query);
+            let friendId = query.friendId ? query.friendId : undefined;
             if (this._online) {
-                console.log('on show' + roomId);
-                if (roomId) {
-                    global.playerInfo.roomId = roomId;
-                    this.login();
-                } else {
-                    this._connection.emit('enter-forward');
-                }
+                this._connection.emit('enter-forward', {
+                    friendId: friendId
+                });
             }
         })
         wx.onHide(() => {
@@ -62,12 +70,20 @@ class Connect {
             nickName: global.playerInfo.nickName
         }
         //根据参数不同 ，组合不同的参数
-        if (global.playerInfo.roomId) {
-            param.roomId = global.playerInfo.roomId;
-        }
+        // if (global.playerInfo.roomId) {
+        //     param.roomId = global.playerInfo.roomId;
+        // }
         if (global.playerInfo.id) {
             param.id = global.playerInfo.id;
         }
+
+        let query = wx.getLaunchOptionsSync().query;
+        console.log('login query  = ', query);
+        if (query && query.friendId) {
+            param.friendId = query.friendId;
+        }
+        console.log('登录的参数 是+', param);
+
         this._connection.emit('login', param);
     }
     notify(messageType, data, cb) {
@@ -85,18 +101,44 @@ class Connect {
         // this._connect.emit('share-to-friend');
 
         this.notify('share-to-friend', {}, (data) => {
+            console.log('分享服务器回调', data);
             if (data.status === 'ok') {
                 console.log('服务器返回的消息 ，可以分享');
                 this._controller.waitFriendEnterRoom();
             } else if (data.status == 'fail') {
                 console.warn('share to friend' + data.data);
             }
-            wx.shareAppMessage({
+            let shareData = {
                 title: '跟我下一盘五子棋吧',
                 imageUrl: defines.resourcesUrl + '/images/share_image.png',
-                query: 'roomId=' + this._roomId
-            })
+                query: 'friendId=' + global.playerInfo.id
+            }
+            console.log('share messgae = ', shareData);
+            wx.shareAppMessage(shareData)
         })
+    }
+    cancelShareRoom(cb) {
+        let p = new Promise((reo, rej) => {
+            console.log();
+            this.notify('cancel-share-room', {}, (data) => {
+                console.log('取消分享操作');
+                reo();
+
+            });
+        });
+        p.then(() => {
+            if (cb) {
+                cb();
+            }
+        });
+    }
+    reMatchRoom() {
+        this.notify('re-match-game', {}, () => {
+            console.log('重新匹配请求成功');
+        })
+    }
+    chooseBoard(data){
+        this._connection.emit('choose-board', data);
     }
 }
 export default Connect;

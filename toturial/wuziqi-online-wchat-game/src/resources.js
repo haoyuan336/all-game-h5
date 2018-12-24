@@ -1,6 +1,7 @@
 const res = 
 {
   "bg": "./images/bg.jpg",
+  "cancel_share_button": "./images/cancel_share_button.png",
   "denglu_button": "./images/denglu_button.png",
   "leave_room": "./images/leave_room.png",
   "login_button": "./images/login_button.png",

@@ -40,10 +40,9 @@ class App {
         console.log('玩家登陆了' + JSON.stringify(data));
         let playerId = data.id;
         console.log('player id = ' + playerId);
-        let roomId = data.roomId;
-
-        
-
+        // let roomId = data.roomId;
+        let friendId = data.friendId; //朋友的id
+        console.log('friend id = ' + friendId);
         let player = undefined;
         if (this._playerMap[playerId]) {
             console.log('存在此玩家');
@@ -54,27 +53,43 @@ class App {
             player = new Player(socket, id, this, data);
             this._playerMap[id] = player;
         }
-
-        if (roomId && this._roomMap[roomId]) {
-            //如果传过来的值存在 并且 也有这个房间，那么
-            let room = this._roomMap[roomId];
-            if (room.isShareing()){
-                player.leaveCurrentRoom();
-                room.joinPlayer(player);
+        if (friendId) {
+            //如果存在好友id ，那么说明是被邀请进来的
+            //那么从玩家对象里面 获取到这个好友
+            let friend = this._playerMap[friendId];
+            if (friend && friend.isShareing()) {
+                console.log('这个好友正好也在 分享中 ，那么可以让他分享');
+                friend.getRoom().joinPlayer(player);
             }
         }
+        if(player){
+            player.syncRankData(rank.getRankList());
+        }
 
-        console.log('room id = ' + roomId);
+        // if (roomId && this._roomMap[roomId]) {
+        //     //如果传过来的值存在 并且 也有这个房间，那么
+        //     let room = this._roomMap[roomId];
+        //     if (room.isShareing()){
+        //         player.leaveCurrentRoom();
+        //         room.joinPlayer(player);
+        //     }
+        // }
+
+        // console.log('room id = ' + roomId);
     }
+
     playerMatching(player) {
+        console.log('匹配程序开始')
         for (let i = 0; i < this._waitMathingList.length; i++) {
             if (this._waitMathingList[i].id === player.id) {
+                console.log('如果匹配列表里面存在自己 则退出匹配')
                 return;
             }
         }
         let matching = this._waitMathingList.pop();
         let room = undefined;
         if (matching && matching.isInRoom()) {
+            console.log('取出来的玩家 在房间里面');
             room = matching.getRoom();
             room.joinPlayer(player);
             // let room = new Room();
@@ -85,11 +100,13 @@ class App {
 
         } else if (!matching) {
             console.log('没有匹配的玩家');
+            room = new Room(this._idCreate.getNextID(), this);
+            room.joinPlayer(player);
             this._waitMathingList.push(player);
         }
-        if (room) {
-            this._roomMap[room.id] = room;
-        }
+        // if (room) {
+        //     this._roomMap[room.id] = room;
+        // }
 
         console.log('matching player count  ', this._waitMathingList.length);
     }
@@ -112,9 +129,15 @@ class App {
     }
 
     syncRankData(data) {
-        // for (let i in this._playerMap) {
-        //     this._playerMap[i].syncRankData(data);
-        // }
+        for (let i in this._playerMap) {
+            this._playerMap[i].syncRankData(data);
+        }
+    }
+    getPlayer(id) {
+        if (this._playerMap[id]) {
+            return this._playerMap[id];
+        }
+        return false;
     }
 
 }

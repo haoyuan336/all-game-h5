@@ -137,6 +137,14 @@ class Button extends Layer {
             this._buttonStyle.touchCb();
         }
     }
+    setNormalTexture(texture) {
+        if (this._sprite) {
+            this._sprite.texture = texture;
+        }
+    }
+    setCallBack(cb) {
+        this._buttonStyle.touchCb = cb;
+    }
 }
 Button.TouchType = TouchType
 export default Button;

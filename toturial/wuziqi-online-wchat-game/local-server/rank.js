@@ -49,11 +49,15 @@ const rank = function (player) {
     }    //然后进行排序
     if (rankList.length > 1) {
         rankList.sort((a, b) => {
-            b.score - a.score
+            return b.score - a.score
         })
     } else {
         //如果列表的长度等于1，那么返回0 
         rankNum = 0;
+    }
+    //重新排序一下
+    for (let i = 0; i < rankList.length; i++) {
+        rankList[i].rankNum = i;
     }
     //然后然后把列表截断 100以内
     if (rankList.length > 50) {

@@ -34,26 +34,62 @@ class RankHead extends Layer {
         }
         this._scoreLabel = scoreLabel;
 
-        this._avatar = new Sprite(global.resource[resources.piece_black].texture);
-        this.addChild(this._avatar);
-        this._avatar.anchor.set(0.5);
+        // this._avatar = new Sprite(global.resource[resources.piece_black].texture);
+        // this.addChild(this._avatar);
+        // this._avatar.anchor.set(0.5);
 
     }
     referInfo(data) {
+        console.log('刷新排行榜头像', data);
         let rankNum = data.rankNum;
         //这里切换头像精灵
         // this.removeChild(this._avatar);
-        let image = wx.createImage();
-        image.src = data.avatar;
-        image.onload = () => {
-            let texture = new PIXI.Texture.from(image);
-            this._avatar.texture = texture;
-            this._avatar.scale.set(0.5);
-            this._avatar.position = {
-                x: 80,
-                y: 30
+
+        if (global.resource[data.avatar]) {
+            if (!this._avatar) {
+                this._avatar = new Sprite.from(global.resource[data.avatar]);
+                this.addChild(this._avatar);
+                this._avatar.position = {
+                    x: 80,
+                    y: 30
+                }
+                this._avatar.scale.set(0.5);
+                this._avatar.anchor.set(0.5);
+            } else {
+                let texture = new PIXI.Texture.from(global.resource[data.avatar]);
+                this._avatar.texture = texture;
+                this._avatar.position = {
+                    x: 80,
+                    y: 30
+                }
+                this._avatar.scale.set(0.5);
+                this._avatar.anchor.set(0.5);
+            }
+
+
+        } else {
+            let image = wx.createImage();
+            image.src = data.avatar;
+            image.onload = () => {
+                global.resource[data.avatar] = image;
+                if (!this._avatar) {
+                    this._avatar = new Sprite.from(image);
+                    this.addChild(this._avatar);
+                } else {
+                    let texture = new PIXI.Texture.from(image);
+                    this._avatar.texture = texture;
+                }
+                // this._avatar.scale.set(0.5);
+                this._avatar.position = {
+                    x: 80,
+                    y: 30
+                }
+                this._avatar.scale.set(0.5);
+                this._avatar.anchor.set(0.5);
             }
         }
+        // this._avatar.scale.set(2);
+
         this._rankNumLabel.text = (data.rankNum + 1) + ':';
         this._scoreLabel.text = data.score;
         this._nameLabel.text = data.nickName;

@@ -1,4 +1,4 @@
-import { Scene, director, Button, Sprite } from './../util/import'
+import { Scene, director, Button, Sprite, State } from './../util/import'
 import GameLayer from './game-layer'
 import UILayer from './ui-layer'
 import resources from './../resources'
@@ -7,13 +7,35 @@ import defines from './../defines'
 import RankLayer from './rank-layer'
 import WaitLayer from './wait-layer'
 import Connect from './connect'
+const GameState = {
+    Matching: 'matching',
+    Shareing: 'shareing',
+    Gameing: 'gameing',
+    WaitOffline: 'wait-offline',
+    PlayerLeave: 'player-leave'
+}
 class GameScene extends Scene {
     constructor() {
         super();
         this._roomId = undefined;
         this._callBackMap = {};
         this._messageIndex = 1;
+        this._state = new State();
 
+        this._state.addState(GameState.Matching, () => {
+            console.log('切换到匹配中的状态');
+            this.showMatchingState()
+        });
+        this._state.addState(GameState.Shareing, () => {
+            console.log('分享的状态');
+            this.showWaitFriendState();
+        });
+        this._state.addState(GameState.WaitOffline, () => {
+            this.showWaitOfflineState();
+        });
+        this._state.addState(GameState.PlayerLeave, () => {
+            this.showWaitOfflineState();
+        });
     }
     setAuthorize(cb) {
         wx.getSetting({
@@ -40,6 +62,8 @@ class GameScene extends Scene {
         });
         //显示分享按钮
         wx.showShareMenu();
+
+
 
     }
     showLoginButton(cb) {
@@ -115,8 +139,8 @@ class GameScene extends Scene {
             });
             //授权成功之后 ，开始链接服务器
             //首选成功之后，保存当前的 头像信息等
-
         });
+
 
         // let connect = SocketIO(defines.socketUrl);
         // const onHide = function () {
@@ -245,19 +269,23 @@ class GameScene extends Scene {
     }
     loginSuccess() {
         if (!this._shareButton) {
-
-
-
             this._shareButton = new Button({
                 normalTexture: global.resource[resources.shard_friend_button].texture,
                 touchCb: () => {
                     console.log('邀请按钮');
-                    // wx.shareAppMessage({
-                    //     title: '跟我下一盘五子棋吧',
-                    //     imageUrl: defines.resourcesUrl + '/images/share_image.png',
-                    //     query: 'roomId=' + this._roomId
-                    // })
-                    this._connect.shareToFriend();
+
+                    switch (this._state.getState()) {
+                        case GameState.Matching:
+                        case GameState.WaitOffline:
+                            //等在的状态 或者是 匹配的状态
+                            this._connect.shareToFriend();
+                            break;
+                        case GameState.Shareing:
+                            //  取消分享
+                            this._connect.cancelShareRoom();
+                            break;
+                    }
+
                 }
             })
             this._shareButton.position = {
@@ -270,6 +298,23 @@ class GameScene extends Scene {
             this._titleLabel.texture = global.resource[resources.matching_title].texture;
             this._titleLabel.scale.set(2);
             this._titleLabel.visible = true;
+
+        }
+        if (!this._matchButton) {
+            this._matchButton = new Button({
+                normalTexture: global.resource[resources.re_start_button].texture,
+                touchCb: () => {
+                    console.log('从新匹配');
+                    this._connect.reMatchRoom();
+                }
+            });
+            this._matchButton.position = {
+                x: director.designSize.width * 0.5,
+                y: director.designSize.height * 0.5 + 150
+            }
+            this._matchButton.scale.set(2);
+            this.addChild(this._matchButton);
+            this._matchButton.visible = false;
         }
     }
     syncPlayerInfo(data) {
@@ -287,6 +332,19 @@ class GameScene extends Scene {
                 if (this._shareButton) {
                     this._shareButton.visible = false;
                 }
+            case 'matching':
+                console.log('展示匹配中的字样');
+                this._state.setState(GameState.Matching);
+                // this.showMatchingState();
+                break;
+            case 'wait-offline-player':
+                console.log('等待掉线玩家');
+                this._state.setState(GameState.WaitOffline);
+                break;
+            case 'player-leave':
+                console.log('玩家离开了 房间');
+                this._state.setState(GameState.PlayerLeave);
+                break;
             default:
                 break;
         }
@@ -316,9 +374,10 @@ class GameScene extends Scene {
         this._callBackMap[this._messageIndex] = cb;
         this._messageIndex++;
     }
-    // playerPushPiece(index) {
-    //     this._connect.emit('choose-board', index);
-    // }
+    playerPushPiece(index) {
+        // this._connect.emit('choose-board', index);
+        this._connect.chooseBoard(index);
+    }
     closeGameOverLayer() {
         //关闭了游戏结束层
         if (this._gameLayer) {
@@ -361,15 +420,76 @@ class GameScene extends Scene {
     //         })
     //     })
     // }
-    // noPSharedButton() {
-    //     //没有参数的分享按钮
-    //     wx.shareAppMessage({
-    //         title: '跟我下一盘五子棋吧',
-    //         imageUrl: defines.resourcesUrl + '/images/share_image.png'
-    //     })
-    // }
-    waitFriendEnterRoom(){
-        console.log('等待好友进入房间');
+    noPSharedButton() {
+        //没有参数的分享按钮
+        wx.shareAppMessage({
+            title: '跟我下一盘五子棋吧',
+            imageUrl: defines.resourcesUrl + '/images/share_image.png'
+        })
     }
+    waitFriendEnterRoom() {
+        this._state.setState(GameState.Shareing);
+
+        // let p = new Promise((reo, rej) => {
+        //     this._shareButton.setCallBack(() => {
+        //         console.log('取消邀请');
+        //         if (reo) {
+        //             reo();
+        //         }
+        //     })
+        // }).then(() => {
+        //     this._connect.cancelShareRoom();
+
+        // });
+    }
+
+    showWaitFriendState() {
+        console.log('等待好友进入房间');
+        this._titleLabel.texture = global.resource[resources.wait_friend_tips].texture;
+        this._titleLabel.scale.set(2);
+        this._matchButton.visible = false;
+        this._shareButton.setNormalTexture(global.resource[resources.cancel_share_button].texture);
+    }
+    showMatchingState() {
+        console.log('展示匹配中的ui')
+        this._shareButton.setNormalTexture(global.resource[resources.shard_friend_button].texture);
+        this._titleLabel.texture = global.resource[resources.matching_title].texture;
+        this._titleLabel.scale.set(2);
+        this._matchButton.visible = false;
+    }
+    showWaitOfflineState() {
+        console.log('展示等待掉线玩家的ui');
+        this._titleLabel.texture = global.resource[resources.wait_tips].texture;
+        this._titleLabel.scale.set(2);
+        this._titleLabel.visible = true;
+        this._shareButton.visible = true;
+        this._matchButton.visible = true;
+
+
+    }
+    syncCurrentColor(data) {
+        this._gameLayer.changeCurrentColor(data);
+    }
+    syncBoardData(data) {
+        this._gameLayer.referBoard(data);
+    }
+    syncReferRank(data) {
+        this._rankLayer.referRankData(data);
+    }
+    gameWin(color) {
+        this._uiLayer.showWin(color);
+    }
+
+    // connect.on('sync-board-data', (data) => {
+    //     console.log('同步棋盘信息');
+    //     this._gameLayer.referBoard(data);
+    // });
+    // connect.on('game-win', (color) => {
+    //     this._uiLayer.showWin(color);
+    // });
+    // connect.on('refer-rank', (data) => {
+    //     //刷新排行榜数据
+    //     this._rankLayer.referRankData(data);
+    // });
 }
 export default GameScene;

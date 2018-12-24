@@ -46956,6 +46956,22 @@ function () {
       _this._controller.syncPlayerInfo(data);
     });
 
+    this._connection.on('sync-current-color', function (data) {
+      _this._controller.syncCurrentColor(data);
+    });
+
+    this._connection.on('sync-board-data', function (data) {
+      _this._controller.syncBoardData(data);
+    });
+
+    this._connection.on('refer-rank', function (data) {
+      _this._controller.syncReferRank(data);
+    });
+
+    this._connection.on('game-win', function (data) {
+      _this._controller.gameWin(data);
+    });
+
     this._connection.on('notify-back', function (messageData) {
       var messageType = messageData.messageType;
       var messageIndex = messageData.messageIndex;
@@ -46968,19 +46984,13 @@ function () {
 
     wx.onShow(function (res) {
       var query = res.query;
-      console.log('query', query);
-      var roomId = query.roomId ? query.roomId : undefined;
+      console.log(' on show query', query);
+      var friendId = query.friendId ? query.friendId : undefined;
 
       if (_this._online) {
-        console.log('on show' + roomId);
-
-        if (roomId) {
-          _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.roomId = roomId;
-
-          _this.login();
-        } else {
-          _this._connection.emit('enter-forward');
-        }
+        _this._connection.emit('enter-forward', {
+          friendId: friendId
+        });
       }
     });
     wx.onHide(function () {
@@ -46998,16 +47008,24 @@ function () {
       var param = {
         avatarUrl: _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.avatarUrl,
         nickName: _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.nickName //根据参数不同 ，组合不同的参数
+        // if (global.playerInfo.roomId) {
+        //     param.roomId = global.playerInfo.roomId;
+        // }
 
       };
-
-      if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.roomId) {
-        param.roomId = _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.roomId;
-      }
 
       if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id) {
         param.id = _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id;
       }
+
+      var query = wx.getLaunchOptionsSync().query;
+      console.log('login query  = ', query);
+
+      if (query && query.friendId) {
+        param.friendId = query.friendId;
+      }
+
+      console.log('登录的参数 是+', param);
 
       this._connection.emit('login', param);
     }
@@ -47032,6 +47050,8 @@ function () {
       //     //邀请好友
       // this._connect.emit('share-to-friend');
       this.notify('share-to-friend', {}, function (data) {
+        console.log('分享服务器回调', data);
+
         if (data.status === 'ok') {
           console.log('服务器返回的消息 ，可以分享');
 
@@ -47040,12 +47060,45 @@ function () {
           console.warn('share to friend' + data.data);
         }
 
-        wx.shareAppMessage({
+        var shareData = {
           title: '跟我下一盘五子棋吧',
           imageUrl: _defines__WEBPACK_IMPORTED_MODULE_0__["default"].resourcesUrl + '/images/share_image.png',
-          query: 'roomId=' + _this2._roomId
+          query: 'friendId=' + _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id
+        };
+        console.log('share messgae = ', shareData);
+        wx.shareAppMessage(shareData);
+      });
+    }
+  }, {
+    key: "cancelShareRoom",
+    value: function cancelShareRoom(cb) {
+      var _this3 = this;
+
+      var p = new Promise(function (reo, rej) {
+        console.log();
+
+        _this3.notify('cancel-share-room', {}, function (data) {
+          console.log('取消分享操作');
+          reo();
         });
       });
+      p.then(function () {
+        if (cb) {
+          cb();
+        }
+      });
+    }
+  }, {
+    key: "reMatchRoom",
+    value: function reMatchRoom() {
+      this.notify('re-match-game', {}, function () {
+        console.log('重新匹配请求成功');
+      });
+    }
+  }, {
+    key: "chooseBoard",
+    value: function chooseBoard(data) {
+      this._connection.emit('choose-board', data);
     }
   }]);
 
@@ -47326,6 +47379,13 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+var GameState = {
+  Matching: 'matching',
+  Shareing: 'shareing',
+  Gameing: 'gameing',
+  WaitOffline: 'wait-offline',
+  PlayerLeave: 'player-leave'
+};
 
 var GameScene =
 /*#__PURE__*/
@@ -47341,6 +47401,28 @@ function (_Scene) {
     _this._roomId = undefined;
     _this._callBackMap = {};
     _this._messageIndex = 1;
+    _this._state = new _util_import__WEBPACK_IMPORTED_MODULE_0__["State"]();
+
+    _this._state.addState(GameState.Matching, function () {
+      console.log('切换到匹配中的状态');
+
+      _this.showMatchingState();
+    });
+
+    _this._state.addState(GameState.Shareing, function () {
+      console.log('分享的状态');
+
+      _this.showWaitFriendState();
+    });
+
+    _this._state.addState(GameState.WaitOffline, function () {
+      _this.showWaitOfflineState();
+    });
+
+    _this._state.addState(GameState.PlayerLeave, function () {
+      _this.showWaitOfflineState();
+    });
+
     return _this;
   }
 
@@ -47585,13 +47667,22 @@ function (_Scene) {
         this._shareButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
           normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].shard_friend_button].texture,
           touchCb: function touchCb() {
-            console.log('邀请按钮'); // wx.shareAppMessage({
-            //     title: '跟我下一盘五子棋吧',
-            //     imageUrl: defines.resourcesUrl + '/images/share_image.png',
-            //     query: 'roomId=' + this._roomId
-            // })
+            console.log('邀请按钮');
 
-            _this4._connect.shareToFriend();
+            switch (_this4._state.getState()) {
+              case GameState.Matching:
+              case GameState.WaitOffline:
+                //等在的状态 或者是 匹配的状态
+                _this4._connect.shareToFriend();
+
+                break;
+
+              case GameState.Shareing:
+                //  取消分享
+                _this4._connect.cancelShareRoom();
+
+                break;
+            }
           }
         });
         this._shareButton.position = {
@@ -47607,6 +47698,26 @@ function (_Scene) {
         this._titleLabel.scale.set(2);
 
         this._titleLabel.visible = true;
+      }
+
+      if (!this._matchButton) {
+        this._matchButton = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Button"]({
+          normalTexture: _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].re_start_button].texture,
+          touchCb: function touchCb() {
+            console.log('从新匹配');
+
+            _this4._connect.reMatchRoom();
+          }
+        });
+        this._matchButton.position = {
+          x: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width * 0.5,
+          y: _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.height * 0.5 + 150
+        };
+
+        this._matchButton.scale.set(2);
+
+        this.addChild(this._matchButton);
+        this._matchButton.visible = false;
       }
     }
   }, {
@@ -47630,6 +47741,28 @@ function (_Scene) {
           if (this._shareButton) {
             this._shareButton.visible = false;
           }
+
+        case 'matching':
+          console.log('展示匹配中的字样');
+
+          this._state.setState(GameState.Matching); // this.showMatchingState();
+
+
+          break;
+
+        case 'wait-offline-player':
+          console.log('等待掉线玩家');
+
+          this._state.setState(GameState.WaitOffline);
+
+          break;
+
+        case 'player-leave':
+          console.log('玩家离开了 房间');
+
+          this._state.setState(GameState.PlayerLeave);
+
+          break;
 
         default:
           break;
@@ -47661,10 +47794,13 @@ function (_Scene) {
 
       this._callBackMap[this._messageIndex] = cb;
       this._messageIndex++;
-    } // playerPushPiece(index) {
-    //     this._connect.emit('choose-board', index);
-    // }
-
+    }
+  }, {
+    key: "playerPushPiece",
+    value: function playerPushPiece(index) {
+      // this._connect.emit('choose-board', index);
+      this._connect.chooseBoard(index);
+    }
   }, {
     key: "closeGameOverLayer",
     value: function closeGameOverLayer() {
@@ -47707,19 +47843,99 @@ function (_Scene) {
     //         })
     //     })
     // }
-    // noPSharedButton() {
-    //     //没有参数的分享按钮
-    //     wx.shareAppMessage({
-    //         title: '跟我下一盘五子棋吧',
-    //         imageUrl: defines.resourcesUrl + '/images/share_image.png'
-    //     })
-    // }
 
+  }, {
+    key: "noPSharedButton",
+    value: function noPSharedButton() {
+      //没有参数的分享按钮
+      wx.shareAppMessage({
+        title: '跟我下一盘五子棋吧',
+        imageUrl: _defines__WEBPACK_IMPORTED_MODULE_5__["default"].resourcesUrl + '/images/share_image.png'
+      });
+    }
   }, {
     key: "waitFriendEnterRoom",
     value: function waitFriendEnterRoom() {
-      console.log('等待好友进入房间');
+      this._state.setState(GameState.Shareing); // let p = new Promise((reo, rej) => {
+      //     this._shareButton.setCallBack(() => {
+      //         console.log('取消邀请');
+      //         if (reo) {
+      //             reo();
+      //         }
+      //     })
+      // }).then(() => {
+      //     this._connect.cancelShareRoom();
+      // });
+
     }
+  }, {
+    key: "showWaitFriendState",
+    value: function showWaitFriendState() {
+      console.log('等待好友进入房间');
+      this._titleLabel.texture = _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].wait_friend_tips].texture;
+
+      this._titleLabel.scale.set(2);
+
+      this._matchButton.visible = false;
+
+      this._shareButton.setNormalTexture(_global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].cancel_share_button].texture);
+    }
+  }, {
+    key: "showMatchingState",
+    value: function showMatchingState() {
+      console.log('展示匹配中的ui');
+
+      this._shareButton.setNormalTexture(_global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].shard_friend_button].texture);
+
+      this._titleLabel.texture = _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].matching_title].texture;
+
+      this._titleLabel.scale.set(2);
+
+      this._matchButton.visible = false;
+    }
+  }, {
+    key: "showWaitOfflineState",
+    value: function showWaitOfflineState() {
+      console.log('展示等待掉线玩家的ui');
+      this._titleLabel.texture = _global__WEBPACK_IMPORTED_MODULE_4__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_3__["default"].wait_tips].texture;
+
+      this._titleLabel.scale.set(2);
+
+      this._titleLabel.visible = true;
+      this._shareButton.visible = true;
+      this._matchButton.visible = true;
+    }
+  }, {
+    key: "syncCurrentColor",
+    value: function syncCurrentColor(data) {
+      this._gameLayer.changeCurrentColor(data);
+    }
+  }, {
+    key: "syncBoardData",
+    value: function syncBoardData(data) {
+      this._gameLayer.referBoard(data);
+    }
+  }, {
+    key: "syncReferRank",
+    value: function syncReferRank(data) {
+      this._rankLayer.referRankData(data);
+    }
+  }, {
+    key: "gameWin",
+    value: function gameWin(color) {
+      this._uiLayer.showWin(color);
+    } // connect.on('sync-board-data', (data) => {
+    //     console.log('同步棋盘信息');
+    //     this._gameLayer.referBoard(data);
+    // });
+    // connect.on('game-win', (color) => {
+    //     this._uiLayer.showWin(color);
+    // });
+    // connect.on('refer-rank', (data) => {
+    //     //刷新排行榜数据
+    //     this._rankLayer.referRankData(data);
+    // });
+
   }]);
 
   return GameScene;
@@ -48178,12 +48394,9 @@ function (_Layer) {
       x: 120,
       y: 30
     };
-    _this._scoreLabel = scoreLabel;
-    _this._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black].texture);
-
-    _this.addChild(_this._avatar);
-
-    _this._avatar.anchor.set(0.5);
+    _this._scoreLabel = scoreLabel; // this._avatar = new Sprite(global.resource[resources.piece_black].texture);
+    // this.addChild(this._avatar);
+    // this._avatar.anchor.set(0.5);
 
     return _this;
   }
@@ -48193,23 +48406,63 @@ function (_Layer) {
     value: function referInfo(data) {
       var _this2 = this;
 
+      console.log('刷新排行榜头像', data);
       var rankNum = data.rankNum; //这里切换头像精灵
       // this.removeChild(this._avatar);
 
-      var image = wx.createImage();
-      image.src = data.avatar;
+      if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]) {
+        if (!this._avatar) {
+          this._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"].from(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]);
+          this.addChild(this._avatar);
+          this._avatar.position = {
+            x: 80,
+            y: 30
+          };
 
-      image.onload = function () {
-        var texture = new PIXI.Texture.from(image);
-        _this2._avatar.texture = texture;
+          this._avatar.scale.set(0.5);
 
-        _this2._avatar.scale.set(0.5);
+          this._avatar.anchor.set(0.5);
+        } else {
+          var texture = new PIXI.Texture.from(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]);
+          this._avatar.texture = texture;
+          this._avatar.position = {
+            x: 80,
+            y: 30
+          };
 
-        _this2._avatar.position = {
-          x: 80,
-          y: 30
+          this._avatar.scale.set(0.5);
+
+          this._avatar.anchor.set(0.5);
+        }
+      } else {
+        var image = wx.createImage();
+        image.src = data.avatar;
+
+        image.onload = function () {
+          _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar] = image;
+
+          if (!_this2._avatar) {
+            _this2._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"].from(image);
+
+            _this2.addChild(_this2._avatar);
+          } else {
+            var _texture = new PIXI.Texture.from(image);
+
+            _this2._avatar.texture = _texture;
+          } // this._avatar.scale.set(0.5);
+
+
+          _this2._avatar.position = {
+            x: 80,
+            y: 30
+          };
+
+          _this2._avatar.scale.set(0.5);
+
+          _this2._avatar.anchor.set(0.5);
         };
-      };
+      } // this._avatar.scale.set(2);
+
 
       this._rankNumLabel.text = data.rankNum + 1 + ':';
       this._scoreLabel.text = data.score;
@@ -48603,6 +48856,7 @@ var global = {
 __webpack_require__.r(__webpack_exports__);
 var res = {
   "bg": "./images/bg.jpg",
+  "cancel_share_button": "./images/cancel_share_button.png",
   "denglu_button": "./images/denglu_button.png",
   "leave_room": "./images/leave_room.png",
   "login_button": "./images/login_button.png",
@@ -49549,6 +49803,18 @@ function (_Layer) {
       if (this._buttonStyle.touchCb) {
         this._buttonStyle.touchCb();
       }
+    }
+  }, {
+    key: "setNormalTexture",
+    value: function setNormalTexture(texture) {
+      if (this._sprite) {
+        this._sprite.texture = texture;
+      }
+    }
+  }, {
+    key: "setCallBack",
+    value: function setCallBack(cb) {
+      this._buttonStyle.touchCb = cb;
     }
   }]);
 
