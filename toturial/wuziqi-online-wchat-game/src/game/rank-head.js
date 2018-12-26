@@ -1,6 +1,7 @@
 import { Layer, Sprite, Label } from './../util/import'
 import global from './../global'
 import resources from './../resources'
+import HeadImage from './head-image'
 class RankHead extends Layer {
     constructor() {
         super();
@@ -37,7 +38,8 @@ class RankHead extends Layer {
         // this._avatar = new Sprite(global.resource[resources.piece_black].texture);
         // this.addChild(this._avatar);
         // this._avatar.anchor.set(0.5);
-
+        this._avatar = new HeadImage();
+        this.addChild(this._avatar);
     }
     referInfo(data) {
         console.log('刷新排行榜头像', data);
@@ -45,51 +47,54 @@ class RankHead extends Layer {
         //这里切换头像精灵
         // this.removeChild(this._avatar);
 
-        if (global.resource[data.avatar]) {
-            if (!this._avatar) {
-                this._avatar = new Sprite.from(global.resource[data.avatar]);
-                this.addChild(this._avatar);
-                this._avatar.position = {
-                    x: 80,
-                    y: 30
-                }
-                this._avatar.scale.set(0.5);
-                this._avatar.anchor.set(0.5);
-            } else {
-                let texture = new PIXI.Texture.from(global.resource[data.avatar]);
-                this._avatar.texture = texture;
-                this._avatar.position = {
-                    x: 80,
-                    y: 30
-                }
-                this._avatar.scale.set(0.5);
-                this._avatar.anchor.set(0.5);
-            }
-
-
-        } else {
-            let image = wx.createImage();
-            image.src = data.avatar;
-            image.onload = () => {
-                global.resource[data.avatar] = image;
-                if (!this._avatar) {
-                    this._avatar = new Sprite.from(image);
-                    this.addChild(this._avatar);
-                } else {
-                    let texture = new PIXI.Texture.from(image);
-                    this._avatar.texture = texture;
-                }
-                // this._avatar.scale.set(0.5);
-                this._avatar.position = {
-                    x: 80,
-                    y: 30
-                }
-                this._avatar.scale.set(0.5);
-                this._avatar.anchor.set(0.5);
-            }
-        }
+        // if (global.resource[data.avatar]) {
+        //     if (!this._avatar) {
+        //         this._avatar = new Sprite.from(global.resource[data.avatar]);
+        //         this.addChild(this._avatar);
+        //         this._avatar.position = {
+        //             x: 80,
+        //             y: 30
+        //         }
+        //         this._avatar.scale.set(0.5);
+        //         this._avatar.anchor.set(0.5);
+        //     } else {
+        //         let texture = new PIXI.Texture.from(global.resource[data.avatar]);
+        //         this._avatar.texture = texture;
+        //         this._avatar.position = {
+        //             x: 80,
+        //             y: 30
+        //         }
+        //         this._avatar.scale.set(0.5);
+        //         this._avatar.anchor.set(0.5);
+        //     }
+        // } else {
+        //     let image = wx.createImage();
+        //     image.src = data.avatar;
+        //     image.onload = () => {
+        //         global.resource[data.avatar] = image;
+        //         if (!this._avatar) {
+        //             this._avatar = new Sprite.from(image);
+        //             this.addChild(this._avatar);
+        //         } else {
+        //             let texture = new PIXI.Texture.from(image);
+        //             this._avatar.texture = texture;
+        //         }
+        //         // this._avatar.scale.set(0.5);
+        //         this._avatar.position = {
+        //             x: 80,
+        //             y: 30
+        //         }
+        //         this._avatar.scale.set(0.5);
+        //         this._avatar.anchor.set(0.5);
+        //     }
+        // }
         // this._avatar.scale.set(2);
-
+        this._avatar.setImageAvatar(data.avatar);
+        this._avatar.position = {
+            x: 50,
+            y: 0
+        };
+        this._avatar.scale.set(0.6);
         this._rankNumLabel.text = (data.rankNum + 1) + ':';
         this._scoreLabel.text = data.score;
         this._nameLabel.text = data.nickName;

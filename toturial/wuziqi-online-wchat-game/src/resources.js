@@ -3,6 +3,7 @@ const res =
   "bg": "./images/bg.jpg",
   "cancel_share_button": "./images/cancel_share_button.png",
   "denglu_button": "./images/denglu_button.png",
+  "head_image_kuang": "./images/head_image_kuang.png",
   "leave_room": "./images/leave_room.png",
   "login_button": "./images/login_button.png",
   "matching_title": "./images/matching_title.png",

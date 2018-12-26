@@ -215,6 +215,9 @@ class Player {
     getRankNum() {
         return this._rankNum;
     }
+    setRankNum(rankNum){
+        this._rankNum = rankNum;
+    }
     addScore() {
         this._score++;
         this._rankNum = rank.rank(this);

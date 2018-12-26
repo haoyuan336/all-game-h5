@@ -48088,6 +48088,108 @@ function (_Layer) {
 
 /***/ }),
 
+/***/ "./src/game/head-image.js":
+/*!********************************!*\
+  !*** ./src/game/head-image.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
+/* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+
+var HeadImage =
+/*#__PURE__*/
+function (_Layer) {
+  _inherits(HeadImage, _Layer);
+
+  function HeadImage() {
+    var _this;
+
+    _classCallCheck(this, HeadImage);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(HeadImage).call(this));
+    _this._sprite = new PIXI.Sprite();
+
+    _this.addChild(_this._sprite);
+
+    _this._sprite.position = {
+      x: 50,
+      y: 50
+    };
+    var graphics = new PIXI.Graphics();
+    graphics.beginFill(0x00dd00, 0.4);
+    graphics.drawCircle(_this._sprite.position.x, _this._sprite.position.y, 60);
+    graphics.endFill();
+
+    _this.addChild(graphics);
+
+    _this._sprite.mask = graphics; // this._sprite.addChild(graphics);
+
+    _this._sprite.anchor.set(0.5);
+
+    var kuang = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"](_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[_resources__WEBPACK_IMPORTED_MODULE_2__["default"].head_image_kuang].texture);
+
+    _this.addChild(kuang);
+
+    kuang.scale.set(0.96);
+    kuang.position = _this._sprite.position;
+    return _this;
+  }
+
+  _createClass(HeadImage, [{
+    key: "setImageAvatar",
+    value: function setImageAvatar(avatar) {
+      var _this2 = this;
+
+      if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatar]) {
+        var texture = new PIXI.Texture.from(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatar]);
+        this._sprite.texture = texture;
+      } else {
+        var image = wx.createImage();
+        image.src = avatar;
+
+        image.onload = function () {
+          console.log('加载完成');
+          _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatar] = image;
+          _this2._sprite.texture = new PIXI.Texture.from(image);
+        };
+      }
+    }
+  }]);
+
+  return HeadImage;
+}(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
+
+/* harmony default export */ __webpack_exports__["default"] = (HeadImage);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
+
+/***/ }),
+
 /***/ "./src/game/head.js":
 /*!**************************!*\
   !*** ./src/game/head.js ***!
@@ -48097,9 +48199,10 @@ function (_Layer) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
 /* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+/* harmony import */ var _head_image__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./head-image */ "./src/game/head-image.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48135,10 +48238,8 @@ function (_Layer) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Head).call(this));
     _this._id = '';
-    _this._avatar = undefined;
-    var type = 'left'; // let type = spec.type;
-
-    _this._type = type; // this.position = {
+    _this._avatar = undefined; // let type = spec.type;
+    // this.position = {
     //     x: type == "left" ? 30 : director.designSize.width - 160,
     //     y: director.screenType == 'normal' ? 100 : 150
     // }
@@ -48166,13 +48267,13 @@ function (_Layer) {
       y: 150
     };
     _this._nickNameLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
-      fontSize: 40
+      fontSize: 30
     });
 
     _this.addChild(_this._nickNameLabel);
 
     _this._scoreLabel = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Label"]('', {
-      fontSize: 40
+      fontSize: 35
     });
 
     _this.addChild(_this._scoreLabel);
@@ -48191,7 +48292,10 @@ function (_Layer) {
     // this._rankLabel.visible = spec.rankNum < 100;
 
 
-    console.log('创建head');
+    _this._avatar = new _head_image__WEBPACK_IMPORTED_MODULE_3__["default"]();
+
+    _this.addChild(_this._avatar);
+
     return _this;
   }
 
@@ -48203,8 +48307,6 @@ function (_Layer) {
   }, {
     key: "referPlayerInfo",
     value: function referPlayerInfo(data) {
-      var _this2 = this;
-
       console.log('refer player info  head data', data);
       var type = 'right';
       type = data.id == _global__WEBPACK_IMPORTED_MODULE_1__["default"].playerInfo.id ? 'left' : 'right';
@@ -48221,10 +48323,12 @@ function (_Layer) {
         x: this._type == "left" ? 30 : _util_import__WEBPACK_IMPORTED_MODULE_0__["director"].designSize.width - 160,
         y: 100
       };
-      this._id = data.id;
-      this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
-      this._rankLabel.visible = data.rankNum < 100;
-      this._rankLabel.text = this._type == "left" ? '排行:' + (data.rankNum + 1) : data.rankNum + 1 + ":排行";
+      this._id = data.id; // this._scoreLabel.text = this._type == "left" ? '分:' + data.score : data.score + ":分";
+
+      this._scoreLabel.text = '分:' + data.score; // this._rankLabel.visible = data.rankNum < 100?true:false;
+
+      this._rankLabel.visible = true;
+      this._rankLabel.text = '排行:' + (data.rankNum + 1);
       this._nickNameLabel.text = data.nickName;
       var avatarUrl = data.avatarUrl;
       this._colorPiece.texture = _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.pieceColor == 'black' ? _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_black : _resources__WEBPACK_IMPORTED_MODULE_2__["default"].piece_white].texture;
@@ -48259,35 +48363,13 @@ function (_Layer) {
         x: type == 'left' ? 140 : 0,
         y: 0
       };
-      var p = new Promise(function (reo, rej) {
-        if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]) {
-          console.log('不再去重新加载了');
-          reo(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl]);
-        } else {
-          console.log('加载图片');
-          var image = wx.createImage();
-          image.src = avatarUrl;
 
-          image.onload = function () {
-            console.log('加载完成');
-            _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[avatarUrl] = image;
-            reo(image);
-          };
-        }
-      });
-      p.then(function (image) {
-        if (_this2._avatar) {
-          _this2._avatar.texture = new PIXI.Texture.from(image);
-        } else {
-          _this2._avatar = new PIXI.Sprite.from(image);
-          _this2._avatar.position = {
-            x: _this2._type == 'left' ? -0 : 0,
-            y: 0
-          };
-        }
+      this._avatar.setImageAvatar(avatarUrl);
 
-        _this2.addChild(_this2._avatar);
-      });
+      this._avatar.position = {
+        x: type == 'left' ? -0 : 30,
+        y: 0
+      };
 
       if (this._wifiLogo) {
         this._wifiLogo.alpha = isOnline && !enterBack ? 1 : 0.3;
@@ -48295,17 +48377,13 @@ function (_Layer) {
     }
   }, {
     key: "playerEnterBack",
-    value: function playerEnterBack(playerId, value) {// if (this._id == playerId && this._wifiLogo) {
-      //     this._wifiLogo.alpha = value ? 0.3 : 1;
-      // }
-    }
+    value: function playerEnterBack(playerId, value) {}
   }]);
 
   return Head;
 }(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (Head);
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
 
 /***/ }),
 
@@ -48318,9 +48396,10 @@ function (_Layer) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(PIXI) {/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
+/* harmony import */ var _util_import__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../util/import */ "./src/util/import.js");
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../global */ "./src/global.js");
 /* harmony import */ var _resources__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../resources */ "./src/resources.js");
+/* harmony import */ var _head_image__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./head-image */ "./src/game/head-image.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48338,6 +48417,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -48398,71 +48478,70 @@ function (_Layer) {
     // this.addChild(this._avatar);
     // this._avatar.anchor.set(0.5);
 
+    _this._avatar = new _head_image__WEBPACK_IMPORTED_MODULE_3__["default"]();
+
+    _this.addChild(_this._avatar);
+
     return _this;
   }
 
   _createClass(RankHead, [{
     key: "referInfo",
     value: function referInfo(data) {
-      var _this2 = this;
-
       console.log('刷新排行榜头像', data);
       var rankNum = data.rankNum; //这里切换头像精灵
       // this.removeChild(this._avatar);
+      // if (global.resource[data.avatar]) {
+      //     if (!this._avatar) {
+      //         this._avatar = new Sprite.from(global.resource[data.avatar]);
+      //         this.addChild(this._avatar);
+      //         this._avatar.position = {
+      //             x: 80,
+      //             y: 30
+      //         }
+      //         this._avatar.scale.set(0.5);
+      //         this._avatar.anchor.set(0.5);
+      //     } else {
+      //         let texture = new PIXI.Texture.from(global.resource[data.avatar]);
+      //         this._avatar.texture = texture;
+      //         this._avatar.position = {
+      //             x: 80,
+      //             y: 30
+      //         }
+      //         this._avatar.scale.set(0.5);
+      //         this._avatar.anchor.set(0.5);
+      //     }
+      // } else {
+      //     let image = wx.createImage();
+      //     image.src = data.avatar;
+      //     image.onload = () => {
+      //         global.resource[data.avatar] = image;
+      //         if (!this._avatar) {
+      //             this._avatar = new Sprite.from(image);
+      //             this.addChild(this._avatar);
+      //         } else {
+      //             let texture = new PIXI.Texture.from(image);
+      //             this._avatar.texture = texture;
+      //         }
+      //         // this._avatar.scale.set(0.5);
+      //         this._avatar.position = {
+      //             x: 80,
+      //             y: 30
+      //         }
+      //         this._avatar.scale.set(0.5);
+      //         this._avatar.anchor.set(0.5);
+      //     }
+      // }
+      // this._avatar.scale.set(2);
 
-      if (_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]) {
-        if (!this._avatar) {
-          this._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"].from(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]);
-          this.addChild(this._avatar);
-          this._avatar.position = {
-            x: 80,
-            y: 30
-          };
+      this._avatar.setImageAvatar(data.avatar);
 
-          this._avatar.scale.set(0.5);
+      this._avatar.position = {
+        x: 50,
+        y: 0
+      };
 
-          this._avatar.anchor.set(0.5);
-        } else {
-          var texture = new PIXI.Texture.from(_global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar]);
-          this._avatar.texture = texture;
-          this._avatar.position = {
-            x: 80,
-            y: 30
-          };
-
-          this._avatar.scale.set(0.5);
-
-          this._avatar.anchor.set(0.5);
-        }
-      } else {
-        var image = wx.createImage();
-        image.src = data.avatar;
-
-        image.onload = function () {
-          _global__WEBPACK_IMPORTED_MODULE_1__["default"].resource[data.avatar] = image;
-
-          if (!_this2._avatar) {
-            _this2._avatar = new _util_import__WEBPACK_IMPORTED_MODULE_0__["Sprite"].from(image);
-
-            _this2.addChild(_this2._avatar);
-          } else {
-            var _texture = new PIXI.Texture.from(image);
-
-            _this2._avatar.texture = _texture;
-          } // this._avatar.scale.set(0.5);
-
-
-          _this2._avatar.position = {
-            x: 80,
-            y: 30
-          };
-
-          _this2._avatar.scale.set(0.5);
-
-          _this2._avatar.anchor.set(0.5);
-        };
-      } // this._avatar.scale.set(2);
-
+      this._avatar.scale.set(0.6);
 
       this._rankNumLabel.text = data.rankNum + 1 + ':';
       this._scoreLabel.text = data.score;
@@ -48478,7 +48557,6 @@ function (_Layer) {
 }(_util_import__WEBPACK_IMPORTED_MODULE_0__["Layer"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (RankHead);
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js")))
 
 /***/ }),
 
@@ -48858,6 +48936,7 @@ var res = {
   "bg": "./images/bg.jpg",
   "cancel_share_button": "./images/cancel_share_button.png",
   "denglu_button": "./images/denglu_button.png",
+  "head_image_kuang": "./images/head_image_kuang.png",
   "leave_room": "./images/leave_room.png",
   "login_button": "./images/login_button.png",
   "matching_title": "./images/matching_title.png",
